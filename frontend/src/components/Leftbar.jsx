@@ -17,6 +17,8 @@ import ForumIcon from '@mui/icons-material/Forum';
 import ErrorIcon from '@mui/icons-material/Error';
 import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
 import LocalLibraryIcon from '@mui/icons-material/LocalLibrary';
+import HomeIcon from '@mui/icons-material/Home';
+import { Link } from 'react-router-dom';
 
 export const Leftbar=()=> {
   return (
@@ -24,25 +26,31 @@ export const Leftbar=()=> {
       <nav aria-label="secondary mailbox folders">
         <List>
           <ListItem disablePadding>
-            <ListItemButton>
+            <ListItemButton component={Link} to='/'>
+              <ListItemIcon><HomeIcon/></ListItemIcon>
+              <ListItemText primary="Home"/>
+            </ListItemButton>
+          </ListItem>
+          <ListItem disablePadding>
+            <ListItemButton component={Link} to='/profile'>
               <ListItemIcon><PersonIcon/></ListItemIcon>
               <ListItemText primary="Profile"/>
             </ListItemButton>
           </ListItem>
           <ListItem disablePadding>
-            <ListItemButton>
+            <ListItemButton component={Link} to='/friends'>
             <ListItemIcon><Diversity3Icon/></ListItemIcon>
               <ListItemText primary="Friends" />
             </ListItemButton>
           </ListItem>
           <ListItem disablePadding>
-            <ListItemButton>
+            <ListItemButton component={Link} to='/settings'>
             <ListItemIcon><SettingsIcon/></ListItemIcon>
               <ListItemText primary="Settings" />
             </ListItemButton>
           </ListItem>
           <ListItem disablePadding>
-            <ListItemButton component="a" href="#simple-list">
+            <ListItemButton component="Link" to='#'>
             <ListItemIcon><LogoutIcon/></ListItemIcon>
               <ListItemText primary="Logout" />
             </ListItemButton>
@@ -51,13 +59,13 @@ export const Leftbar=()=> {
       </nav>
       <Divider />
       <ListItem disablePadding>
-            <ListItemButton component="a" href="/about">
+            <ListItemButton component={Link} to='/aboutfaculty'>
             <ListItemIcon><FaceRetouchingNaturalIcon/></ListItemIcon>
               <ListItemText primary="Know Your Faculty" />
             </ListItemButton>
         </ListItem>
       <ListItem disablePadding>
-            <ListItemButton component="a" href="#simple-list">
+            <ListItemButton component={Link} to="/upcomingclasses">
             <ListItemIcon><LocalLibraryIcon/></ListItemIcon>
               <ListItemText primary="See Upcoming Classes" />
             </ListItemButton>
