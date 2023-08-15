@@ -27,7 +27,7 @@ export const Home = () => {
         <Parentstack>
 
             <Stack flex={"10%"}>
-                <Box position={'fixed'} width={'100%'}>
+                <Box position={'fixed'}>
                     <Leftbar/>
                 </Box>
             </Stack>

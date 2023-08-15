@@ -1,2 +1,7 @@
 flask
 Flask-PyMongo
+python-dotenv
+passlib
+Flask-CORS
+bcrypt
+PyJWT

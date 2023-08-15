@@ -5,6 +5,8 @@ import { Settings } from "./screens/Settings";
 import { Schedule } from "./screens/Schedule";
 import { Profile } from "./screens/Profile";
 import { Friends } from "./screens/Friends";
+import { Login } from "./screens/Login";
+import { Signup } from "./screens/Signup";
 
 function App() {
   return (
@@ -14,8 +16,10 @@ function App() {
         <Route exact path="/aboutfaculty" element={<Aboutfaculty/>}/>
         <Route exact path="/settings" element={<Settings/>}/>
         <Route exact path="/upcomingclasses" element={<Schedule/>}/>
-        <Route exact path="/profile" element={<Profile/>}/>
+        <Route exact path="/profile/:username" element={<Profile/>}/>
         <Route exact path="/friends" element={<Friends/>}/>
+        <Route exact path="/login" element={<Login/>}/>
+        <Route exact path="/signup" element={<Signup/>}/>
       </Routes>
     </Router>
   );

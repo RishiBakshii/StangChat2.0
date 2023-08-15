@@ -50,7 +50,7 @@ export const Leftbar=()=> {
             </ListItemButton>
           </ListItem>
           <ListItem disablePadding>
-            <ListItemButton component="Link" to='#'>
+            <ListItemButton component={Link} to='/signup'>
             <ListItemIcon><LogoutIcon/></ListItemIcon>
               <ListItemText primary="Logout" />
             </ListItemButton>
