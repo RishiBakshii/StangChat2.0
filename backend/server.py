@@ -4,6 +4,9 @@ from flask_cors import CORS
 from dotenv import load_dotenv
 import os
 import bcrypt
+import jwt
+import datetime
+from bson import ObjectId
 
 load_dotenv()
 
@@ -35,6 +38,9 @@ def signup():
                 'email':data.get("email"),
                 'password':hashed_password,
                 'location':data.get('location'),
+                'bio':"",
+                'linkedinProfile':"",
+                'profilePicture':""
             }
 
             mongo.db.users.insert_one(new_user)
@@ -52,11 +58,49 @@ def login():
             user=mongo.db.users.find_one({'email':data.get("email")})
 
             if user and bcrypt.checkpw(data.get("password").encode("utf-8"),user['password']):
-                return make_response(jsonify({"message":"Login Successful"}),200)
+                payload={
+                    'user_id':str(user['_id']),
+                    'email':str(user['email']),
+                    'exp': datetime.datetime.utcnow() + datetime.timedelta(days=30)
+
+                }
+                token=jwt.encode(payload,os.environ.get('SECRET_KEY'),algorithm='HS256')
+                return make_response(jsonify({"message":"Login Successful","authToken":f'{token}'}),200)
             else:
                 return make_response(jsonify({'message':"Invalid username or password"}),400)
         except Exception as e:
             return make_response(jsonify({"message":str(e)}),500)
+
+@app.route("/decode_token",methods=['POST'])
+def decode_token():
+    if request.method=='POST':
+        try:
+            data=request.json
+            token=data.get("authToken")
+            decoded_token=jwt.decode(token,os.environ.get('SECRET_KEY'),algorithms='HS256')
+            return make_response(jsonify({"message":"token decoded","decoded_token":decoded_token}),200)
+        except Exception as e:
+            return make_response(jsonify({"message":str(e)}),400)
+
+@app.route('/get_user_info',methods=['POST'])
+def get_user_info():
+    if request.method=='POST':
+        try:
+            data=request.json
+            userID=data.get('userID')
+            user_data=mongo.db.users.find_one({"_id":ObjectId(userID)})
+
+            if user_data:
+                all_details={
+                    "username":user_data['username'],
+                    "email":user_data['email']
+                }
+                return make_response(jsonify({'message':"user fetched succefully",'data':all_details}),200)
+            else:
+                return make_response(jsonify({"message":"user not found"}),400)
+
+        except Exception as e:
+            return make_response(jsonify({'message':str(e)}),400)
 
 
 @app.route("/profile/<username>")

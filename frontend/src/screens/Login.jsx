@@ -33,6 +33,7 @@ export const Login = () => {
 
         if(response.ok){
             setAlert({message:json.message,severity:"success"})
+            localStorage.setItem('authToken',json.authToken)
             setTimeout(()=>{
                 navigate("/")
             },2000)

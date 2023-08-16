@@ -20,7 +20,7 @@ import LocalLibraryIcon from '@mui/icons-material/LocalLibrary';
 import HomeIcon from '@mui/icons-material/Home';
 import { Link } from 'react-router-dom';
 
-export const Leftbar=()=> {
+export const Leftbar=({username})=> {
   return (
     <Box sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }}>
       <nav aria-label="secondary mailbox folders">
@@ -32,7 +32,7 @@ export const Leftbar=()=> {
             </ListItemButton>
           </ListItem>
           <ListItem disablePadding>
-            <ListItemButton component={Link} to='/profile'>
+            <ListItemButton component={Link} to={`/profile/${username}`}>
               <ListItemIcon><PersonIcon/></ListItemIcon>
               <ListItemText primary="Profile"/>
             </ListItemButton>
