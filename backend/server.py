@@ -54,7 +54,7 @@ def login():
             else:
                 return make_response(jsonify({'message':"Invalid username or password"}),400)
         except Exception as e:
-            return make_response(jsonify({"message":str(e)}),500)
+            return make_response(jsonify({"message":'Internal Server Error'}),400)
 
 @app.route("/signup",methods=['POST'])
 def signup():

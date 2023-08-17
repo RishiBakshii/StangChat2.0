@@ -1,28 +1,14 @@
-import { Box, Stack, TextField, Typography ,Button, Alert,styled, Avatar, Snackbar} from '@mui/material'
+import { Box, Stack, TextField, Typography ,Button, Alert,styled, Avatar} from '@mui/material'
 import React, { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import LoadingButton from '@mui/lab/LoadingButton';
-import Slide from '@mui/material/Slide';
 
+const BASE_URL=process.env.REACT_APP_API_BASE_URL;
 
 export const Signup = () => {
-    const [open, setOpen] = React.useState(false);
-    const [transition, setTransition] = React.useState(undefined);
-  
-    const handleClick = (Transition) => () => {
-      setTransition(() => Transition);
-      setOpen(true);
-    };
-  
-    const handleClose = () => {
-      setOpen(false);
-    };
-    function TransitionDown(props) {
-        return <Slide {...props} direction="down" />;
-      }
-      
-    const BASE_URL=process.env.REACT_APP_API_BASE_URL;
-    const navigate=useNavigate()
+    const [alert,setAlert]=useState({message:"",severity:""})
+    const [showProfileSetup,setshowProfileSetup]=useState(false)
+    const [selectedImage, setSelectedImage] = useState(null);
+    const [displayImage,setDisplayImage]=useState(null)
     const [credentials,setCredentials]=useState({
         user_id:"",
         username:"",
@@ -33,9 +19,19 @@ export const Signup = () => {
         bio:"",
     })
 
-    const [alert,setAlert]=useState({message:"",severity:""})
-    const [showProfileSetup,setshowProfileSetup]=useState(false)
+    const [credentialsFilled,setCredentialsFilled]=useState(false)
+    const [passwordMatch,setPasswordMatch]=useState(false)
 
+    const navigate=useNavigate()
+    useEffect(()=>{
+        setPasswordMatch(credentials.password===credentials.confirmPassword)
+      },[selectedImage,credentials.password,credentials.confirmPassword])
+
+      useEffect(()=>{
+            setCredentialsFilled(credentials.username && credentials.email && credentials.password.length>=8 && credentials.confirmPassword && credentials.location)
+      },[credentials])
+
+      
     const handleOnChange=(e)=>{
         setCredentials({...credentials,[e.target.name]:e.target.value})
     }
@@ -44,11 +40,6 @@ export const Signup = () => {
         width:"100%",
         cursor:"pointer"
     })
-
-    const [selectedImage, setSelectedImage] = useState(null);
-
-    const [displayImage,setDisplayImage]=useState(null)
-
     const handleImageChange = (event) => {
         const imageFile = event.target.files[0];
         if (imageFile) {
@@ -60,11 +51,6 @@ export const Signup = () => {
           console.log(imageUrl)
         }
       };
-
-      useEffect(()=>{
-        console.log(selectedImage)
-      },[selectedImage])
-
     const handleSignupSubmit=async()=>{
 
         try {
@@ -101,7 +87,6 @@ export const Signup = () => {
         
 
     }
-
     const handleSaveAndContinueClick=async()=>{
         console.log(credentials.user_id)
         try {
@@ -118,7 +103,6 @@ export const Signup = () => {
             const json=await response.json()
             
             if(response.ok){
-                setOpen(true)
                 setTimeout(() => {
                     navigate('/login')
                 }, 1000);
@@ -133,7 +117,6 @@ export const Signup = () => {
 
         
     }
-    
   return (
     <>
     {
@@ -164,19 +147,11 @@ export const Signup = () => {
                     <Button onClick={handleSaveAndContinueClick} disabled={!credentials.bio.length} variant='contained'>Save and continue</Button>
                 </Box>
             </Stack>
-            <Snackbar
-        open={open}
-        onClose={handleClose}
-        TransitionComponent={transition}
-        message="Profile Updated"
-        key={transition ? transition.name : ''}
-      />
             </Stack>
         ):(
-
         <Stack bgcolor={'#edeef7'} width={'100vw'} justifyContent={"center"} alignItems={"center"} height={"100vh"}>
         
-        <Stack bgcolor={'white'} borderRadius={".6rem"}  width={"40vw"} height={"40rem"} padding={2} justifyContent={'center'} alignItems={"center"}>
+            <Stack bgcolor={'white'} borderRadius={".6rem"}  width={"40vw"} height={"40rem"} padding={2} justifyContent={'center'} alignItems={"center"}>
 
             <Typography variant='h3' color={"primary"} fontWeight={700}>Community Connect</Typography>
 
@@ -184,10 +159,9 @@ export const Signup = () => {
                 <TextField name='username' value={credentials.name} onChange={handleOnChange} label="Name" variant="outlined" />
                 <TextField name="email" type='email' value={credentials.email} onChange={handleOnChange} label="Email" variant="outlined" />
                 <TextField name="password" type='password' value={credentials.password} onChange={handleOnChange} label="Password" variant="outlined" />
-                <TextField name="confirmPassword" type='password' value={credentials.confirmPassword} onChange={handleOnChange} label="Confirm Password" variant="outlined" />
+                <TextField error={passwordMatch?(false):(true)} name="confirmPassword" type='password' value={credentials.confirmPassword} onChange={handleOnChange} label="Confirm Password" variant="outlined" />
                 <TextField name="location" value={credentials.location} onChange={handleOnChange} label="Location" variant="outlined" />
-                <Button onClick={handleSignupSubmit} sx={{height:"3rem"}} variant='contained'>Signup</Button>
-                {/* <LoadingButton loading  variant="outlined">Fetch data</LoadingButton> */}
+                <Button disabled={!credentialsFilled || !passwordMatch} onClick={handleSignupSubmit} sx={{height:"3rem"}} variant='contained'>Signup</Button>
                 {
                     alert!==''?(
                         <>

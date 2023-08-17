@@ -1,24 +1,29 @@
 import { Box, Stack, TextField, Typography ,Button, Alert} from '@mui/material'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Link,useNavigate} from 'react-router-dom'
+import { Snackalert } from '../components/Snackalert';
 
+const BASE_URL=process.env.REACT_APP_API_BASE_URL;
 
 export const Login = () => {
-    const BASE_URL=process.env.REACT_APP_API_BASE_URL;
     const [alert,setAlert]=useState({message:"",severity:""})
     const [credentials,setCredentials]=useState({
         email:"",
         password:""
     })
-
+    const [isCredentialsFilled,setIsCredentialsFilled]=useState(false)
+    useEffect(()=>{
+        setIsCredentialsFilled(credentials.email && credentials.password.length>=8)
+    },[credentials])
     const navigate=useNavigate();
-
     const handleOnChange=(e)=>{
         setCredentials({...credentials,[e.target.name]:e.target.value})
     }
 
+
     const handleLoginSubmit=async()=>{
-        const response=await fetch(`${BASE_URL}/login`,{
+        try {
+            const response=await fetch(`${BASE_URL}/login`,{
             method:"POST",
             headers:{
                 "Content-Type":'application/json'
@@ -27,20 +32,23 @@ export const Login = () => {
                 "email":credentials.email,
                 "password":credentials.password
             })
-        })
-        
-        const json=await response.json()
+            })
+            const json=await response.json()
 
-        if(response.ok){
-            setAlert({message:json.message,severity:"success"})
-            localStorage.setItem('authToken',json.authToken)
-            setTimeout(()=>{
-                navigate("/")
-            },2000)
+            if(response.ok){
+                setAlert({message:json.message,severity:"success"})
+                localStorage.setItem('authToken',json.authToken)
+                setTimeout(()=>{
+                    navigate("/")
+                },2000)
+            }
+            else{
+                setAlert({message:json.message,severity:"warning"})
+            }
+        } catch (error) {
+            alert("server is down")
         }
-        else{
-            setAlert({message:json.message,severity:"warning"})
-        }
+        
     }
 
   return (
@@ -54,7 +62,7 @@ export const Login = () => {
             <Stack mt={5} spacing={2} width={'60%'}>
                 <TextField name='email' label="Email" variant="outlined" value={credentials.email}  onChange={handleOnChange}/>
                 <TextField name='password' label="Password" variant="outlined" value={credentials.password} onChange={handleOnChange}/>
-                <Button onClick={handleLoginSubmit} sx={{height:"3rem"}} variant='contained'>Login</Button>
+                <Button disabled={!isCredentialsFilled} onClick={handleLoginSubmit} sx={{height:"3rem"}} variant='contained'>Login</Button>
                 {
                     alert!==''?(
                         <>
@@ -67,7 +75,7 @@ export const Login = () => {
             <Typography sx={{"textDecoration":"none"}} mt={2} component={Link} variant='p' to={'/signup'}>Create A New Account</Typography>
 
         </Stack>
-
+            {/* <Snackalert show={true} message={'hello'}></Snackalert> */}
     </Stack>
     </>
   )
