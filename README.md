@@ -1,6 +1,13 @@
 
 # Community-Connect
 
+
+### Application Flow
+1. User Signup: Users create their accounts with the necessary information.
+2. Profile Setup: After signing up, users are directed to set up their profile, including adding a profile picture and a bio.
+3. Save and Continue: When users click the "Save and Continue" button, their profile updates are sent to the server.
+4. User Login: Users can then log in with their credentials. Authentication: Upon successful login, an authentication token is generated and stored in local storage for subsequent authenticated requests.
+
 ### Funtionalities
     - Login/Signup Authentication
     - User should be able to logout
