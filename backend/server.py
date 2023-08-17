@@ -8,13 +8,14 @@ import jwt
 import datetime
 from bson import ObjectId
 from werkzeug.utils import secure_filename
+from pathlib import Path
 load_dotenv()
 
 
 
 app=Flask(__name__)
 app.config['MONGO_URI']=os.environ.get('DATABASE_URI')
-UPLOAD_FOLDER='uploads'
+UPLOAD_FOLDER=os.path.join('static','uploads')
 POST_FOLDER='post'
 PROFILE_FOLDER='profile'
 app.config['UPLOAD_FOLDER']=UPLOAD_FOLDER
@@ -29,7 +30,7 @@ mongo=PyMongo(app)
 CORS(app)
 
 
-@app.route("/",methods=['POST'])
+@app.route("/",methods=['GET'])
 def home():
     return jsonify({"success":"true"})
 
@@ -106,7 +107,9 @@ def get_user_info():
             if user_data:
                 all_details={
                     "username":user_data['username'],
-                    "email":user_data['email']
+                    "email":user_data['email'],
+                    'bio':user_data['bio'],
+                    'profilePicture':user_data['profilePicture'],
                 }
                 return make_response(jsonify({'message':"user fetched succefully",'data':all_details}),200)
             else:
@@ -132,7 +135,7 @@ def updateProfile():
 
             if userData:
                 secureFilename=secure_filename(profile_picture.filename)
-                profile_picture_path=os.path.join(app.config['PROFILE_FOLDER'],secureFilename)
+                profile_picture_path=os.path.join(app.config['PROFILE_FOLDER'],secureFilename).replace("\\","/")
                 profile_picture.save(profile_picture_path)
                 mongo.db.users.update_one({"_id":ObjectId(userid)},{"$set": {"bio": bio,'profilePicture':profile_picture_path}})
                 return make_response(jsonify({'message':"profile updated"}),200)

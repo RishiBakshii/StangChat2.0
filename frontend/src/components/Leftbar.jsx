@@ -18,9 +18,18 @@ import ErrorIcon from '@mui/icons-material/Error';
 import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
 import LocalLibraryIcon from '@mui/icons-material/LocalLibrary';
 import HomeIcon from '@mui/icons-material/Home';
-import { Link } from 'react-router-dom';
+import { Link ,useNavigate} from 'react-router-dom';
 
 export const Leftbar=({username})=> {
+
+  const BASE_URL=process.env.REACT_APP_API_BASE_URL;
+
+  const navigate=useNavigate()
+
+  const logoutUser=()=>{
+    localStorage.removeItem('authToken')
+    navigate('/login')
+  }
   return (
     <Box sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }}>
       <nav aria-label="secondary mailbox folders">
@@ -50,7 +59,7 @@ export const Leftbar=({username})=> {
             </ListItemButton>
           </ListItem>
           <ListItem disablePadding>
-            <ListItemButton component={Link} to='/signup'>
+            <ListItemButton onClick={logoutUser}>
             <ListItemIcon><LogoutIcon/></ListItemIcon>
               <ListItemText primary="Logout" />
             </ListItemButton>

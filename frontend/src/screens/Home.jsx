@@ -4,6 +4,8 @@ import {Box,Stack,styled} from '@mui/material'
 import { Leftbar } from '../components/Leftbar'
 import { Feed } from '../components/Feed'
 import { Rightbar } from '../components/Rightbar'
+import { useNavigate } from 'react-router-dom'
+
 
 const BASE_URL=process.env.REACT_APP_API_BASE_URL;
 
@@ -17,65 +19,79 @@ export const Parentstack=styled(Stack)(({theme})=>({
     flexDirection:"row"
 }))
 
-const fetchUserDetails=async(userid)=>{
-    const response=await fetch(`${BASE_URL}/get_user_info`,{
-        method:"POST",
-        headers:{
-            "Content-Type":"application/json"
-        },
-        body:JSON.stringify({
-            "userID":userid
-        })
-    })
-
-    const json=await response.json()
-    return json.data
-}
-
-const decodeTokenAndFetchLoggedInUser=async()=>{
-    const authToken=localStorage.getItem("authToken")
-    try {
-        const response=await fetch(`${BASE_URL}/decode_token`,{
-        method:"POST",
-        headers:{
-            "Content-Type":"application/json"
-        },
-        body:JSON.stringify({
-            "authToken":authToken
-        })
-    })
-
-        const json=await response.json()
-
-    if(response.ok){
-        const userdata =await fetchUserDetails(json.decoded_token.user_id)
-        return userdata
-    }
-
-    } catch (error) {
-        alert(error)
-    }
-    
-
-}
 
 export const Home = () => {
-    useEffect(() => {
 
-        const getLoggedInUser=async()=>{
-            const finaldata=await decodeTokenAndFetchLoggedInUser()
-            setLoggedInUser(finaldata)
+    const [loggedInUser,setLoggedInUser]=useState({})
+    const navigate=useNavigate()
+
+    const fetchUserDetails=async(userid)=>{
+
+        try {
+            const response=await fetch(`${BASE_URL}/get_user_info`,{
+            method:"POST",
+            headers:{
+                "Content-Type":"application/json"
+            },
+            body:JSON.stringify({
+                "userID":userid
+            })
+        })
+    
+            const json=await response.json()
+            return json.data
+        } catch (error) {
+            alert(error)
         }
+        
+    
+        
+    }
+    const decodeTokenAndFetchLoggedInUser=async()=>{
+        const authToken=localStorage.getItem("authToken")
+        try {
+            const response=await fetch(`${BASE_URL}/decode_token`,{
+            method:"POST",
+            headers:{
+                "Content-Type":"application/json"
+            },
+            body:JSON.stringify({
+                "authToken":authToken
+            })
+        })
+    
+            const json=await response.json()
+    
+        if(response.ok){
+            const userdata =await fetchUserDetails(json.decoded_token.user_id)
+            setLoggedInUser(userdata)
+        }
+    
+        } catch (error) {
+            alert(error)
+        }
+        
+    
+    }
 
-        getLoggedInUser()
+    useEffect(() => {
+        console.log(`${BASE_URL}/${loggedInUser.profilePicture}`)
+        const authToken=localStorage.getItem("authToken")
+        
+        authToken?(
+            decodeTokenAndFetchLoggedInUser()
+        ):(
+            navigate("/login")
+        )
       return()=>{}
       }, []);
-    
-      const [loggedInUser,setLoggedInUser]=useState({})
+
+      console.log(loggedInUser)
+
 
   return (
     <>
-    <Navbar/>
+    <Navbar username={loggedInUser.username} profileURL={`${BASE_URL}/${loggedInUser.profilePicture}`}/>
 
     <Main>
         
@@ -98,9 +114,7 @@ export const Home = () => {
            
         </Parentstack>
 
-    </Main>
-    <h1>{loggedInUser.email}</h1>
-    
+    </Main>    
 
     </>
   )

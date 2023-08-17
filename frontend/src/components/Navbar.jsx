@@ -1,5 +1,5 @@
 
-import {AppBar,Typography,styled,Stack} from '@mui/material'
+import {AppBar,Typography,styled,Stack, Avatar} from '@mui/material'
 import {alpha } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
@@ -8,10 +8,12 @@ import InputBase from '@mui/material/InputBase';
 import MenuIcon from '@mui/icons-material/Menu';
 import SearchIcon from '@mui/icons-material/Search';
 
+const BASE_URL=process.env.REACT_APP_API_BASE_URL;
 
 const Customtoolbar=styled(Toolbar)({
   display:"flex",
-  justifyContent:"space-evenly"
+  justifyContent:"space-evenly",
+  height:"4.5rem"
 })
 const Search = styled('div')(({ theme }) => ({
   position: 'relative',
@@ -55,7 +57,8 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
   },
 }));
 
-export const Navbar = () => {
+export const Navbar = ({username,profileURL}) => {
+
   return (
     <>
     <AppBar position='sticky'>
@@ -72,7 +75,9 @@ export const Navbar = () => {
               inputProps={{ 'aria-label': 'search' }}
             />
           </Search>
-          <Stack direction={'row'} spacing={2}>
+          <Stack direction={'row'} spacing={2} alignItems={'center'}>
+              <Avatar alt={username} src={profileURL} />
+              <Typography variant='h6'>{`Welcome ${username}`}</Typography>
               <Typography variant='p'>Home</Typography>
               <Typography variant='p'>Notifications</Typography>
           </Stack>
