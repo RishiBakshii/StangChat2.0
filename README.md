@@ -27,14 +27,12 @@
     - Settings
 
 ### Techologies
-    - MERN STACK
     - Frontend- REACT
-    - Backend - Express.js
+    - Backend - Flask
     - DataBase - MongoDb
-    - Server - Not Finalised
 
 
-## Authors
+## Developer/Design/frontend/backend done by 
 
 - [RishiBakshi](https://www.github.com/octokatherine)
 
