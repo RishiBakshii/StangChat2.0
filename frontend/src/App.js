@@ -7,6 +7,7 @@ import { Profile } from "./screens/Profile";
 import { Friends } from "./screens/Friends";
 import { Login } from "./screens/Login";
 import { Signup } from "./screens/Signup";
+import LeftbarMobile from "./components/LeftbarMobile";
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
         <Route exact path="/friends" element={<Friends/>}/>
         <Route exact path="/login" element={<Login/>}/>
         <Route exact path="/signup" element={<Signup/>}/>
+        <Route exact path="/leftbarmobile" element={<LeftbarMobile/>}/>
       </Routes>
     </Router>
   );

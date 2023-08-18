@@ -1,27 +1,18 @@
-import * as React from 'react';
-import Box from '@mui/material/Box';
-import List from '@mui/material/List';
-import ListItem from '@mui/material/ListItem';
-import ListItemButton from '@mui/material/ListItemButton';
-import ListItemIcon from '@mui/material/ListItemIcon';
-import ListItemText from '@mui/material/ListItemText';
-import Divider from '@mui/material/Divider';
-import InboxIcon from '@mui/icons-material/Inbox';
+import {Box,List,ListItem,ListItemButton ,ListItemIcon,ListItemText,Divider,} from '@mui/material';
 import PersonIcon from '@mui/icons-material/Person';
-import DraftsIcon from '@mui/icons-material/Drafts';
 import Diversity3Icon from '@mui/icons-material/Diversity3';
 import SettingsIcon from '@mui/icons-material/Settings';
 import LogoutIcon from '@mui/icons-material/Logout';
 import FaceRetouchingNaturalIcon from '@mui/icons-material/FaceRetouchingNatural';
 import ForumIcon from '@mui/icons-material/Forum';
 import ErrorIcon from '@mui/icons-material/Error';
-import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
 import LocalLibraryIcon from '@mui/icons-material/LocalLibrary';
 import HomeIcon from '@mui/icons-material/Home';
 import { Link ,useNavigate} from 'react-router-dom';
 import PostAddIcon from '@mui/icons-material/PostAdd';
 import Modal from '@mui/material/Modal';
 import { Button, Stack, Typography } from '@mui/material';
+import { useState } from 'react';
 
 
 export const Leftbar=({username})=> {
@@ -35,7 +26,7 @@ export const Leftbar=({username})=> {
     boxShadow: 24,
     p:4
   };
-  const [open, setOpen] = React.useState(false);
+  const [open, setOpen] = useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
 
@@ -48,8 +39,8 @@ export const Leftbar=({username})=> {
     navigate('/login')
   }
   return (
-    
-    <Box sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }}>
+    <Box p={2} flex={1}>
+      <Box position={'fixed'} bgcolor={'background.paper'}>
       <nav aria-label="secondary mailbox folders">
         <List>
           <ListItem disablePadding>
@@ -140,5 +131,7 @@ export const Leftbar=({username})=> {
         </Stack>
           </Modal>
     </Box>
+    </Box>
+    
   );
 }

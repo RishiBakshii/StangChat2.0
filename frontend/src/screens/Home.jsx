@@ -10,13 +10,13 @@ import { useNavigate } from 'react-router-dom'
 const BASE_URL=process.env.REACT_APP_API_BASE_URL;
 
 export const Main=styled("main")(({theme})=>({
-    width:"100",
-    padding:"1rem 1rem"
+    // backgroundColor:"black"
 }))
 
 export const Parentstack=styled(Stack)(({theme})=>({
+    flexDirection:"row",
     justifyContent:"space-between",
-    flexDirection:"row"
+    alignItems:"flex-start",
 }))
 
 
@@ -95,24 +95,11 @@ export const Home = () => {
 
     <Main>
         
-        <Parentstack>
-            <Stack flex={"10%"}>
-                <Box position={'fixed'}>
-                    <Leftbar username={loggedInUser.username}/>
-                </Box>
-            </Stack>
-
-            <Stack flex={"40%"} spacing={5} justifyContent={'center'} alignItems={"center"}>
+        <Stack direction={"row"} spacing={2} justifyContent={"space-between"} alignItems="flex-start">
+                <Leftbar username={loggedInUser.username}/>
                 <Feed/>
-            </Stack>  
-            
-            <Stack flex={"20%"}  justifyContent={'flex-start'} alignItems={'center'}>
-                <Box position={'fixed'}>
-                    <Rightbar/>
-                </Box>
-            </Stack>
-           
-        </Parentstack>
+                <Rightbar/>
+        </Stack>
 
     </Main>    
 
