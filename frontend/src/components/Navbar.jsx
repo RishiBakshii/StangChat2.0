@@ -77,7 +77,7 @@ export const Navbar = ({username,profileURL}) => {
           </Search>
           <Stack direction={'row'} spacing={2} alignItems={'center'}>
               <Avatar alt={username} src={profileURL} />
-              <Typography variant='h6'>{`Welcome ${username}`}</Typography>
+              <Typography variant='h5'>{`${username}`}</Typography>
               <Typography variant='p'>Home</Typography>
               <Typography variant='p'>Notifications</Typography>
           </Stack>

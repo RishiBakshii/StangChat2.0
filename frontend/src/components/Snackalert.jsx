@@ -4,7 +4,6 @@ import Grid from '@mui/material/Grid';
 import Button from '@mui/material/Button';
 import Snackbar from '@mui/material/Snackbar';
 import Slide from '@mui/material/Slide';
-import { useState ,useEffect} from 'react';
 
 function TransitionLeft(props) {
   return <Slide {...props} direction="left" />;
@@ -22,31 +21,26 @@ function TransitionDown(props) {
   return <Slide {...props} direction="down" />;
 }
 
-export const Snackalert = ({ show, message }) => {
-    const [open, setOpen] = useState(show); // Initialize open state with the value of the show prop
-    const [transition, setTransition] = useState(undefined);
-  
-    const handleClick = (Transition) => () => {
-      setTransition(() => Transition);
-      setOpen(true);
-    };
-  
-    const handleClose = () => {
-      setOpen(false);
-    };
-  
-    useEffect(() => {
-      setOpen(show);
-    }, [show]);
-  
-    return (
+export default function Snackalert() {
+  const [open, setOpen] = React.useState(true);
+  const [transition, setTransition] = React.useState(undefined);
+
+  const handleClick = (Transition) => () => {
+    setTransition(() => Transition);
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+  return (
       <Snackbar
         open={open}
         onClose={handleClose}
         TransitionComponent={transition}
-        message={message}
+        message="I love snacks"
         key={transition ? transition.name : ''}
       />
-    );
-  };
-  
+  );
+}

@@ -12,15 +12,16 @@ export const Login = () => {
         password:""
     })
     const [isCredentialsFilled,setIsCredentialsFilled]=useState(false)
+    
     useEffect(()=>{
         setIsCredentialsFilled(credentials.email && credentials.password.length>=8)
     },[credentials])
+
     const navigate=useNavigate();
+
     const handleOnChange=(e)=>{
         setCredentials({...credentials,[e.target.name]:e.target.value})
     }
-
-
     const handleLoginSubmit=async()=>{
         try {
             const response=await fetch(`${BASE_URL}/login`,{
@@ -33,6 +34,7 @@ export const Login = () => {
                 "password":credentials.password
             })
             })
+
             const json=await response.json()
 
             if(response.ok){
@@ -40,13 +42,17 @@ export const Login = () => {
                 localStorage.setItem('authToken',json.authToken)
                 setTimeout(()=>{
                     navigate("/")
-                },2000)
+                },1200)
             }
-            else{
-                setAlert({message:json.message,severity:"warning"})
+            if(response.status==400){
+                setAlert({message:json.message,severity:"info"})
+            }
+            if(response.status==500){
+                console.log(json.message)
+                setAlert({message:"Internal Server Error😶",severity:"error"})
             }
         } catch (error) {
-            alert("server is down")
+            setAlert({message:"Server is Down😞",severity:"warning"})
         }
         
     }

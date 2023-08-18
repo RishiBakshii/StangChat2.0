@@ -19,8 +19,25 @@ import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
 import LocalLibraryIcon from '@mui/icons-material/LocalLibrary';
 import HomeIcon from '@mui/icons-material/Home';
 import { Link ,useNavigate} from 'react-router-dom';
+import PostAddIcon from '@mui/icons-material/PostAdd';
+import Modal from '@mui/material/Modal';
+import { Button, Stack, Typography } from '@mui/material';
+
 
 export const Leftbar=({username})=> {
+  const modalstyles = {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    width: 400,
+    // border: '2px solid #000',
+    boxShadow: 24,
+    p:4
+  };
+  const [open, setOpen] = React.useState(false);
+  const handleOpen = () => setOpen(true);
+  const handleClose = () => setOpen(false);
 
   const BASE_URL=process.env.REACT_APP_API_BASE_URL;
 
@@ -31,6 +48,7 @@ export const Leftbar=({username})=> {
     navigate('/login')
   }
   return (
+    
     <Box sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }}>
       <nav aria-label="secondary mailbox folders">
         <List>
@@ -58,12 +76,6 @@ export const Leftbar=({username})=> {
               <ListItemText primary="Settings" />
             </ListItemButton>
           </ListItem>
-          <ListItem disablePadding>
-            <ListItemButton onClick={logoutUser}>
-            <ListItemIcon><LogoutIcon/></ListItemIcon>
-              <ListItemText primary="Logout" />
-            </ListItemButton>
-          </ListItem>
         </List>
       </nav>
       <Divider />
@@ -77,6 +89,13 @@ export const Leftbar=({username})=> {
             <ListItemButton component={Link} to="/upcomingclasses">
             <ListItemIcon><LocalLibraryIcon/></ListItemIcon>
               <ListItemText primary="See Upcoming Classes" />
+            </ListItemButton>
+        </ListItem>
+        <Divider />
+      <ListItem disablePadding>
+            <ListItemButton component={Link} to="/">
+            <ListItemIcon><PostAddIcon/></ListItemIcon>
+              <ListItemText primary="New Post" />
             </ListItemButton>
         </ListItem>
       <Divider />
@@ -98,6 +117,28 @@ export const Leftbar=({username})=> {
           </ListItem>
         </List>
       </nav>
+      <Divider />
+      <ListItem disablePadding>
+            <ListItemButton onClick={()=>setOpen(true)}>
+            <ListItemIcon><LogoutIcon/></ListItemIcon>
+              <ListItemText primary="Logout" />
+            </ListItemButton>
+          </ListItem>
+
+          <Modal open={open} onClose={handleClose} aria-labelledby="modal-modal-title" aria-describedby="modal-modal-description">
+          <Stack sx={modalstyles} justifyContent={'flex-start'} alignItems={"flex-start"} bgcolor={'white'} spacing={3}>
+
+            <Typography id="modal-modal-title" variant="h6" component="h2">Logout</Typography>
+            <Typography id="modal-modal-description" sx={{ mt: 2 }}>
+              Are you sure you want to logout?
+            </Typography>
+            <Stack direction={'row'} spacing={2}>
+              <Button onClick={logoutUser} variant='outlined'>Yes</Button>
+              <Button onClick={()=>setOpen(false)} variant='contained'>No</Button>
+            </Stack>
+          
+        </Stack>
+          </Modal>
     </Box>
   );
 }
