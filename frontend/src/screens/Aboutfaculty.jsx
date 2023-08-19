@@ -4,14 +4,12 @@ import { Leftbar } from '../components/Leftbar'
 import {Box,Stack,Grid} from '@mui/material'
 import { Feed } from '../components/Feed'
 import { Rightbar } from '../components/Rightbar'
-import { Main } from './Home'
 import Facultycard from '../components/Facultycard'
 
 export const Aboutfaculty = () => {
   return (
     <>
     <Navbar/>
-    <Main>
 
         <Stack direction={'row'} justifyContent={'space-between'}>
 
@@ -39,7 +37,6 @@ export const Aboutfaculty = () => {
 
         </Stack>
 
-    </Main>
     
     </>
   )

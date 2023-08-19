@@ -1,24 +1,58 @@
-import React from 'react'
+import React, { useContext, useEffect } from 'react'
 import { Navbar } from '../components/Navbar'
-import { Main, Parentstack } from './Home'
 import {Stack,Box, Avatar, Typography, Button} from '@mui/material'
 import { Leftbar } from '../components/Leftbar'
 import { Feed } from '../components/Feed'
 import { Rightbar } from '../components/Rightbar'
 import LinkedInIcon from '@mui/icons-material/LinkedIn';
 import { useParams } from 'react-router-dom'
+import { BASE_URL, userInformation } from './Home'
+
 
 export const Profile = () => {
 
+  const loggedInUser=useContext(userInformation)
+
+  const getUserPost=async()=>{
+    try {
+      const response=await fetch(`${BASE_URL}/getuserpost`,{
+        method:"POST",
+        headers:{
+          'Content-Type':"application/json"
+        },
+        body:JSON.stringify({
+          "userid":loggedInUser.user_id
+        })
+      })
+
+      const json=await response.json()
+
+      if (response.ok){
+        alert("success!!")
+      }
+      if(response.status==400){
+        alert(json.message)
+      }
+      if (response.status==500){
+        alert(json.message)
+      }
+
+
+
+
+    } catch (error) {
+      alert(error)
+    }
+  }
+
+  useEffect(()=>{
+    getUserPost()
+  },[])
   const {username}=useParams()
   return (
     <>
     <Navbar/>
-    
-    <Main>
         
-        <Parentstack>
-
             <Stack>
                 <Box position={'fixed'}>
                     <Leftbar/>
@@ -59,9 +93,6 @@ export const Profile = () => {
 
                 </Stack>
             </Stack>  
-        </Parentstack>
-
-    </Main>
     </>
   )
 }

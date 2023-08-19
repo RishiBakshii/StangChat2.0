@@ -1,6 +1,5 @@
 import React from 'react'
 import { Navbar } from '../components/Navbar'
-import { Main, Parentstack } from './Home'
 import {Stack,Box} from '@mui/material'
 import { Leftbar } from '../components/Leftbar'
 import { TimeLine } from '../components/Timeline'
@@ -9,10 +8,6 @@ export const Schedule = () => {
   return (
     <>
     <Navbar/>
-
-    <Main>
-        <Parentstack>
-
         <Stack flex={"10%"}>
                 <Box position={'fixed'} width={'100%'}>
                     <Leftbar/>
@@ -23,9 +18,6 @@ export const Schedule = () => {
             <TimeLine/>
 
         </Stack>
-
-        </Parentstack>
-    </Main>
     </>
   )
 }

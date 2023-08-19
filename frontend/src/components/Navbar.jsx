@@ -64,7 +64,7 @@ export const Navbar = ({username,profileURL}) => {
     <AppBar position='sticky'>
         <Customtoolbar >
 
-          <Typography variant='h5' fontWeight={"700"}>CampusLink</Typography>
+          <Typography variant='h5' fontWeight={"700"}>SocialMedia</Typography>
 
           <Search>
             <SearchIconWrapper>

@@ -12,10 +12,13 @@ import { Link ,useNavigate} from 'react-router-dom';
 import PostAddIcon from '@mui/icons-material/PostAdd';
 import Modal from '@mui/material/Modal';
 import { Button, Stack, Typography } from '@mui/material';
-import { useState } from 'react';
+import { useContext, useState } from 'react';
+import {PostModal} from '../components/PostModal'
+import { userInformation } from '../screens/Home';
 
 
-export const Leftbar=({username})=> {
+export const Leftbar=()=> {
+  const loggedInUser=useContext(userInformation)
   const modalstyles = {
     position: 'absolute',
     top: '50%',
@@ -29,6 +32,14 @@ export const Leftbar=({username})=> {
   const [open, setOpen] = useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const handleOpenModal = () => {
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
 
   const BASE_URL=process.env.REACT_APP_API_BASE_URL;
 
@@ -50,7 +61,7 @@ export const Leftbar=({username})=> {
             </ListItemButton>
           </ListItem>
           <ListItem disablePadding>
-            <ListItemButton component={Link} to={`/profile/${username}`}>
+            <ListItemButton component={Link} to={`/profile/cat`}>
               <ListItemIcon><PersonIcon/></ListItemIcon>
               <ListItemText primary="Profile"/>
             </ListItemButton>
@@ -84,7 +95,7 @@ export const Leftbar=({username})=> {
         </ListItem>
         <Divider />
       <ListItem disablePadding>
-            <ListItemButton component={Link} to="/">
+            <ListItemButton onClick={handleOpenModal}>
             <ListItemIcon><PostAddIcon/></ListItemIcon>
               <ListItemText primary="New Post" />
             </ListItemButton>
@@ -121,7 +132,7 @@ export const Leftbar=({username})=> {
 
             <Typography id="modal-modal-title" variant="h6" component="h2">Logout</Typography>
             <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-              Are you sure you want to logout?
+              Are you sure you want to logout?🤫
             </Typography>
             <Stack direction={'row'} spacing={2}>
               <Button onClick={logoutUser} variant='outlined'>Yes</Button>
@@ -129,7 +140,9 @@ export const Leftbar=({username})=> {
             </Stack>
           
         </Stack>
+
           </Modal>
+          <PostModal isOpen={isModalOpen} onClose={handleCloseModal}/>
     </Box>
     </Box>
     

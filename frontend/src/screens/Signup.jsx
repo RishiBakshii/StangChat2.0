@@ -54,7 +54,7 @@ export const Signup = () => {
     const handleOnChange=(e)=>{
         setCredentials({...credentials,[e.target.name]:e.target.value})
     }
-    const Custominput=styled('input')({
+    const CustomPhotoinput=styled('input')({
         height:"100%",
         width:"100%",
         cursor:"pointer"
@@ -150,7 +150,7 @@ export const Signup = () => {
                 <Stack spacing={2} justifyContent={'center'} alignItems={'center'}>
 
                     <Box zIndex={1} sx={{opacity:0}} position={'absolute'} width={150} height={150} >
-                        <Custominput  accept="image/*" type="file" onChange={handleImageChange} id="profile-image-input"/>
+                        <CustomPhotoinput  accept="image/*" type="file" onChange={handleImageChange} id="profile-image-input"/>
                     </Box>
                     <Avatar alt="profile-picture" src={displayImage} sx={{ width: 180, height: 180 }}/>
                     <Typography variant='h6' fontWeight={300}>{selectedImage?("Profile Looks Nice😎"):("Select a Profile Picture")}</Typography>

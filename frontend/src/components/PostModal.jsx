@@ -1,0 +1,109 @@
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import Typography from '@mui/material/Typography';
+import Modal from '@mui/material/Modal';
+import { useContext, useState } from 'react';
+import { Avatar, Stack, TextField } from '@mui/material';
+import styled from '@emotion/styled';
+import { userInformation } from '../screens/Home';
+
+
+
+const style = {
+  position: 'absolute',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  width: 400,
+  bgcolor: 'background.paper',
+//   border: '2px solid #000',
+  boxShadow: 24,
+  p: 4,
+  borderRadius:".4rem"
+};
+
+const CustomPhotoinput=styled('input')({
+    height:"100%",
+    width:"100%",
+    cursor:"pointer",
+    zIndex:1,
+    opacity:0,
+    position:"absolute"
+})
+
+const BASE_URL=process.env.REACT_APP_API_BASE_URL;
+
+export const PostModal=({ isOpen, onClose})=> {
+    const loggedInUser=useContext(userInformation)
+    const [selectedImage, setSelectedImage] = useState(null);
+    const [displayImage,setDisplayImage]=useState(null)
+    const [caption,setCaption]=useState('')
+    const defaultImage="https://t4.ftcdn.net/jpg/04/99/93/31/240_F_499933117_ZAUBfv3P1HEOsZDrnkbNCt4jc3AodArl.jpg"
+
+    const handleImageChange = (event) => {
+        const imageFile = event.target.files[0];
+        if (imageFile) {
+          setSelectedImage(imageFile)
+          console.log(selectedImage)
+    
+          const imageUrl = URL.createObjectURL(imageFile);
+          setDisplayImage(imageUrl);
+          console.log(imageUrl)
+        }
+      };
+
+      const handlePostUpload=async()=>{
+        try {
+          const formData=new FormData();
+          formData.append("userid",loggedInUser.userid);
+          formData.append('caption',caption);
+          formData.append("post",selectedImage); 
+
+          const response=await fetch(`${BASE_URL}/uploadpost`,{
+            method:"POST",
+            body:formData,
+          })
+
+          const json=await response.json()
+
+          if(response.ok){
+
+            alert('posted!')
+          }
+          if(response.status==400){
+            alert("some bad request")
+          }
+          if(response.status==500){
+            console.log(response)
+            alert("internal server error")
+          }
+
+            
+        } catch (error) {
+            alert(error)
+        }
+      }
+
+  return (
+    <>
+
+<div>
+          <Modal open={isOpen} onClose={onClose} aria-labelledby="Create Post" aria-describedby="here a user can make a post, upload images and videos">
+            <Stack sx={style} spacing={4}>
+                <Typography variant='h4'>Create Post</Typography>
+                <Stack bgcolor={'red'} position={'relative'}>
+                    <CustomPhotoinput  accept="image/*" type="file" onChange={handleImageChange} id="profile-image-input"/>
+                    <img style={{zIndex:0}}  alt="profile-picture" src={displayImage?(displayImage):(defaultImage)}/>
+                </Stack>
+
+                <Stack>
+                    <TextField value={caption} onChange={(e)=>setCaption(e.target.value)} variant='standard' label='Caption ...'></TextField>
+                </Stack>
+                <Button disabled={caption!==''?false:true} onClick={handlePostUpload} variant='contained'>Post</Button>
+            </Stack>
+          </Modal>
+        </div>
+   
+    </>
+  );
+}

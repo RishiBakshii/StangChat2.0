@@ -9,6 +9,7 @@ import datetime
 from bson import ObjectId
 from werkzeug.utils import secure_filename
 from pathlib import Path
+from bson.json_util import dumps
 load_dotenv()
 
 
@@ -33,7 +34,6 @@ CORS(app)
 @app.route("/",methods=['GET'])
 def home():
     return jsonify({"success":"true"})
-
 
 @app.route("/login",methods=['POST'])
 def login():
@@ -254,14 +254,21 @@ def get_user_info():
             userID=data.get('userID')
             user_data=mongo.db.users.find_one({"_id":ObjectId(userID)})
 
+            formatted_user_data={
+                'userid':str(user_data['_id']),
+                'username':user_data['username'],
+                'email':user_data['email'],
+                'location':user_data['location'],
+                'bio':user_data['bio'],
+                'linkedinProfile':"",
+                'profilePicture':user_data['profilePicture'],
+                'followers':[],
+                'following':[],
+                'post':[],
+            }
+
             if user_data:
-                all_details={
-                    "username":user_data['username'],
-                    "email":user_data['email'],
-                    'bio':user_data['bio'],
-                    'profilePicture':user_data['profilePicture'],
-                }
-                return make_response(jsonify({'message':"user fetched succefully",'data':all_details}),200)
+                return jsonify({"data":formatted_user_data}),200
             else:
                 return make_response(jsonify({"message":"user not found"}),400)
 
@@ -333,6 +340,55 @@ def updateProfile():
 
         except Exception as e:
             return make_response(jsonify({"message":str(e)}),500)
+
+@app.route('/uploadpost',methods=['POST'])
+def uploadPost():
+    if request.method=='POST':
+        try:
+            userid=request.form.get("userid")
+            user=mongo.db.users.find_one({'_id':ObjectId(userid)})
+            if user:
+                user_post=request.files.get("post")
+                secureFilename=secure_filename(user_post.filename)
+                user_post_path=os.path.join(app.config['POST_FOLDER'],secureFilename).replace("\\","/")
+                user_post.save(user_post_path)
+                new_post={
+                    "user_id":user["_id"],
+                    "username":user['username'],
+                    "caption":request.form.get('caption'),
+                    "postPath":user_post_path,
+                    "profilePath":user['profilePicture'],
+                    'likes':{},
+                    }
+                uploaded_post=mongo.db.post.insert_one(new_post)
+                return jsonify({"message":"post uploaded succeffully"}),200
+                
+                
+            return jsonify({"message":"user does not exist"}),400
+        except Exception as e:
+            return jsonify({"message":str(e)}),500
+
+@app.route("/getfeed",methods=['POST'])
+def getfeed():
+    if request.method=='POST':
+        try:
+            feed=mongo.db.post.find({})
+            feed_list = list(feed)
+            feed_json = dumps(feed_list)
+            return feed_json,200
+        except Exception as e:
+            return jsonify({'message':str(e)}),500
+
+@app.route("/getuserpost",methods=['POST'])
+def getuserposts():
+    if request.method=='POST':
+        try:
+            data=request.json
+            user=mongo.db.users.find_one({"_id",ObjectId(data.get('userid'))})
+            if user:
+                return 'hello',200
+        except Exception as e:
+            return jsonify({"message":str(e)}),500
 
 if __name__=='__main__':
     app.run(debug=True)

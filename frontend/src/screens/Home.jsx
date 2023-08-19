@@ -1,54 +1,26 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect,useState,useMemo, createContext} from 'react'
 import { Navbar } from '../components/Navbar'
-import {Box,Stack,styled} from '@mui/material'
+import {Box,Button,Stack,styled} from '@mui/material'
 import { Leftbar } from '../components/Leftbar'
 import { Feed } from '../components/Feed'
 import { Rightbar } from '../components/Rightbar'
 import { useNavigate } from 'react-router-dom'
 
 
-const BASE_URL=process.env.REACT_APP_API_BASE_URL;
+export const BASE_URL=process.env.REACT_APP_API_BASE_URL;
 
-export const Main=styled("main")(({theme})=>({
-    // backgroundColor:"black"
-}))
-
-export const Parentstack=styled(Stack)(({theme})=>({
-    flexDirection:"row",
-    justifyContent:"space-between",
-    alignItems:"flex-start",
-}))
+export const userInformation=createContext();
+export const feedData=createContext()
+export const feedUpdateContext=createContext();
 
 
 export const Home = () => {
-
     const [loggedInUser,setLoggedInUser]=useState({})
-    const navigate=useNavigate()
+    const [feed,setFeed]=useState([])
 
-    const fetchUserDetails=async(userid)=>{
-
-        try {
-            const response=await fetch(`${BASE_URL}/get_user_info`,{
-            method:"POST",
-            headers:{
-                "Content-Type":"application/json"
-            },
-            body:JSON.stringify({
-                "userID":userid
-            })
-        })
-    
-            const json=await response.json()
-            return json.data
-        } catch (error) {
-            alert(error)
-        }
-        
-    
-        
-    }
-    const decodeTokenAndFetchLoggedInUser=async()=>{
+    const getLoggedInUser=async()=>{
         const authToken=localStorage.getItem("authToken")
+
         try {
             const response=await fetch(`${BASE_URL}/decode_token`,{
             method:"POST",
@@ -57,52 +29,78 @@ export const Home = () => {
             },
             body:JSON.stringify({
                 "authToken":authToken
-            })
-        })
-    
-            const json=await response.json()
-    
-        if(response.ok){
-            const userdata =await fetchUserDetails(json.decoded_token.user_id)
-            setLoggedInUser(userdata)
+                    })
+                })
+        
+            const json=await response.json()    
+        
+            if(response.ok){
+                try{
+                    const response2=await fetch(`${BASE_URL}/get_user_info`,{
+                    method:"POST",
+                    headers:{
+                        "Content-Type":"application/json"
+                    },
+                    body:JSON.stringify({
+                        "userID":json.decoded_token.user_id
+                            })
+                    })
+            
+                    const json2=await response2.json()
+                    console.log(json2.data)
+                    setLoggedInUser(json2.data)
+                }
+                catch(error){
+                    alert(error)
+                }
         }
     
         } catch (error) {
             alert(error)
-        }
-        
-    
+        }  
     }
 
-    useEffect(() => {
-        console.log(`${BASE_URL}/${loggedInUser.profilePicture}`)
-        const authToken=localStorage.getItem("authToken")
-        
-        authToken?(
-            decodeTokenAndFetchLoggedInUser()
-        ):(
-            navigate("/login")
-        )
-      return()=>{}
-      }, []);
+    const getFeed=async()=>{
+        try {
 
-      console.log(loggedInUser)
+            const response=await fetch(`${BASE_URL}/getfeed`,{
+                method:"POST",
+            })
 
+            const json=await response.json()
+
+            if(response.ok){
+                setFeed(json)
+            }
+            if (response.status==500){
+                alert(json.message)
+            }
+            
+        } catch (error) {
+            alert(error)
+        }
+    }
+
+    useEffect(()=>{
+        getLoggedInUser()
+        getFeed()
+    },[])
 
   return (
-    <>
+    <userInformation.Provider value={loggedInUser}>
     <Navbar username={loggedInUser.username} profileURL={`${BASE_URL}/${loggedInUser.profilePicture}`}/>
 
-    <Main>
         
         <Stack direction={"row"} spacing={2} justifyContent={"space-between"} alignItems="flex-start">
-                <Leftbar username={loggedInUser.username}/>
-                <Feed/>
+                <Leftbar loggedInUser={loggedInUser}/>
+
+                <feedData.Provider value={feed}>
+                    <Feed/>
+                </feedData.Provider>
+
                 <Rightbar/>
-        </Stack>
+        </Stack>  
 
-    </Main>    
-
-    </>
+    </userInformation.Provider>
   )
 }
