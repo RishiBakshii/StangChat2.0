@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 import os
 import bcrypt
 import jwt
-import datetime
+from datetime import datetime
 from bson import ObjectId
 from werkzeug.utils import secure_filename
 from pathlib import Path
@@ -81,7 +81,6 @@ def login():
                 payload={
                     'user_id':str(user['_id']),
                     'email':str(user['email']),
-                    'exp': datetime.datetime.utcnow() + datetime.timedelta(days=30)
                 }
                 token=jwt.encode(payload,os.environ.get('SECRET_KEY'),algorithm='HS256')
                 return make_response(jsonify({"message":"Login Successful","authToken":f'{token}'}),200)
@@ -358,10 +357,14 @@ def uploadPost():
                     "caption":request.form.get('caption'),
                     "postPath":user_post_path,
                     "profilePath":user['profilePicture'],
-                    'likes':{},
+                    'likesCount':0,
+                    'likes':[],
+                    'postedAt':datetime.now().strftime("%B %d, %Y"),
+                    'exactTime':datetime.now()
                     }
-                uploaded_post=mongo.db.post.insert_one(new_post)
-                return jsonify({"message":"post uploaded succeffully"}),200
+                uploaded_post_id=mongo.db.post.insert_one(new_post).inserted_id
+                newly_uploaded_post=mongo.db.post.find_one({"_id":uploaded_post_id})
+                return dumps(newly_uploaded_post),200
                 
                 
             return jsonify({"message":"user does not exist"}),400
@@ -389,7 +392,6 @@ def getuserposts():
                 return 'hello',200
         except Exception as e:
             return jsonify({"message":str(e)}),500
-
 
 @app.route("/postcomment",methods=['POST'])
 def postcomment():
@@ -440,6 +442,44 @@ def getComments():
         
         except Exception as e:
             return jsonify({'message': str(e)}), 500
+
+@app.route('/likepost',methods=['POST'])
+def likepost():
+    if request.method=='POST':
+        try:
+            data=request.json
+            userid=data.get("userid")
+            postid=data.get("postid")
+            
+            user=mongo.db.users.find_one({"_id":ObjectId(userid)})
+            if not user:
+                return jsonify({"message": "User not found"}), 400
+            
+            post=mongo.db.post.find_one({"_id":ObjectId(postid)})
+            if not post:
+                return jsonify({"message": "Post not found"}), 400
+            
+            if userid in post.get("likes", []):
+                mongo.db.post.update_one(
+        {"_id": ObjectId(postid)},
+        {
+            "$pull": {"likes": userid},
+            "$inc": {"likesCount": -1}
+        }
+    )
+                return jsonify({"message": "unliked"}), 200
+            else:
+                mongo.db.post.update_one(
+        {"_id": ObjectId(postid)},
+        {
+            "$addToSet": {"likes": userid},
+            "$inc": {"likesCount": 1}
+        }
+    )
+                return jsonify({"message": "liked"}), 200
+
+        except Exception as e:
+            return jsonify({"message":str(e)}),500
 
 
 if __name__=='__main__':

@@ -2,7 +2,6 @@ import React from 'react'
 import { Navbar } from '../components/Navbar'
 import { Leftbar } from '../components/Leftbar'
 import {Box,Stack,Grid} from '@mui/material'
-import { Feed } from '../components/Feed'
 import { Rightbar } from '../components/Rightbar'
 import Facultycard from '../components/Facultycard'
 

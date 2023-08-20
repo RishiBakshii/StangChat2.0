@@ -1,4 +1,4 @@
-import {Box,List,ListItem,ListItemButton ,ListItemIcon,ListItemText,Divider,} from '@mui/material';
+import {Box,List,ListItem,ListItemButton ,ListItemIcon,ListItemText,Divider} from '@mui/material';
 import PersonIcon from '@mui/icons-material/Person';
 import Diversity3Icon from '@mui/icons-material/Diversity3';
 import SettingsIcon from '@mui/icons-material/Settings';
@@ -12,13 +12,15 @@ import { Link ,useNavigate} from 'react-router-dom';
 import PostAddIcon from '@mui/icons-material/PostAdd';
 import Modal from '@mui/material/Modal';
 import { Button, Stack, Typography } from '@mui/material';
-import { useContext, useState } from 'react';
+import {useState } from 'react';
 import {PostModal} from '../components/PostModal'
+import { useContext } from 'react';
 import { userInformation } from '../screens/Home';
 
 
 export const Leftbar=()=> {
-  const loggedInUser=useContext(userInformation)
+
+
   const modalstyles = {
     position: 'absolute',
     top: '50%',
@@ -41,14 +43,15 @@ export const Leftbar=()=> {
     setIsModalOpen(false);
   };
 
-  const BASE_URL=process.env.REACT_APP_API_BASE_URL;
-
   const navigate=useNavigate()
 
   const logoutUser=()=>{
     localStorage.removeItem('authToken')
     navigate('/login')
   }
+
+  const loggedInUser=useContext(userInformation)
+
   return (
     <Box p={2} flex={1}>
       <Box position={'fixed'} bgcolor={'background.paper'}>
@@ -61,7 +64,7 @@ export const Leftbar=()=> {
             </ListItemButton>
           </ListItem>
           <ListItem disablePadding>
-            <ListItemButton component={Link} to={`/profile/cat`}>
+            <ListItemButton component={Link} to={`profile/${loggedInUser.username}`}>
               <ListItemIcon><PersonIcon/></ListItemIcon>
               <ListItemText primary="Profile"/>
             </ListItemButton>

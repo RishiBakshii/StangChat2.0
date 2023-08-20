@@ -5,7 +5,7 @@ import Modal from '@mui/material/Modal';
 import { useContext, useState } from 'react';
 import { Avatar, Stack, TextField } from '@mui/material';
 import styled from '@emotion/styled';
-import { userInformation } from '../screens/Home';
+import { feedUpdate, userInformation } from '../screens/Home';
 
 
 
@@ -34,6 +34,7 @@ const CustomPhotoinput=styled('input')({
 const BASE_URL=process.env.REACT_APP_API_BASE_URL;
 
 export const PostModal=({ isOpen, onClose})=> {
+    const updateFeed=useContext(feedUpdate)
     const loggedInUser=useContext(userInformation)
     const [selectedImage, setSelectedImage] = useState(null);
     const [displayImage,setDisplayImage]=useState(null)
@@ -63,12 +64,13 @@ export const PostModal=({ isOpen, onClose})=> {
             method:"POST",
             body:formData,
           })
-
           const json=await response.json()
 
           if(response.ok){
-
-            alert('posted!')
+            updateFeed(json)
+            setCaption("")
+            setDisplayImage(null)
+            onClose()
           }
           if(response.status==400){
             alert("some bad request")
@@ -78,7 +80,6 @@ export const PostModal=({ isOpen, onClose})=> {
             alert("internal server error")
           }
 
-            
         } catch (error) {
             alert(error)
         }

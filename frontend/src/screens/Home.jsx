@@ -2,16 +2,16 @@ import React, { useEffect,useState,useMemo, createContext} from 'react'
 import { Navbar } from '../components/Navbar'
 import {Box,Button,Stack,styled} from '@mui/material'
 import { Leftbar } from '../components/Leftbar'
-import { Feed } from '../components/Feed'
 import { Rightbar } from '../components/Rightbar'
 import { useNavigate } from 'react-router-dom'
+import { Postcard } from '../components/Postcard'
 
 
 export const BASE_URL=process.env.REACT_APP_API_BASE_URL;
 
 export const userInformation=createContext();
 export const feedData=createContext()
-export const feedUpdateContext=createContext();
+export const feedUpdate=createContext();
 
 
 export const Home = () => {
@@ -86,18 +86,44 @@ export const Home = () => {
         getFeed()
     },[])
 
+    const updateFeed = (newPost) => {
+        setFeed((prevFeed) => [newPost, ...prevFeed]);
+      };
+    
+
   return (
     <userInformation.Provider value={loggedInUser}>
-    <Navbar username={loggedInUser.username} profileURL={`${BASE_URL}/${loggedInUser.profilePicture}`}/>
+    <Navbar/>
 
-        
+        {/* PARENT STACK */}
         <Stack direction={"row"} spacing={2} justifyContent={"space-between"} alignItems="flex-start">
-                <Leftbar loggedInUser={loggedInUser}/>
+                <feedUpdate.Provider value={updateFeed}>
+                
+                {/* LEFTBAR */}
+                <Leftbar/>
 
-                <feedData.Provider value={feed}>
-                    <Feed/>
-                </feedData.Provider>
+                
+                {/* FEEDS */}
+                <Stack flex={4} p={2}>
 
+                    {
+                    feed.map((feed) => 
+                        (
+                        <Postcard key={feed._id.$oid} 
+                        imageUrl={`${BASE_URL}/${feed.postPath}`} 
+                        username={feed.username} 
+                        likesCount={feed.likes.length}
+                        caption={feed.caption} 
+                        unique_id={feed._id.$oid}
+                        isLiked={feed.likes.includes(loggedInUser.userid)}
+                        postedAt={feed.postedAt}
+                        profilePath={feed.profilePath}/>
+                        ))
+                    }
+                </Stack>
+                </feedUpdate.Provider>
+
+                {/* RIGHTBAR */}
                 <Rightbar/>
         </Stack>  
 

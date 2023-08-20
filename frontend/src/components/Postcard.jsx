@@ -1,11 +1,10 @@
 import React, { useContext, useEffect, useState } from 'react'
-import { Avatar, Box, Card, CardActions, CardContent, CardHeader, CardMedia, IconButton ,Typography,Checkbox, Stack, TextField,InputAdornment} from "@mui/material";
-import { ExpandMore ,MoreVert,Share,Favorite, CheckBox, FavoriteBorder, Comment,Send} from "@mui/icons-material";
-import { BASE_URL, userInformation } from '../screens/Home';
+import { Avatar, Box, Card, CardActions, CardContent, CardHeader, CardMedia, IconButton ,Typography,Checkbox, Stack, TextField,InputAdornment, Button} from "@mui/material";
+import { ExpandMore ,MoreVert,Share,Favorite, CheckBox, FavoriteBorder, Comment,Send, HeartBroken} from "@mui/icons-material";
+import { BASE_URL, feedUpdate, userInformation } from '../screens/Home';
 import CircularProgress from '@mui/material/CircularProgress';
 
-export const Postcard = ({username,caption,likes,profilePicture,imageUrl,unique_id}) => {
-
+export const Postcard = ({username,caption,likesCount,imageUrl,unique_id,postedAt,profilePath,isLiked}) => {
   const loggedInUser=useContext(userInformation);
   const [showComment,setShowComment]=useState({
     show:false,
@@ -16,6 +15,11 @@ export const Postcard = ({username,caption,likes,profilePicture,imageUrl,unique_
   const toggleComments=()=>{
     setShowComment({show:!(showComment.show),cardHeight:showComment.show?(700):(1250)})
   }
+  useEffect(()=>{
+    if(showComment.show){
+      loadComment()
+    }
+  },[showComment.show])
 
   const loadComment=async()=>{
     try {
@@ -43,11 +47,6 @@ export const Postcard = ({username,caption,likes,profilePicture,imageUrl,unique_
     }
   }
 
-  useEffect(()=>{
-    if(showComment.show){
-      loadComment()
-    }
-  },[showComment.show])
 
   const handleSendComment=async()=>{
     try {
@@ -67,8 +66,8 @@ export const Postcard = ({username,caption,likes,profilePicture,imageUrl,unique_
       const json=await response.json()
 
       if(response.ok){
-        console.log(json)
         setFetchedComment((prevComments) => [...prevComments, json]);
+        setComment("")
       }
       if(response.status==500){
         alert("internal server error")
@@ -84,11 +83,37 @@ export const Postcard = ({username,caption,likes,profilePicture,imageUrl,unique_
     }
 }
 
+  const handlePostLike=async()=>{
+    try {
+      const response=await fetch(`${BASE_URL}/likepost`,{
+        method:"POST",
+        headers:{
+          'Content-Type':'application/json'
+        },
+        body:JSON.stringify({
+          'userid':loggedInUser.userid,
+          'postid':unique_id
+        })
+      })
+
+      const json=await response.json()
+
+      if(response.ok){
+      }
+      if(response.status==500){
+        alert('internal server Error')
+        console.log(response.json)
+      }
+    } catch (error) {
+      alert(error)
+    }
+  }
+
   return (
     <Card sx={{margin:5,height:showComment.cardHeight}}>
     <CardHeader
       avatar={
-        <Avatar sx={{ bgcolor: 'blue' }} aria-label="recipe" src={profilePicture}></Avatar>
+        <Avatar sx={{ bgcolor: 'blue'}} aria-label="recipe" src={`${BASE_URL}/${profilePath}`}></Avatar>
       }
       action={
         <IconButton aria-label="settings">
@@ -96,7 +121,7 @@ export const Postcard = ({username,caption,likes,profilePicture,imageUrl,unique_
         </IconButton>
       }
       title={username}
-      subheader="September 14, 2016"
+      subheader={postedAt}
     />
 
     <CardMedia
@@ -114,8 +139,9 @@ export const Postcard = ({username,caption,likes,profilePicture,imageUrl,unique_
 
     <CardActions disableSpacing>
       <IconButton aria-label="add to favorites">
-        <Checkbox icon={<FavoriteBorder/>} checkedIcon={<Favorite/>}></Checkbox>
-      </IconButton>{likes}
+        <Checkbox onClick={handlePostLike} icon={<FavoriteBorder/>} checked={isLiked} checkedIcon={<Favorite sx={{color:"red"}}/>}></Checkbox>
+        <Typography variant='body1'>{likesCount}</Typography>
+      </IconButton>
       <IconButton aria-label="share">
         <Share />
       </IconButton>
@@ -124,7 +150,7 @@ export const Postcard = ({username,caption,likes,profilePicture,imageUrl,unique_
       </IconButton>
     </CardActions>
 
-      {/* comments section */}
+      {/* COMMENTS section */}
     {
         showComment.show?(
           <CardContent sx={{bgcolor:"",height:"100%",padding:".5rem 1rem",overflowY:"scroll"}}>
@@ -135,9 +161,9 @@ export const Postcard = ({username,caption,likes,profilePicture,imageUrl,unique_
                   fetchedComment.map((comment)=>{
                     return <Stack key={comment._id} mt={4} bgcolor={'white'} spacing={1}>
                   <Typography>{comment.username}</Typography>
-                  <Stack direction={'row'} alignItems={'center'} justifyContent={'center'}>
-                  <Typography  variant="body2" color="text.secondary">{comment.comment}</Typography>
-                  <Checkbox icon={<FavoriteBorder />} checkedIcon={<Favorite />} />
+                  <Stack bgcolor={''} direction={'row'} alignItems={'center'} justifyContent={'space-between'}>
+                      <Typography  variant="body2" color="text.secondary">{comment.comment}</Typography>
+                      <Checkbox icon={<FavoriteBorder fontSize='small' />} checkedIcon={<Favorite fontSize='small' sx={{color:"red"}}/>} />
                   </Stack>
                 </Stack>
 
