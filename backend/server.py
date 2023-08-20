@@ -390,5 +390,57 @@ def getuserposts():
         except Exception as e:
             return jsonify({"message":str(e)}),500
 
+
+@app.route("/postcomment",methods=['POST'])
+def postcomment():
+    if request.method=='POST':
+        try:
+            data = request.json
+            user_id = data.get('userid')
+            post_id = data.get('postid')
+            comment_content = data.get('comment')
+            username=data.get('username')
+
+            user = mongo.db.users.find_one({'_id': ObjectId(user_id)})
+
+            if not user:
+                return jsonify({'message': 'User not found'}), 400
+            
+            post = mongo.db.post.find_one({'_id': ObjectId(post_id)})
+            if not post:
+                return jsonify({'message': 'Post not found'}), 400
+
+            new_comment = {
+                'user_id': user_id,
+                'post_id': post_id,
+                'comment': comment_content,
+                'username':username
+            }
+
+            new_comment_id=mongo.db.comments.insert_one(new_comment).inserted_id
+            new_comment_doc = mongo.db.comments.find_one({"_id": new_comment_id})
+            return dumps(new_comment_doc), 200
+
+            
+        except Exception as e:
+            return jsonify({"message":str(e)}),500
+
+@app.route('/getcomments',methods=['POST'])
+def getComments():
+    if request.method=='POST':
+        try:
+            data = request.json
+            post_id = data.get('postid')
+
+            comments = mongo.db.comments.find({'post_id': post_id})
+
+            comment_list = list(comments)
+            comment_list=dumps(comment_list)
+            return comment_list, 200
+        
+        except Exception as e:
+            return jsonify({'message': str(e)}), 500
+
+
 if __name__=='__main__':
     app.run(debug=True)

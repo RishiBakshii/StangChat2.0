@@ -19,6 +19,7 @@ export const Feed = () => {
           username={feed.username}
           likes={0}
           caption={feed.caption}
+          unique_id={feed._id.$oid}
         />
       ))}
       <Postcard imageUrl={'https://images.pexels.com/photos/3783513/pexels-photo-3783513.jpeg?auto=compress&cs=tinysrgb&w=1600'}/>
