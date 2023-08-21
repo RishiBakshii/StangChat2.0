@@ -1,11 +1,11 @@
 import React, { useContext, useEffect, useState } from 'react'
 import { Avatar, Box, Card, CardActions, CardContent, CardHeader, CardMedia, IconButton ,Typography,Checkbox, Stack, TextField,InputAdornment, Button} from "@mui/material";
 import { ExpandMore ,MoreVert,Share,Favorite, CheckBox, FavoriteBorder, Comment,Send, HeartBroken} from "@mui/icons-material";
-import { BASE_URL, feedUpdate, userInformation } from '../screens/Home';
+import { BASE_URL} from '../screens/Home';
 import CircularProgress from '@mui/material/CircularProgress';
+import { Link } from 'react-router-dom';
 
 export const Postcard = ({username,caption,likesCount,imageUrl,unique_id,postedAt,profilePath,isLiked}) => {
-  const loggedInUser=useContext(userInformation);
   const [showComment,setShowComment]=useState({
     show:false,
     cardHeight:700
@@ -15,6 +15,7 @@ export const Postcard = ({username,caption,likesCount,imageUrl,unique_id,postedA
   const toggleComments=()=>{
     setShowComment({show:!(showComment.show),cardHeight:showComment.show?(700):(1250)})
   }
+  const [isLoadingComments, setIsLoadingComments] = useState(false);
   useEffect(()=>{
     if(showComment.show){
       loadComment()
@@ -22,6 +23,7 @@ export const Postcard = ({username,caption,likesCount,imageUrl,unique_id,postedA
   },[showComment.show])
 
   const loadComment=async()=>{
+    setIsLoadingComments(true)
     try {
       const response=await fetch(`${BASE_URL}/getcomments`,{
         method:"POST",
@@ -45,6 +47,9 @@ export const Postcard = ({username,caption,likesCount,imageUrl,unique_id,postedA
     } catch (error) {
       alert(error)
     }
+    finally{
+      setIsLoadingComments(false)
+    }
   }
 
 
@@ -56,10 +61,10 @@ export const Postcard = ({username,caption,likesCount,imageUrl,unique_id,postedA
           'Content-Type':'application/json'
         },
         body:JSON.stringify({
-          'userid':loggedInUser.userid,
+          // 'userid':loggedInUser.userid,
           'postid':unique_id,
           'comment':comment,
-          'username':loggedInUser.username
+          // 'username':loggedInUser.username
         })
       })
 
@@ -82,7 +87,7 @@ export const Postcard = ({username,caption,likesCount,imageUrl,unique_id,postedA
       alert(error)
     }
 }
-
+  
   const handlePostLike=async()=>{
     try {
       const response=await fetch(`${BASE_URL}/likepost`,{
@@ -91,7 +96,7 @@ export const Postcard = ({username,caption,likesCount,imageUrl,unique_id,postedA
           'Content-Type':'application/json'
         },
         body:JSON.stringify({
-          'userid':loggedInUser.userid,
+          // 'userid':loggedInUser.userid,
           'postid':unique_id
         })
       })
@@ -107,20 +112,22 @@ export const Postcard = ({username,caption,likesCount,imageUrl,unique_id,postedA
     } catch (error) {
       alert(error)
     }
+
+
   }
 
   return (
     <Card sx={{margin:5,height:showComment.cardHeight}}>
     <CardHeader
       avatar={
-        <Avatar sx={{ bgcolor: 'blue'}} aria-label="recipe" src={`${BASE_URL}/${profilePath}`}></Avatar>
+        <Avatar sx={{ bgcolor: 'blue'}} aria-label="recipe" component={Link} to={`profile/${username}`} src={`${BASE_URL}/${profilePath}`}></Avatar>
       }
       action={
         <IconButton aria-label="settings">
           <MoreVert />
         </IconButton>
       }
-      title={username}
+      title={<Typography component={Link} sx={{textDecoration:"none",color:"black"}} to={`profile/${username}`} variant='body2'>{username}</Typography>}
       subheader={postedAt}
     />
 
@@ -142,9 +149,9 @@ export const Postcard = ({username,caption,likesCount,imageUrl,unique_id,postedA
         <Checkbox onClick={handlePostLike} icon={<FavoriteBorder/>} checked={isLiked} checkedIcon={<Favorite sx={{color:"red"}}/>}></Checkbox>
         <Typography variant='body1'>{likesCount}</Typography>
       </IconButton>
-      <IconButton aria-label="share">
+      {/* <IconButton aria-label="share">
         <Share />
-      </IconButton>
+      </IconButton> */}
       <IconButton onClick={toggleComments} aria-label="share">
         <Comment/>
       </IconButton>
@@ -154,26 +161,29 @@ export const Postcard = ({username,caption,likesCount,imageUrl,unique_id,postedA
     {
         showComment.show?(
           <CardContent sx={{bgcolor:"",height:"100%",padding:".5rem 1rem",overflowY:"scroll"}}>
-
-            <Box bgcolor={''} sx={{overflowY:"scroll",height:"28rem"}}>
+            
+            <Box bgcolor={''} sx={{overflowY:"scroll",height:"28rem",display:"flex",flexDirection:"column"}}>
 
                 {
-                  fetchedComment.map((comment)=>{
+                  isLoadingComments?(<CircularProgress sx={{alignSelf:"center",justifySelf:"center",marginTop:4}}/>):(
+                    fetchedComment.map((comment)=>{
                     return <Stack key={comment._id} mt={4} bgcolor={'white'} spacing={1}>
                   <Typography>{comment.username}</Typography>
                   <Stack bgcolor={''} direction={'row'} alignItems={'center'} justifyContent={'space-between'}>
                       <Typography  variant="body2" color="text.secondary">{comment.comment}</Typography>
+                      <Stack>
                       <Checkbox icon={<FavoriteBorder fontSize='small' />} checkedIcon={<Favorite fontSize='small' sx={{color:"red"}}/>} />
+                      </Stack>
                   </Stack>
                 </Stack>
-
                   })
+                  )
                 }
                 
             </Box>
 
             <Stack mt={4}>
-            <TextField value={comment} onChange={(e)=>setComment(e.target.value)} label="Add a comment..." variant="standard" InputProps={{ endAdornment: (<InputAdornment position="end"><IconButton onClick={handleSendComment}>{comment!==''?(<Send />):("")}</IconButton></InputAdornment>),}}/>
+            <TextField value={comment} onChange={(e)=>setComment(e.target.value)} label="Add a comment..." variant="standard" InputProps={{ endAdornment: (<InputAdornment position="end">{comment!==''?(<IconButton onClick={handleSendComment}><Send/></IconButton>):("")}</InputAdornment>),}}/>
             </Stack>
             
         </CardContent>

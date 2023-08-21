@@ -5,7 +5,7 @@ import Modal from '@mui/material/Modal';
 import { useContext, useState } from 'react';
 import { Avatar, Stack, TextField } from '@mui/material';
 import styled from '@emotion/styled';
-import { feedUpdate, userInformation } from '../screens/Home';
+import { feedUpdate} from '../screens/Home';
 
 
 
@@ -35,7 +35,6 @@ const BASE_URL=process.env.REACT_APP_API_BASE_URL;
 
 export const PostModal=({ isOpen, onClose})=> {
     const updateFeed=useContext(feedUpdate)
-    const loggedInUser=useContext(userInformation)
     const [selectedImage, setSelectedImage] = useState(null);
     const [displayImage,setDisplayImage]=useState(null)
     const [caption,setCaption]=useState('')
@@ -56,7 +55,7 @@ export const PostModal=({ isOpen, onClose})=> {
       const handlePostUpload=async()=>{
         try {
           const formData=new FormData();
-          formData.append("userid",loggedInUser.userid);
+          // formData.append("userid",loggedInUser.userid);
           formData.append('caption',caption);
           formData.append("post",selectedImage); 
 

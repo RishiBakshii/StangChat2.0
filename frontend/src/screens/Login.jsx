@@ -1,11 +1,13 @@
 import { Box, Stack, TextField, Typography ,Button, Alert} from '@mui/material'
-import React, { useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { Link,useNavigate} from 'react-router-dom'
 import { Snackalert } from '../components/Snackalert';
+import { loggedInUserContext } from '../context/user/Usercontext';
 
 const BASE_URL=process.env.REACT_APP_API_BASE_URL;
 
 export const Login = () => {
+    const loggedInUser=useContext(loggedInUserContext)
     const [alert,setAlert]=useState({message:"",severity:""})
     const [credentials,setCredentials]=useState({
         email:"",
@@ -40,6 +42,7 @@ export const Login = () => {
             if(response.ok){
                 setAlert({message:json.message,severity:"success"})
                 localStorage.setItem('authToken',json.authToken)
+                loggedInUser.updateLoggedInUser(json.userdata)
                 setTimeout(()=>{
                     navigate("/")
                 },1200)

@@ -13,7 +13,7 @@ export const Settings = () => {
 
         <Stack flex={"10%"}>
                 <Box position={'fixed'} width={'100%'}>
-                    <Leftbar/>
+                    {/* <Leftbar/> */}
                 </Box>
             </Stack>
 

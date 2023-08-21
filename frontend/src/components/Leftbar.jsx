@@ -1,4 +1,4 @@
-import {Box,List,ListItem,ListItemButton ,ListItemIcon,ListItemText,Divider} from '@mui/material';
+import {Box,List,ListItem,ListItemButton ,ListItemIcon,ListItemText,Divider, Switch, IconButton} from '@mui/material';
 import PersonIcon from '@mui/icons-material/Person';
 import Diversity3Icon from '@mui/icons-material/Diversity3';
 import SettingsIcon from '@mui/icons-material/Settings';
@@ -15,11 +15,12 @@ import { Button, Stack, Typography } from '@mui/material';
 import {useState } from 'react';
 import {PostModal} from '../components/PostModal'
 import { useContext } from 'react';
-import { userInformation } from '../screens/Home';
+import { loggedInUserContext } from '../context/user/Usercontext';
 
 
 export const Leftbar=()=> {
 
+  const loggedInUser=useContext(loggedInUserContext)
 
   const modalstyles = {
     position: 'absolute',
@@ -50,7 +51,6 @@ export const Leftbar=()=> {
     navigate('/login')
   }
 
-  const loggedInUser=useContext(userInformation)
 
   return (
     <Box p={2} flex={1}>
@@ -64,7 +64,7 @@ export const Leftbar=()=> {
             </ListItemButton>
           </ListItem>
           <ListItem disablePadding>
-            <ListItemButton component={Link} to={`profile/${loggedInUser.username}`}>
+            <ListItemButton component={Link} to={`/profile/${loggedInUser.loggedInUser.username}`}>
               <ListItemIcon><PersonIcon/></ListItemIcon>
               <ListItemText primary="Profile"/>
             </ListItemButton>
@@ -103,6 +103,12 @@ export const Leftbar=()=> {
               <ListItemText primary="New Post" />
             </ListItemButton>
         </ListItem>
+      <ListItem disablePadding>
+            <ListItemButton component={Link} to={"/about"}>
+            <ListItemIcon><PostAddIcon/></ListItemIcon>
+              <ListItemText primary="about" />
+            </ListItemButton>
+        </ListItem>
       <Divider />
       <nav aria-label="main mailbox folders">
         <List>
@@ -129,6 +135,13 @@ export const Leftbar=()=> {
               <ListItemText primary="Logout" />
             </ListItemButton>
           </ListItem>
+      {/* <ListItem disablePadding>
+            <ListItemButton>
+              <IconButton></IconButton>
+              <Switch defaultChecked />
+              <ListItemText primary="darkMode" />
+            </ListItemButton>
+          </ListItem> */}
 
           <Modal open={open} onClose={handleClose} aria-labelledby="modal-modal-title" aria-describedby="modal-modal-description">
           <Stack sx={modalstyles} justifyContent={'flex-start'} alignItems={"flex-start"} bgcolor={'white'} spacing={3}>

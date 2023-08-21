@@ -1,13 +1,11 @@
 import {AppBar,Typography,styled,Stack, Avatar} from '@mui/material'
 import {alpha } from '@mui/material/styles';
-import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
-import IconButton from '@mui/material/IconButton';
 import InputBase from '@mui/material/InputBase';
-import MenuIcon from '@mui/icons-material/Menu';
 import SearchIcon from '@mui/icons-material/Search';
 import { useContext } from 'react';
-import { userInformation } from '../screens/Home';
+import { loggedInUserContext } from '../context/user/Usercontext';
+
 
 const BASE_URL=process.env.REACT_APP_API_BASE_URL;
 
@@ -59,7 +57,7 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 }));
 
 export const Navbar = () => {
-  const loggedInUser=useContext(userInformation)
+  const loggedInUser=useContext(loggedInUserContext)
   return (
     <>
     <AppBar position='sticky'>
@@ -77,8 +75,8 @@ export const Navbar = () => {
             />
           </Search>
           <Stack direction={'row'} spacing={2} alignItems={'center'}>
-              <Avatar alt={loggedInUser.username} src={`${BASE_URL}/${loggedInUser.profilePicture}`} />
-              <Typography variant='h5'>{`${loggedInUser.username}`}</Typography>
+              <Avatar alt={loggedInUser.loggedInUser.username} src={`${BASE_URL}/${loggedInUser.loggedInUser.profilePicture}`} />
+              <Typography variant='h5'>{`${loggedInUser.loggedInUser.username}`}</Typography>
               <Typography variant='p'>Home</Typography>
               <Typography variant='p'>Notifications</Typography>
           </Stack>

@@ -1,22 +1,22 @@
-import React from 'react'
+import React, { useContext } from 'react'
 import { Navbar } from '../components/Navbar'
 import { Leftbar } from '../components/Leftbar'
 import {Box,Stack,Grid} from '@mui/material'
-import { Rightbar } from '../components/Rightbar'
 import Facultycard from '../components/Facultycard'
+import { Link } from 'react-router-dom'
 
 export const Aboutfaculty = () => {
   return (
     <>
-    <Navbar/>
+    {/* <Navbar/> */}
 
-        <Stack direction={'row'} justifyContent={'space-between'}>
+        {/* <Stack direction={'row'} justifyContent={'space-between'}> */}
 
             <Stack flex={"10%"}>
                 <Box position={'fixed'} width={'100%'}>
-                    <Leftbar/>
+                    {/* <Leftbar/> */}
                 </Box>
-            </Stack>
+            {/* </Stack> */}
 
             <Stack flex={"70%"}>
 
@@ -27,7 +27,8 @@ export const Aboutfaculty = () => {
                     <Facultycard name={'Sumit Negi'} subject={'C programming'} about={"Often a card allow users to interact with the entirety of its surface to trigger its main action, be it an expansion, a link to another screen or some other behavior. The action area of the card can be specified by wrapping its contents in a CardActionArea component."} img={"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtNMoVZ1nvONFxWSn4LM3eGMH99d49_FtBoA&usqp=CAU"}/>
                     <Facultycard name={'Sumit Negi'} subject={'C programming'} about={"Often a card allow users to interact with the entirety of its surface to trigger its main action, be it an expansion, a link to another screen or some other behavior. The action area of the card can be specified by wrapping its contents in a CardActionArea component."} img={"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtNMoVZ1nvONFxWSn4LM3eGMH99d49_FtBoA&usqp=CAU"}/>
                 </Grid>
-
+                
+                <Link to={'/'}>homepage</Link>
                 
 
             </Stack>
