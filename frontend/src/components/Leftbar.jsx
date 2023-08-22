@@ -1,4 +1,4 @@
-import {Box,List,ListItem,ListItemButton ,ListItemIcon,ListItemText,Divider, Switch, IconButton} from '@mui/material';
+import {Box,List,ListItem,ListItemButton ,ListItemIcon,ListItemText,Divider} from '@mui/material';
 import PersonIcon from '@mui/icons-material/Person';
 import Diversity3Icon from '@mui/icons-material/Diversity3';
 import SettingsIcon from '@mui/icons-material/Settings';
@@ -16,6 +16,7 @@ import {useState } from 'react';
 import {PostModal} from '../components/PostModal'
 import { useContext } from 'react';
 import { loggedInUserContext } from '../context/user/Usercontext';
+import { BugReport } from '@mui/icons-material';
 
 
 export const Leftbar=()=> {
@@ -84,29 +85,23 @@ export const Leftbar=()=> {
         </List>
       </nav>
       <Divider />
-      <ListItem disablePadding>
+      {/* <ListItem disablePadding>
             <ListItemButton component={Link} to='/aboutfaculty'>
             <ListItemIcon><FaceRetouchingNaturalIcon/></ListItemIcon>
               <ListItemText primary="Know Your Faculty" />
             </ListItemButton>
-        </ListItem>
-      <ListItem disablePadding>
+        </ListItem> */}
+      {/* <ListItem disablePadding>
             <ListItemButton component={Link} to="/upcomingclasses">
             <ListItemIcon><LocalLibraryIcon/></ListItemIcon>
               <ListItemText primary="See Upcoming Classes" />
             </ListItemButton>
-        </ListItem>
+        </ListItem> */}
         <Divider />
       <ListItem disablePadding>
             <ListItemButton onClick={handleOpenModal}>
             <ListItemIcon><PostAddIcon/></ListItemIcon>
               <ListItemText primary="New Post" />
-            </ListItemButton>
-        </ListItem>
-      <ListItem disablePadding>
-            <ListItemButton component={Link} to={"/about"}>
-            <ListItemIcon><PostAddIcon/></ListItemIcon>
-              <ListItemText primary="about" />
             </ListItemButton>
         </ListItem>
       <Divider />
@@ -115,9 +110,9 @@ export const Leftbar=()=> {
           <ListItem disablePadding>
             <ListItemButton>
               <ListItemIcon>
-                <ErrorIcon />
+                <BugReport/>
               </ListItemIcon>
-              <ListItemText primary="Raise an Issue"/>
+              <ListItemText primary="Report a bug"/>
             </ListItemButton>
           </ListItem>
           <ListItem disablePadding>

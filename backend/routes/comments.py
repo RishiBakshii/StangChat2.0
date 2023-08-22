@@ -15,6 +15,7 @@ def postcomment():
             post_id = data.get('postid')
             comment_content = data.get('comment')
             username=data.get('username')
+            profilepath=data.get("profilepath")
             mongo=comments.mongo
 
             user = mongo.db.users.find_one({'_id': ObjectId(user_id)})
@@ -30,7 +31,10 @@ def postcomment():
                 'user_id': user_id,
                 'post_id': post_id,
                 'comment': comment_content,
-                'username':username
+                'username':username,
+                'profilepath':profilepath,
+                'likes':[],
+                'likeCount':0
             }
 
             new_comment_id=mongo.db.comments.insert_one(new_comment).inserted_id
@@ -58,3 +62,45 @@ def getComments():
         except Exception as e:
             print(e)
             return jsonify({'message': str(e)}), 500
+
+@comments.route('/commentlike',methods=['POST'])
+def commentLike():
+    if request.method=='POST':
+        try:
+            data=request.json
+            mongo=comments.mongo
+            userid=data.get("userid")
+            commentid=data.get("commentid")
+
+            user=mongo.db.users.find_one({"_id":ObjectId(userid)})
+
+            if not user:
+                return jsonify({'message':"user not found"}),400
+            
+            comment=mongo.db.comments.find_one({"_id":ObjectId(commentid)})
+
+            if not comment:
+                return jsonify({"message":"comment not found"}),400
+            
+            if userid in comment["likes"]:
+                mongo.db.comments.update_one(
+                    {"_id": ObjectId(commentid)},
+                    {
+                        "$pull": {"likes": userid},
+                        "$inc": {"likeCount": -1},
+                    }
+                )
+
+                return jsonify({"message": 0}), 200
+            else:
+                mongo.db.comments.update_one(
+                    {"_id": ObjectId(commentid)},
+                    {
+                        "$addToSet": {"likes": userid},
+                        "$inc": {"likeCount": 1},
+                    }
+                )
+                return jsonify({"message": 1}), 200
+
+        except Exception as e:
+            return jsonify({"message":str(e)}),500

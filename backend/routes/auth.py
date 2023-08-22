@@ -21,8 +21,21 @@ def login():
                     'email':str(user['email']),
                 }
                 token=jwt.encode(payload,os.environ.get('SECRET_KEY'),algorithm='HS256')
-                user_dump=dumps(user)
-                return make_response(jsonify({"message":"Login Successful","authToken":f'{token}','userdata':user_dump}),200)
+
+
+                formatted_user_data={
+                'userid':str(user['_id']),
+                'username':user['username'],
+                'email':user['email'],
+                'location':user['location'],
+                'bio':user['bio'],
+                'linkedinProfile':"",
+                'profilePicture':user['profilePicture'],
+                'followers':[],
+                'following':[],
+                'post':[],
+            }
+                return make_response(jsonify({"message":"Login Successful","authToken":f'{token}','userdata':formatted_user_data}),200)
             else:
                 return make_response(jsonify({'message':"Invalid username or password"}),400)
         except Exception as e:
@@ -51,7 +64,9 @@ def signup():
                 'profilePicture':"",
                 'followers':[],
                 'following':[],
-                'post':[],
+                'postCount':0,
+                'followerCount':0,
+                'followingCount':0
             }
             created_user=mongo.db.users.insert_one(new_user)
 

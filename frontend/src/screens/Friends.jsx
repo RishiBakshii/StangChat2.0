@@ -8,19 +8,9 @@ export const Friends = () => {
     <>
     <Navbar/>
         
-
-            <Stack>
-                <Box position={'fixed'}>
-                    <Leftbar/>
-                </Box>
-            </Stack>
+                <Leftbar/>
 
 
-        <Stack flex={'1'}>
-            
-            <Typography variant='h4'>all the post regarding friends will be visible here</Typography>
-
-        </Stack>
     </>
   )
 }

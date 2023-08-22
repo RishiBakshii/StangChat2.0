@@ -8,14 +8,7 @@ export const Settings = () => {
     <>
     <Navbar/>
 
-
-
-
-        <Stack flex={"10%"}>
-                <Box position={'fixed'} width={'100%'}>
-                    {/* <Leftbar/> */}
-                </Box>
-            </Stack>
+    <Leftbar/>
 
     </>
   )

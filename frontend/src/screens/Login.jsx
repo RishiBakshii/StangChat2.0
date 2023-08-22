@@ -42,10 +42,12 @@ export const Login = () => {
             if(response.ok){
                 setAlert({message:json.message,severity:"success"})
                 localStorage.setItem('authToken',json.authToken)
+                console.log(json.userdata)
                 loggedInUser.updateLoggedInUser(json.userdata)
                 setTimeout(()=>{
-                    navigate("/")
-                },1200)
+                    navigate("/");
+                },1500)
+
             }
             if(response.status==400){
                 setAlert({message:json.message,severity:"info"})

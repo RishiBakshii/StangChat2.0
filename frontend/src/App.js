@@ -9,7 +9,6 @@ import { Login } from "./screens/Login";
 import { Signup } from "./screens/Signup";
 import LeftbarMobile from "./components/LeftbarMobile";
 import { Userstate } from "./context/user/Userstate";
-import { About } from "./components/About";
 
 function App() {
   return (
@@ -26,7 +25,6 @@ function App() {
         <Route exact path="/login" element={<Login/>}/>
         <Route exact path="/signup" element={<Signup/>}/>
         <Route exact path="/leftbarmobile" element={<LeftbarMobile/>}/>
-        <Route exact path="/about" element={<About/>}/>
       </Routes>
     </Router>
     </Userstate>

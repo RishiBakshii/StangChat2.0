@@ -1,12 +1,7 @@
-import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
-import Typography from '@mui/material/Typography';
-import Modal from '@mui/material/Modal';
+import {Button,Typography,Modal,Stack,TextField,styled} from '@mui/material';
 import { useContext, useState } from 'react';
-import { Avatar, Stack, TextField } from '@mui/material';
-import styled from '@emotion/styled';
 import { feedUpdate} from '../screens/Home';
-
+import { loggedInUserContext } from '../context/user/Usercontext';
 
 
 const style = {
@@ -16,7 +11,6 @@ const style = {
   transform: 'translate(-50%, -50%)',
   width: 400,
   bgcolor: 'background.paper',
-//   border: '2px solid #000',
   boxShadow: 24,
   p: 4,
   borderRadius:".4rem"
@@ -34,6 +28,7 @@ const CustomPhotoinput=styled('input')({
 const BASE_URL=process.env.REACT_APP_API_BASE_URL;
 
 export const PostModal=({ isOpen, onClose})=> {
+    const loggedInUser=useContext(loggedInUserContext)
     const updateFeed=useContext(feedUpdate)
     const [selectedImage, setSelectedImage] = useState(null);
     const [displayImage,setDisplayImage]=useState(null)
@@ -55,7 +50,7 @@ export const PostModal=({ isOpen, onClose})=> {
       const handlePostUpload=async()=>{
         try {
           const formData=new FormData();
-          // formData.append("userid",loggedInUser.userid);
+          formData.append("userid",loggedInUser.loggedInUser.userid);
           formData.append('caption',caption);
           formData.append("post",selectedImage); 
 

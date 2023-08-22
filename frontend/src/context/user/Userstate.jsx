@@ -8,6 +8,13 @@ export const Userstate = ({children}) => {
     
     const [loggedInUser,setLoggedInUser]=useState({})
 
+    const updateLoggedInUser=(updatedData)=> {
+        console.log("updation funtion called for user state!😮")
+        setLoggedInUser(updatedData)
+        console.log("updated user state is -->>")
+        console.log(loggedInUser)
+    }
+
     const getLoggedInUserandUpdateState=async()=>{
         const userdata=await fetchLoggedInUser()
         updateLoggedInUser(userdata)
@@ -21,9 +28,6 @@ export const Userstate = ({children}) => {
         }
     },[])
 
-    function updateLoggedInUser(updatedData) {
-        setLoggedInUser(updatedData)
-    }
 
   return (
     <loggedInUserContext.Provider value={{loggedInUser,updateLoggedInUser}}>

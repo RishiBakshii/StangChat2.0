@@ -58,12 +58,14 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 
 export const Navbar = () => {
   const loggedInUser=useContext(loggedInUserContext)
+  console.log('loggin from navbar regarding the user state')
+  console.log(loggedInUser)
   return (
     <>
     <AppBar position='sticky'>
         <Customtoolbar >
 
-          <Typography variant='h5' fontWeight={"700"}>Social Media</Typography>
+          <Typography variant='h5' fontWeight={"700"}>StangChat</Typography>
 
           <Search>
             <SearchIconWrapper>
@@ -76,9 +78,9 @@ export const Navbar = () => {
           </Search>
           <Stack direction={'row'} spacing={2} alignItems={'center'}>
               <Avatar alt={loggedInUser.loggedInUser.username} src={`${BASE_URL}/${loggedInUser.loggedInUser.profilePicture}`} />
-              <Typography variant='h5'>{`${loggedInUser.loggedInUser.username}`}</Typography>
-              <Typography variant='p'>Home</Typography>
-              <Typography variant='p'>Notifications</Typography>
+              <Typography variant='h5'>{`welcome ${loggedInUser.loggedInUser.username}`}</Typography>
+              {/* <Typography variant='p'>Home</Typography>
+              <Typography variant='p'>Notifications</Typography> */}
           </Stack>
 
         </Customtoolbar>

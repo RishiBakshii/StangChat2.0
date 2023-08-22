@@ -50,9 +50,15 @@ def getuserposts():
         try:
             data=request.json
             mongo=posts.mongo
-            user=mongo.db.users.find_one({"_id",ObjectId(data.get('userid'))})
+            userid=data.get("userid")
+            user=mongo.db.users.find_one({"_id":ObjectId(userid)})
             if user:
-                return 'hello',200
+                user_posts=list(mongo.db.post.find({"user_id":ObjectId(userid)}))
+                user_posts_dump=dumps(user_posts)
+                print(user_posts_dump)
+                return user_posts_dump,200
+            if not user:
+                return jsonify({"message":"user not found"}),400
         except Exception as e:
             return jsonify({"message":str(e)}),500
 
@@ -73,7 +79,7 @@ def likepost():
             if not post:
                 return jsonify({"message": "Post not found"}), 400
             
-            if userid in post.get("likes", []):
+            if userid in post["likes"]:
                 mongo.db.post.update_one(
         {"_id": ObjectId(postid)},
         {
@@ -81,7 +87,7 @@ def likepost():
             "$inc": {"likesCount": -1}
         }
     )
-                return jsonify({"message": False}), 200
+                return jsonify({"message": 0}), 200
             else:
                 mongo.db.post.update_one(
         {"_id": ObjectId(postid)},
@@ -90,7 +96,7 @@ def likepost():
             "$inc": {"likesCount": 1}
         }
     )
-                return jsonify({"message": True}), 200
+                return jsonify({"message": 1}), 200
 
         except Exception as e:
             return jsonify({"message":str(e)}),500
@@ -99,10 +105,19 @@ def likepost():
 def getfeed():
     if request.method=='POST':
         try:
+            data=request.json
             mongo=posts.mongo
-            feed=mongo.db.post.find({})
+            page=data.get('page')
+            per_page = 5
+            skip = (page - 1) * per_page
+
+            feed = mongo.db.post.find({}).skip(skip).limit(per_page)
+
             feed_list = list(feed)
             feed_json = dumps(feed_list)
+            with open("test.json",'a') as f:
+                f.write(f'{feed_json}\n\n')
+            print(feed_json)
             return feed_json,200
         except Exception as e:
             return jsonify({'message':str(e)}),500
