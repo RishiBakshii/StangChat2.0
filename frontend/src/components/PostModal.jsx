@@ -2,6 +2,7 @@ import {Button,Typography,Modal,Stack,TextField,styled} from '@mui/material';
 import { useContext, useState } from 'react';
 import { feedUpdate} from '../screens/Home';
 import { loggedInUserContext } from '../context/user/Usercontext';
+import LoadingButton from '@mui/lab/LoadingButton';
 
 
 const style = {
@@ -33,6 +34,7 @@ export const PostModal=({ isOpen, onClose})=> {
     const [selectedImage, setSelectedImage] = useState(null);
     const [displayImage,setDisplayImage]=useState(null)
     const [caption,setCaption]=useState('')
+    const [loading,setLoading]=useState(false)
     const defaultImage="https://t4.ftcdn.net/jpg/04/99/93/31/240_F_499933117_ZAUBfv3P1HEOsZDrnkbNCt4jc3AodArl.jpg"
 
     const handleImageChange = (event) => {
@@ -49,6 +51,7 @@ export const PostModal=({ isOpen, onClose})=> {
 
       const handlePostUpload=async()=>{
         try {
+          setLoading(true)
           const formData=new FormData();
           formData.append("userid",loggedInUser.loggedInUser.userid);
           formData.append('caption',caption);
@@ -65,6 +68,7 @@ export const PostModal=({ isOpen, onClose})=> {
             setCaption("")
             setDisplayImage(null)
             onClose()
+            setLoading(false)
           }
           if(response.status==400){
             alert("some bad request")
@@ -80,9 +84,7 @@ export const PostModal=({ isOpen, onClose})=> {
       }
 
   return (
-    <>
-
-<div>
+          <div>
           <Modal open={isOpen} onClose={onClose} aria-labelledby="Create Post" aria-describedby="here a user can make a post, upload images and videos">
             <Stack sx={style} spacing={4}>
                 <Typography variant='h4'>Create Post</Typography>
@@ -94,11 +96,12 @@ export const PostModal=({ isOpen, onClose})=> {
                 <Stack>
                     <TextField value={caption} onChange={(e)=>setCaption(e.target.value)} variant='standard' label='Caption ...'></TextField>
                 </Stack>
-                <Button disabled={caption!==''?false:true} onClick={handlePostUpload} variant='contained'>Post</Button>
+                <LoadingButton loadingPosition='center' disabled={caption!=='' && displayImage!==null?false:true} onClick={handlePostUpload} loading={loading} variant="contained" >
+                  Post
+                </LoadingButton>
             </Stack>
           </Modal>
         </div>
    
-    </>
   );
 }

@@ -30,6 +30,7 @@ import { BASE_URL } from "../screens/Home";
 import CircularProgress from "@mui/material/CircularProgress";
 import { Link } from "react-router-dom";
 import { loggedInUserContext } from "../context/user/Usercontext";
+import LoadingButton from "@mui/lab/LoadingButton/LoadingButton";
 
 export const Postcard = ({
   username,
@@ -39,13 +40,15 @@ export const Postcard = ({
   unique_id,
   postedAt,
   profilePath,
-  isLiked
+  isLiked,
 }) => {
-  const loggedInUser=useContext(loggedInUserContext)
+  const [isLikedstate, setIsLikedState] = useState(isLiked);
+  const loggedInUser = useContext(loggedInUserContext);
   const [showComment, setShowComment] = useState({
     show: false,
     cardHeight: 700,
   });
+  const [postingComment,setPostingComment]=useState(false)
   const [fetchedComment, setFetchedComment] = useState([]);
   const [comment, setComment] = useState([]);
   const toggleComments = () => {
@@ -90,6 +93,7 @@ export const Postcard = ({
     }
   };
   const handleSendComment = async () => {
+    setPostingComment(true)
     try {
       const response = await fetch(`${BASE_URL}/postcomment`, {
         method: "POST",
@@ -97,17 +101,18 @@ export const Postcard = ({
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          'userid':loggedInUser.loggedInUser.userid,
+          userid: loggedInUser.loggedInUser.userid,
           postid: unique_id,
           comment: comment,
-          username:loggedInUser.loggedInUser.username,
-          profilepath:loggedInUser.loggedInUser.profilePicture
+          username: loggedInUser.loggedInUser.username,
+          profilepath: loggedInUser.loggedInUser.profilePicture,
         }),
       });
 
       const json = await response.json();
 
       if (response.ok) {
+        setPostingComment(false)
         setFetchedComment((prevComments) => [...prevComments, json]);
         setComment("");
       }
@@ -123,8 +128,6 @@ export const Postcard = ({
     }
   };
 
-  const [isLikedstate,setIsLikedState]=useState(isLiked)
-
   const handlePostLike = async () => {
     try {
       const response = await fetch(`${BASE_URL}/likepost`, {
@@ -133,7 +136,7 @@ export const Postcard = ({
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          'userid':loggedInUser.loggedInUser.userid,
+          userid: loggedInUser.loggedInUser.userid,
           postid: unique_id,
         }),
       });
@@ -141,9 +144,9 @@ export const Postcard = ({
       const json = await response.json();
 
       if (response.ok) {
-        console.log(json.message)
-        setIsLikedState(json.message)
-        console.log(`state is updated to ${isLikedstate}`)
+        console.log(json.message);
+        setIsLikedState(json.message);
+        console.log(`state is updated to ${isLikedstate}`);
       }
       if (response.status == 500) {
         alert("internal server Error");
@@ -154,32 +157,34 @@ export const Postcard = ({
     }
   };
 
-  const handleCommentLike=async(commentid)=>{
+  const handleCommentLike = async (commentid) => {
     try {
-      const response=await fetch(`${BASE_URL}/commentlike`,{
-        method:"POST",
-        headers:{
-          'Content-Type':"application/json"
+      const response = await fetch(`${BASE_URL}/commentlike`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
-        body:JSON.stringify({
-          'userid':loggedInUser.loggedInUser.userid,
-          'commentid':commentid
-        })
-      })
+        body: JSON.stringify({
+          userid: loggedInUser.loggedInUser.userid,
+          commentid: commentid,
+        }),
+      });
 
-      const json=await response.json()
+      const json = await response.json();
 
-      if(response.ok){
-        loadComment()
+      if (response.ok) {
+        loadComment();
       }
-      if(response.status==500){alert("interal server error")}
-      if(response.status==400){alert("someething went wront")}
-
-
+      if (response.status == 500) {
+        alert("interal server error");
+      }
+      if (response.status == 400) {
+        alert("someething went wront");
+      }
     } catch (error) {
-      alert(error)
+      alert(error);
     }
-  }
+  };
 
   return (
     <Card sx={{ margin: 5, height: showComment.cardHeight, width: "100%" }}>
@@ -215,7 +220,7 @@ export const Postcard = ({
         component="img"
         image={imageUrl}
         alt={`Unable to load ${username}s post`}
-        style={{ height: "500px", objectFit: "contain" }}
+        style={{ height:"500px",objectFit: "contain" }}
       />
 
       <CardContent>
@@ -262,37 +267,43 @@ export const Postcard = ({
             }}
           >
             {isLoadingComments ? (
-              <CircularProgress sx={{ alignSelf: "center", justifySelf: "center",marginTop: 4}}/>
-            ) : fetchedComment.length==0 ? (
-                <Stack mt={4} sx={{alignSelf: "center", justifySelf: "center"}}>There are no comments☹️</Stack>
+              <CircularProgress
+                sx={{
+                  alignSelf: "center",
+                  justifySelf: "center",
+                  marginTop: 4,
+                }}
+              />
+            ) : fetchedComment.length == 0 ? (
+              <Stack mt={4} sx={{ alignSelf: "center", justifySelf: "center" }}>
+                There are no comments☹️
+              </Stack>
             ) : (
               fetchedComment.map((comment) => {
-                const isLikedByUser = comment.likes.includes(loggedInUser.loggedInUser.userid);
+                  const isLikedByUser = comment.likes.includes(
+                  loggedInUser.loggedInUser.userid
+                );
                 return (
-                  <Stack key={comment._id.$oid} mt={4} bgcolor={"white"} spacing={1}>
-                    <Stack direction={'row'} alignItems={'center'} spacing={1}>
-                    <Avatar alt={comment.username} src={`${BASE_URL}/${comment.profilepath}`} />
-                    <Typography>{comment.username}</Typography>
+                  <Stack key={comment._id.$oid} mt={4} bgcolor={"white"} spacing={1} p={'0 1rem'}>
+
+                    <Stack direction={"row"} alignItems={"center"} spacing={1}>
+                      <Avatar alt={comment.username} src={`${BASE_URL}/${comment.profilepath}`}/>
+                      <Typography>{comment.username}</Typography>
                     </Stack>
-                    <Stack
-                      bgcolor={""}
-                      direction={"row"}
-                      alignItems={"center"}
-                      justifyContent={"space-between"}
-                    >
-                      <Typography variant="body2" color="text.secondary">
-                        {comment.comment}
-                      </Typography>
-                      <Stack direction={'row'} alignItems={'center'}>
-                        <Checkbox checked={isLikedByUser} onClick={()=>handleCommentLike(comment._id.$oid)}
-                          icon={<FavoriteBorder fontSize="small" />}
-                          checkedIcon={
-                            <Favorite fontSize="small" sx={{ color: "red" }} />
-                          }
-                          />
-                          {comment.likeCount}
+
+                    <Stack bgcolor={""} direction={"row"} alignItems={"center"} justifyContent={"space-between"}>
+
+                        <Typography variant="body2" color="text.secondary">
+                          {comment.comment}
+                        </Typography>
+
+                      <Stack direction={"row"} alignItems={"center"}>
+                        <Checkbox checked={isLikedByUser} onClick={() => handleCommentLike(comment._id.$oid)} icon={<FavoriteBorder fontSize="small"/>} 
+                        checkedIcon={<Favorite fontSize="small" sx={{ color: "red" }} />}/>
+                        {comment.likeCount}
                       </Stack>
                     </Stack>
+
                   </Stack>
                 );
               })
@@ -309,9 +320,20 @@ export const Postcard = ({
                 endAdornment: (
                   <InputAdornment position="end">
                     {comment !== "" ? (
-                      <IconButton onClick={handleSendComment}>
-                        <Send />
-                      </IconButton>
+                      postingComment?(
+                        <LoadingButton
+                          loadingPosition="center"
+                          disabled={false}
+                          loading={true}
+                          variant="text"
+                        ></LoadingButton>
+                      ):(
+                        <IconButton onClick={handleSendComment}>
+                          <Send />
+                        </IconButton>
+                      )
+                        
+                      
                     ) : (
                       ""
                     )}

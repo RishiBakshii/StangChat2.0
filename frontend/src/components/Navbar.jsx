@@ -5,6 +5,7 @@ import InputBase from '@mui/material/InputBase';
 import SearchIcon from '@mui/icons-material/Search';
 import { useContext } from 'react';
 import { loggedInUserContext } from '../context/user/Usercontext';
+import { Link } from 'react-router-dom';
 
 
 const BASE_URL=process.env.REACT_APP_API_BASE_URL;
@@ -65,7 +66,7 @@ export const Navbar = () => {
     <AppBar position='sticky'>
         <Customtoolbar >
 
-          <Typography variant='h5' fontWeight={"700"}>StangChat</Typography>
+          <Typography variant='h5' component={Link} sx={{"textDecoration":"none","color":"white"}} fontWeight={"700"}>StangChat</Typography>
 
           <Search>
             <SearchIconWrapper>
