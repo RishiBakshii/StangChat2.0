@@ -1,22 +1,20 @@
 import { createTheme } from "@mui/material/styles";
 
 const theme = createTheme({
-  palette: {
-    // primary: {
-    //   main: "#000000",
-    // },
-    // secondary: {
-    //   main: "#191919",
-    // },
-    buttonColors: {
-      main: "#ffffff",
-      secondary: "#191919",
-    },
-    // text: {
-    //   primary: "#ffffff",
-    //   secondary: "#191919",
-    // },
-  },
+  // palette: {
+  //   primary: {
+  //     main:"#ffffff",
+  //     dark:"#191919"
+  //   },
+  //   buttonColors: {
+  //     main: "#white",
+  //     secondary: "#191919",
+  //   },
+  //   text: {
+  //     light: "#191919",
+  //     dark: "#191919",
+  //   },
+  // },
 
   breakpoints: {
     values: {

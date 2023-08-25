@@ -127,8 +127,20 @@ def getfeed():
 def getPostLikes():
     if request.method=='POST':
         try:
+            likes_data=[]
             data=request.json
-            print(data)
-            return data
+            postid=data.get("postid")
+            mongo=posts.mongo
+            post=mongo.db.post.find_one({"_id":ObjectId(postid)})
+            if not post:
+                return jsonify({"message":"post does not exists"}),400
+            
+
+            for user_ids in post['likes']:
+                data=mongo.db.users.find_one({"_id":ObjectId(user_ids)})
+                if data:
+                    likes_data.append({"username":data['username'],'profilePicture':data['profilePicture'],"bio":data['bio']})
+            return jsonify({"message":likes_data}),200
+
         except Exception as e:
-            pass
+            return jsonify({"message":str(e)}),500

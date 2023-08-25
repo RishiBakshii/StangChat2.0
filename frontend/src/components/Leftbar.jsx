@@ -17,25 +17,17 @@ import {PostModal} from '../components/PostModal'
 import { useContext } from 'react';
 import { loggedInUserContext } from '../context/user/Usercontext';
 import { BugReport } from '@mui/icons-material';
+import { Logoutmodal } from './Logoutmodal';
 
 
 export const Leftbar=()=> {
 
   const loggedInUser=useContext(loggedInUserContext)
 
-  const modalstyles = {
-    position: 'absolute',
-    top: '50%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)',
-    width: 400,
-    // border: '2px solid #000',
-    boxShadow: 24,
-    p:4
-  };
   const [open, setOpen] = useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
+  const [isLogoutModal,setIsLogoutModal]=useState(false)
   const [isModalOpen, setIsModalOpen] = useState(false);
   const handleOpenModal = () => {
     setIsModalOpen(true);
@@ -45,13 +37,13 @@ export const Leftbar=()=> {
     setIsModalOpen(false);
   };
 
-  const navigate=useNavigate()
-
-  const logoutUser=()=>{
-    localStorage.removeItem('authToken')
-    navigate('/login')
+  const handleCloseLogoutModal=()=>{
+    setIsLogoutModal(false)
   }
 
+  const handleOpenLogoutModal=()=>{
+    setIsLogoutModal(true)
+  }
 
   return (
     <Box p={2} flex={1}>
@@ -125,7 +117,7 @@ export const Leftbar=()=> {
       </nav>
       <Divider />
       <ListItem disablePadding>
-            <ListItemButton onClick={()=>setOpen(true)}>
+            <ListItemButton onClick={handleOpenLogoutModal}>
             <ListItemIcon><LogoutIcon/></ListItemIcon>
               <ListItemText primary="Logout" />
             </ListItemButton>
@@ -138,22 +130,8 @@ export const Leftbar=()=> {
             </ListItemButton>
           </ListItem> */}
 
-          <Modal open={open} onClose={handleClose} aria-labelledby="modal-modal-title" aria-describedby="modal-modal-description">
-          <Stack sx={modalstyles} justifyContent={'flex-start'} alignItems={"flex-start"} bgcolor={'white'} spacing={3}>
-
-            <Typography id="modal-modal-title" variant="h6" component="h2">Logout</Typography>
-            <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-              Are you sure you want to logout?🤫
-            </Typography>
-            <Stack direction={'row'} spacing={2}>
-              <Button onClick={logoutUser} variant='outlined'>Yes</Button>
-              <Button onClick={()=>setOpen(false)} variant='contained'>No</Button>
-            </Stack>
-          
-        </Stack>
-
-          </Modal>
           <PostModal isOpen={isModalOpen} onClose={handleCloseModal}/>
+          <Logoutmodal open={isLogoutModal} handleClose={handleCloseLogoutModal}/>
     </Box>
     </Box>
     

@@ -51,6 +51,11 @@ def signup():
 
             if existing_user:
                 return jsonify({'message': 'Email is already taken😭'}),400
+            
+            existing_username = mongo.db.users.find_one({'username': data.get("username")})
+
+            if existing_username:
+                 return jsonify({'message': 'Username is already taken😭'}),400
 
             hashed_password=bcrypt.hashpw(data.get("password").encode("utf-8"),bcrypt.gensalt())
 

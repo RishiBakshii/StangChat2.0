@@ -16,10 +16,6 @@ export const handlePostUpload=async(userid,caption,selectedImage)=>{
 
       if(response.ok){
         return json
-        // updateFeed(json)
-        // setCaption("")
-        // setDisplayImage(null)
-        // onClose()
       }
       if(response.status==400){
         alert("some bad request")
@@ -31,5 +27,35 @@ export const handlePostUpload=async(userid,caption,selectedImage)=>{
 
     } catch (error) {
         alert(error)
+    }
+  }
+
+
+export const getPostLikes=async(postid)=>{
+    try {
+      const response=await fetch(`${BASE_URL}/getpostlikes`,{
+        method:"POST",
+        headers:{
+          'Content-Type':"application/json"
+        },
+        body:JSON.stringify({
+          postid:postid
+        })
+      })
+
+      const json=await response.json()
+      if(response.ok){
+        console.log(json.message)
+        return json.message
+      }
+      if(response.status==400){
+        alert(json.message)
+      }
+      if(response.status==500){
+        alert(json.message)
+      }
+
+    } catch (error) {
+      console.log(error)
     }
   }

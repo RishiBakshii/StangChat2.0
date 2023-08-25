@@ -32,17 +32,7 @@ import { Link } from "react-router-dom";
 import { loggedInUserContext } from "../context/user/Usercontext";
 import LoadingButton from "@mui/lab/LoadingButton/LoadingButton";
 
-export const Postcard = ({
-  username,
-  caption,
-  likesCount,
-  imageUrl,
-  unique_id,
-  postedAt,
-  profilePath,
-  isLiked,
-  getpostlikes
-}) => {
+export const Postcard = ({username,caption,likesCount,imageUrl,unique_id,postedAt,profilePath,isLiked,setLikeModalOpen}) => {
   const [isLikedstate, setIsLikedState] = useState(isLiked);
   const loggedInUser = useContext(loggedInUserContext);
   const [showComment, setShowComment] = useState({
@@ -188,6 +178,7 @@ export const Postcard = ({
   };
 
 
+
   return (
     <Card sx={{ margin: 5, height: showComment.cardHeight, width: "100%" }}>
       <CardHeader
@@ -236,7 +227,7 @@ export const Postcard = ({
                 <Checkbox onClick={handlePostLike} icon={<FavoriteBorder />} checked={isLikedstate} checkedIcon={<Favorite sx={{ color: "red" }} />}></Checkbox>
             </IconButton>
 
-            <Button onClick={(unique_id)=>getpostlikes(unique_id)}>{likesCount}</Button>
+            <Button onClick={()=>setLikeModalOpen({state:true,postid:unique_id})}>{likesCount}</Button>
             
             <IconButton onClick={toggleComments} aria-label="share"><Comment /></IconButton>
 
@@ -306,11 +297,7 @@ export const Postcard = ({
           </Box>
 
           <Stack mt={4}>
-            <TextField
-              value={comment}
-              onChange={(e) => setComment(e.target.value)}
-              label="Add a comment..."
-              variant="standard"
+            <TextField value={comment} onChange={(e) => setComment(e.target.value)} label="Add a comment..." variant="standard"
               InputProps={{
                 endAdornment: (
                   <InputAdornment position="end">
