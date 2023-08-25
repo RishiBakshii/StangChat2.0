@@ -108,6 +108,7 @@ def getfeed():
             data=request.json
             mongo=posts.mongo
             page=data.get('page')
+
             per_page = 5
             skip = (page - 1) * per_page
 
@@ -121,3 +122,13 @@ def getfeed():
             return feed_json,200
         except Exception as e:
             return jsonify({'message':str(e)}),500
+
+@posts.route("/getpostlikes",methods=['POST'])
+def getPostLikes():
+    if request.method=='POST':
+        try:
+            data=request.json
+            print(data)
+            return data
+        except Exception as e:
+            pass

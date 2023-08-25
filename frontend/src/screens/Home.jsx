@@ -1,32 +1,44 @@
 import React, { useEffect,useState ,createContext, useContext} from 'react'
 import { Navbar } from '../components/Navbar'
-import {Stack} from '@mui/material'
+import {Stack, Typography} from '@mui/material'
 import { Leftbar } from '../components/Leftbar'
 import { Rightbar } from '../components/Rightbar'
 import { Postcard } from '../components/Postcard'
 import { loggedInUserContext } from '../context/user/Usercontext'
+import CircularProgress from '@mui/material/CircularProgress';
 
 
 export const BASE_URL=process.env.REACT_APP_API_BASE_URL;
-
 export const feedData=createContext()
 export const feedUpdate=createContext();
 
 export const Home =() => {
+    const loggedInUser=useContext(loggedInUserContext)
+    const [page,setPage]=useState(1)
+    const [feed,setFeed]=useState([])
+    const [loading,setLoading]=useState(false)
+    const [hasMore,sethasMore]=useState(true)
+
+    useEffect(()=>{
+        window.addEventListener("scroll", handelInfiniteScroll);
+        return () => window.removeEventListener("scroll", handelInfiniteScroll);
+    },[])
 
     useEffect(()=>{
         getFeed()
-        window.addEventListener("scroll", handleScroll);
-        return ()=>{
-            window.removeEventListener("scroll",handleScroll)
+    },[page])
+
+    const handelInfiniteScroll = async() => {
+        try{
+            if (window.innerHeight + document.documentElement.scrollTop +500 >=document.documentElement.scrollHeight){
+                setLoading(true);
+                setPage((prev) => prev + 1);
+            }
         }
-    },[])
-
-    const loggedInUser=useContext(loggedInUserContext)
-
-    const [feed,setFeed]=useState([])
-    const [page,setPage]=useState(1)
-    const [hasMore, setHasMore] = useState(true);
+        catch(error){
+            console.log(error)
+        }
+      };
 
     const getFeed=async()=>{
         try {
@@ -43,36 +55,48 @@ export const Home =() => {
             const json=await response.json()
 
             if(response.ok){
-                console.log(json)
-                setFeed(json)
-
-                if (json.length > 0) {
-                    updateFeed(...json)
-                    setPage((prevpage)=>prevpage+1);
-                } 
-                else {
-                    setHasMore(false);
+                if(json.length!==0){
+                    setFeed((prev) => [...prev, ...json]);
+                }
+                else{
+                    sethasMore(false)
                 }
             }
-
-            
             if (response.status==500){
-                alert(json.message)
-            }
-            
+                alert('interval server issue')
+            }    
         } catch (error) {
             alert(error)
         }
     }
 
-
-
-    const handleScroll = () => {
-        const { scrollTop, clientHeight, scrollHeight } = document.documentElement;
-        if (scrollHeight - scrollTop === clientHeight && hasMore) {
-          getFeed();
+    const getPostLikes=async(postid)=>{
+        try {
+          const response=await fetch(`${BASE_URL}/getpostlikes`,{
+            method:"POST",
+            headers:{
+              'Content-Type':"application/json"
+            },
+            body:JSON.stringify({
+              userids:postid
+            })
+          })
+    
+          const json=await response.json()
+          if(response.ok){
+            
+          }
+          if(response.status==400){
+            alert(json.message)
+          }
+          if(response.status==500){
+            alert(json.message)
+          }
+    
+        } catch (error) {
+          console.log(error)
         }
-      };
+      }
 
     const updateFeed = (newPost) => {
         setFeed((prevFeed) => [newPost, ...prevFeed,]);
@@ -85,7 +109,7 @@ export const Home =() => {
                 
                 <Leftbar/>
 
-                <Stack flex={4} p={2}>
+                <Stack flex={4} p={2} justifyContent={'center'} alignItems={'center'}>
                     {
                     feed.map((feed) => 
                         (
@@ -98,10 +122,22 @@ export const Home =() => {
                         postedAt={feed.postedAt}
                         profilePath={feed.profilePath}
                         isLiked={`${feed.likes.includes(loggedInUser.loggedInUser.userid)?(1):(0)}`}
+                        getpostlikes={getPostLikes}
                         />
                         ))
                     }
-                    {/* {hasMore && <div>Loading more posts...</div>} */}
+                    {
+                    hasMore?(
+                        
+                        loading?(<CircularProgress />):("")
+                    ):(
+                        <Stack justifyContent={'center'} alignItems={"center"}>
+                        <Typography variant='body1' fontWeight={300}>You are all caught up!✅</Typography>
+                        <Typography variant='body1' fontWeight={300}>Follow more users for more content🚀</Typography>
+                        </Stack>
+                    )
+                    
+                    }
                 </Stack>
 
                 <Rightbar/>

@@ -41,6 +41,7 @@ export const Postcard = ({
   postedAt,
   profilePath,
   isLiked,
+  getpostlikes
 }) => {
   const [isLikedstate, setIsLikedState] = useState(isLiked);
   const loggedInUser = useContext(loggedInUserContext);
@@ -186,6 +187,7 @@ export const Postcard = ({
     }
   };
 
+
   return (
     <Card sx={{ margin: 5, height: showComment.cardHeight, width: "100%" }}>
       <CardHeader
@@ -230,21 +232,14 @@ export const Postcard = ({
       </CardContent>
 
       <CardActions disableSpacing>
-        <IconButton aria-label="add to favorites">
-          <Checkbox
-            onClick={handlePostLike}
-            icon={<FavoriteBorder />}
-            checked={isLikedstate}
-            checkedIcon={<Favorite sx={{ color: "red" }} />}
-          ></Checkbox>
-          <Typography variant="body1">{likesCount}</Typography>
-        </IconButton>
-        {/* <IconButton aria-label="share">
-        <Share />
-      </IconButton> */}
-        <IconButton onClick={toggleComments} aria-label="share">
-          <Comment />
-        </IconButton>
+            <IconButton aria-label="add to favorites">
+                <Checkbox onClick={handlePostLike} icon={<FavoriteBorder />} checked={isLikedstate} checkedIcon={<Favorite sx={{ color: "red" }} />}></Checkbox>
+            </IconButton>
+
+            <Button onClick={(unique_id)=>getpostlikes(unique_id)}>{likesCount}</Button>
+            
+            <IconButton onClick={toggleComments} aria-label="share"><Comment /></IconButton>
+
       </CardActions>
 
       {/* COMMENTS section */}
