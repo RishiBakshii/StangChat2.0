@@ -3,6 +3,8 @@ from flask import Blueprint,request,jsonify,make_response,current_app
 from werkzeug.utils import secure_filename
 import os
 from bson.json_util import dumps
+from utils.common import upload_profile_picture,update_profile_data
+from utils.validation import is_valid_userid
 
 users=Blueprint('users',__name__)
 
@@ -59,31 +61,40 @@ def fetch_user_profile(username):
 
 @users.route('/updateprofile',methods=['POST'])
 def updateProfile():
-    if request.method=='POST':
+    """
+    Handle user profile update via POST request.
 
+    This function handles the process of updating a user's profile information.
+
+    Args:
+        None
+
+    Returns:
+        Flask Response: A JSON response indicating the outcome of the profile update attempt.
+            - If the user does not exist, returns a 404 status with an error message.
+            - If the profile update is successful, returns a 200 status with a success message.
+            - If an exception occurs, returns a 500 status with an error message.
+    """
+    if request.method=='POST':
         try:
             mongo=users.mongo
             userid = request.form.get('userid')
             bio = request.form.get('bio')
             profile_picture = request.files.get("profilepicture")
+            location=request.form.get("location")
+            username=request.form.get("username")
 
-            userData=mongo.db.users.find_one({'_id':ObjectId(userid)})
+            user=is_valid_userid(mongo,userid)
 
-            if userData:
-                if profile_picture:
-                    secureFilename=secure_filename(profile_picture.filename)
-                    profile_picture_path=os.path.join(current_app.config['PROFILE_FOLDER'],secureFilename).replace("\\","/")
-                    profile_picture.save(profile_picture_path)
-                else:
-                    profile_picture_path=os.path.join(current_app.config['PROFILE_FOLDER'],'defaultProfile.png').replace("\\","/")
-                mongo.db.users.update_one({"_id":ObjectId(userid)},{"$set": {"bio": bio,'profilePicture':profile_picture_path}})
-                return make_response(jsonify({'message':"Profile Updated"}),200)
-            
-            return make_response(jsonify({'message':"User Does Not Exist"}),400)
+            if not user:
+                return jsonify({'message':"User Does Not Exist"}),404
 
+            profile_picture_path=upload_profile_picture(profile_picture,current_app.config['PROFILE_FOLDER'])
+
+            if update_profile_data(mongo,userid,username,bio,profile_picture_path,location):
+                return jsonify({'message':"Profile Updated"}),200
         except Exception as e:
-            return make_response(jsonify({"message":str(e)}),500)
-
+            return jsonify({"message":str(e)}),500
 
 @users.route("/followunfollow",methods=['POST'])
 def handleFollowUnfollow():

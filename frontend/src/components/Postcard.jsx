@@ -14,6 +14,8 @@ import {
   TextField,
   InputAdornment,
   Button,
+  Menu,
+  MenuItem,
 } from "@mui/material";
 import {
   ExpandMore,
@@ -25,6 +27,7 @@ import {
   Comment,
   Send,
   HeartBroken,
+  Delete,
 } from "@mui/icons-material";
 import { BASE_URL } from "../screens/Home";
 import CircularProgress from "@mui/material/CircularProgress";
@@ -177,6 +180,14 @@ export const Postcard = ({username,caption,likesCount,imageUrl,unique_id,postedA
     }
   };
 
+  const [anchorEl, setAnchorEl] = React.useState(null);
+  const open = Boolean(anchorEl);
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
 
 
   return (
@@ -192,9 +203,28 @@ export const Postcard = ({username,caption,likesCount,imageUrl,unique_id,postedA
           ></Avatar>
         }
         action={
-          <IconButton aria-label="settings">
-            <MoreVert />
-          </IconButton>
+          <Box>
+              <IconButton id="basic-button" aria-controls={open ? 'basic-menu' : undefined} aria-haspopup="true" aria-expanded={open ? 'true' : undefined} onClick={handleClick}>
+        <MoreVert/>
+      </IconButton>
+      <Menu
+        id="basic-menu"
+        anchorEl={anchorEl}
+        open={open}
+        onClose={handleClose}
+        MenuListProps={{
+          'aria-labelledby': 'basic-button',
+        }}
+      >
+        <MenuItem onClick={handleClose}>
+          <Stack direction={'row'} justifyContent={'center'} alignItems={'center'} spacing={1}>
+          <Typography color={'red'} variant="body1">Delete</Typography>
+          <Delete sx={{color:'red'}} />
+          </Stack>
+        </MenuItem>
+      </Menu>
+      </Box>
+
         }
         title={
           <Typography
@@ -223,13 +253,17 @@ export const Postcard = ({username,caption,likesCount,imageUrl,unique_id,postedA
       </CardContent>
 
       <CardActions disableSpacing>
+            
             <IconButton aria-label="add to favorites">
                 <Checkbox onClick={handlePostLike} icon={<FavoriteBorder />} checked={isLikedstate} checkedIcon={<Favorite sx={{ color: "red" }} />}></Checkbox>
+                <Typography sx={{"cursor":"pointer"}} onClick={()=>setLikeModalOpen({state:true,postid:unique_id})}>{likesCount}</Typography>
             </IconButton>
 
-            <Button onClick={()=>setLikeModalOpen({state:true,postid:unique_id})}>{likesCount}</Button>
             
-            <IconButton onClick={toggleComments} aria-label="share"><Comment /></IconButton>
+            <IconButton onClick={toggleComments} aria-label="share">
+              <Comment />
+              </IconButton>
+              <Typography sx={{"cursor":"pointer"}} onClick={()=>setLikeModalOpen({state:true,postid:unique_id})}>{likesCount}</Typography>
 
       </CardActions>
 

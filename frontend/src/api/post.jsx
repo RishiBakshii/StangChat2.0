@@ -1,4 +1,5 @@
 import { BASE_URL } from "../screens/Home";
+import { INTERNAL_SERVER_ERROR_MESSAGE, SERVER_DOWN_MESSAGE } from "../envVariables"
 
 
 export const handlePostUpload=async(userid,caption,selectedImage)=>{
@@ -59,3 +60,40 @@ export const getPostLikes=async(postid)=>{
       console.log(error)
     }
   }
+
+export const loadPost=async(page,userid)=>{
+    try {
+        const response=await fetch(`${BASE_URL}/getfeed`,{
+            method:"POST",
+            headers:{
+                "Content-Type":"application/json"
+            },
+            body:JSON.stringify({
+                'page':page,
+                'userid':userid
+            })
+        })
+
+        const json=await response.json()
+
+        if(response.ok){
+          return {
+                success:true,
+                posts:json
+              }
+        }
+        if (response.status==500){
+          console.log(json.message)
+          return {
+            success:false,
+            message:INTERNAL_SERVER_ERROR_MESSAGE
+          }
+        }    
+    }   catch (error) {
+        console.log(error)
+        return {
+          success:false,
+          message:SERVER_DOWN_MESSAGE
+        }
+    }
+}

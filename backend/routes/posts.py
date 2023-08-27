@@ -7,13 +7,14 @@ from datetime import datetime
 from bson import ObjectId
 from werkzeug.utils import secure_filename
 from bson.json_util import dumps
+from utils.validation import is_valid_userid
 load_dotenv()
 
 posts=Blueprint('posts',__name__)
 app=current_app
 
 @posts.route('/uploadpost',methods=['POST'])
-def uploadPost():
+def createPost():
     if request.method=='POST':
         try:
             mongo=posts.mongo
@@ -31,9 +32,11 @@ def uploadPost():
                     "postPath":user_post_path,
                     "profilePath":user['profilePicture'],
                     'likesCount':0,
+                    'commentsCount':0,
                     'likes':[],
                     'postedAt':datetime.now().strftime("%B %d, %Y"),
-                    'exactTime':datetime.now()
+                    'exactTime':datetime.now(),
+                    'commentCount':0
                     }
                 uploaded_post_id=posts.mongo.db.post.insert_one(new_post).inserted_id
                 newly_uploaded_post=posts.mongo.db.post.find_one({"_id":uploaded_post_id})
@@ -108,18 +111,22 @@ def getfeed():
             data=request.json
             mongo=posts.mongo
             page=data.get('page')
-
+            userid = data.get('userid')
             per_page = 5
             skip = (page - 1) * per_page
 
-            feed = mongo.db.post.find({}).skip(skip).limit(per_page)
+            user=is_valid_userid(mongo,userid)
+            
+            if not user:
+                return jsonify({"message":'user does not exists'}),404
+            
+            userFollowing = user['following']
 
+            feed = mongo.db.post.find({'user_id': {'$in': userFollowing}}).skip(skip).limit(per_page)
             feed_list = list(feed)
             feed_json = dumps(feed_list)
-            with open("test.json",'a') as f:
-                f.write(f'{feed_json}\n\n')
-            print(feed_json)
             return feed_json,200
+        
         except Exception as e:
             return jsonify({'message':str(e)}),500
 
@@ -144,3 +151,29 @@ def getPostLikes():
 
         except Exception as e:
             return jsonify({"message":str(e)}),500
+       
+@posts.route("/deletePost",methods=['POST'])
+def deletePost():
+    if request.method=='POST':
+        try:
+            data=request.json
+            mongo=posts.mongo
+            userid=data.get("userid")
+            postid=data.get("postid")
+
+            user=mongo.db.users.find_one({"_id":ObjectId(userid)})
+            if not user:
+                return jsonify({"message":'user does not exist'}),400
+            
+            post=mongo.db.post.find_one({"_id":ObjectId(postid)})
+            if not post:
+                return jsonify({"message":"post does not exist"}),400
+
+            
+            mongo.db.post.delete_one({"_id": ObjectId(postid)})
+            mongo.db.comments.delete_one({"post_id":postid})
+
+            return jsonify({"message":"post deleted successfully",'deletedPostId':postid}),200
+
+        except Exception as e:
+            return jsonify({'message':str(e)}),500

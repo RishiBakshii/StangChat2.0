@@ -7,6 +7,7 @@ import { Postcard } from '../components/Postcard'
 import { loggedInUserContext } from '../context/user/Usercontext'
 import CircularProgress from '@mui/material/CircularProgress';
 import { Likesmodal } from '../components/Likesmodal'
+import { loadPost } from '../api/post'
 
 
 export const BASE_URL=process.env.REACT_APP_API_BASE_URL;
@@ -25,13 +26,14 @@ export const Home =() => {
     })
 
     useEffect(()=>{
+        getFeed()
+    },[page])
+    
+    useEffect(()=>{
         window.addEventListener("scroll", handelInfiniteScroll);
         return () => window.removeEventListener("scroll", handelInfiniteScroll);
     },[])
 
-    useEffect(()=>{
-        getFeed()
-    },[page])
 
     const handelInfiniteScroll = async() => {
         try{
@@ -47,32 +49,18 @@ export const Home =() => {
 
     const getFeed=async()=>{
         try {
-            const response=await fetch(`${BASE_URL}/getfeed`,{
-                method:"POST",
-                headers:{
-                    "Content-Type":"application/json"
-                },
-                body:JSON.stringify({
-                    'page':page
-                })
-            })
-
-            const json=await response.json()
-
-            if(response.ok){
-                if(json.length!==0){
-                    setFeed((prev) => [...prev, ...json]);
-                }
-                else{
-                    sethasMore(false)
-                }
-            }
-            if (response.status==500){
-                alert('interval server issue')
-            }    
-        } catch (error) {
-            alert(error)
+        const result=await loadPost(page,loggedInUser.loggedInUser.userid)
+        if(result.success){
+            setFeed((prev) => [...prev, ...result.posts]);
+            console.log(result.posts)
         }
+        else{
+            alert(result.message)
+        }
+        } catch (error) {
+            console.log(error)
+        }
+
     }
 
     const updateFeed = (newPost) => {
@@ -105,7 +93,6 @@ export const Home =() => {
                     }
                     {
                     hasMore?(
-                        
                         loading?(<CircularProgress />):("")
                     ):(
                         <Stack justifyContent={'center'} alignItems={"center"}>
@@ -116,7 +103,6 @@ export const Home =() => {
                     
                     }
                 </Stack>
-
                 <Rightbar/>
         </Stack>  
         <Likesmodal postid={likeModalOpen.postid} open={likeModalOpen.state} handleClose={()=>setLikeModalOpen({state:false,postid:""})}/>

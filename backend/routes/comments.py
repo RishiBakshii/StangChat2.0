@@ -104,3 +104,33 @@ def commentLike():
 
         except Exception as e:
             return jsonify({"message":str(e)}),500
+        
+@comments.route("/deletecomment",methods=['POST'])
+def deleteComment():
+    if request.method=='POST':
+        try:
+            data = request.json
+            mongo = comments.mongo
+            userid = data.get("userid")
+            postid = data.get("postid")
+            commentid = data.get("commentid")
+
+            user = mongo.db.users.find_one({"_id": ObjectId(userid)})
+            if not user:
+                return jsonify({"message": 'User does not exist'}), 400
+            
+            post = mongo.db.post.find_one({"_id": ObjectId(postid)})
+            if not post:
+                return jsonify({"message": "Post does not exist"}), 400
+            
+            comment = mongo.db.comments.find_one({"_id": ObjectId(commentid), "post_id": postid})
+            if not comment:
+                return jsonify({"message": "Comment does not exist or is not associated with the post"}), 400
+
+            mongo.db.comments.delete_one({"_id": ObjectId(commentid)})
+            mongo.db.post.update_one({"_id": ObjectId(postid)}, {"$inc": {"commentsCount": -1}})
+
+            return jsonify({"message": "Comment deleted"}), 200
+
+        except Exception as e:
+            return jsonify({"message":str(e)}),500

@@ -1,4 +1,5 @@
 import { BASE_URL } from "../screens/Home"
+import { INTERNAL_SERVER_ERROR_MESSAGE, SERVER_DOWN_MESSAGE } from "../envVariables"
 
 export const fetchLoggedInUser=async()=>{
     const authToken=localStorage.getItem("authToken")
@@ -69,7 +70,53 @@ export const fetchUserProfile=async(username,userid)=>{
       alert('frontend error')
     }
   }
+  
+export const updateProfile=async(credentials,selectedImage)=>{
+    try {
+        const formData=new FormData();
+        formData.append("userid", credentials.user_id);
+        formData.append("bio", credentials.bio);
+        formData.append("profilepicture", selectedImage); 
+        formData.append("location", credentials.location); 
+        formData.append("username", credentials.username); 
+  
+        const response=await fetch(`${BASE_URL}/updateprofile`,{
+            method:"POST",
+            body:formData,
+        })  
+  
+        const json=await response.json()
+        
+        if(response.ok){
+          return {
+            success:true,
+            message:json.message
+          }
+        }
+        if(response.status==404){
+            return{
+              success:false,
+              message:json.message
+            }
+        }
+        if(response.status==500){
+          console.log(json.message)
+          return{
+            success:false,
+            message:INTERNAL_SERVER_ERROR_MESSAGE
+          }
+        }
+  
+    } catch (error) {
+      console.log(error)
+        return {
+          success:false,
+          message:SERVER_DOWN_MESSAGE
+        }
+    }
+  }
 
+  
 const fetchUserPost=async(userid)=>{
   try {
     const response=await fetch(`${BASE_URL}/getuserpost`,{
@@ -97,3 +144,4 @@ const fetchUserPost=async(userid)=>{
     console.log(error)
   }
 }
+

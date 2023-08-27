@@ -75,11 +75,12 @@ export const Profile = () => {
     fetchProfileData()
   },[])
   return (
-    <>
-    <Navbar/>
-          <Leftbar/>
-
-            <Stack flex={"1"} bgcolor={''} spacing={5} justifyContent={'center'} alignItems={"center"} mt={5}>
+  <>
+      <Navbar/>
+      <Leftbar/>
+        
+          
+                      <Stack flex={"1"} bgcolor={''} spacing={5} justifyContent={'center'} alignItems={"center"} mt={5}>
                 
                 {/* profile parent */}
                 <Stack padding={4} bgcolor={'white'} borderRadius={'.6rem'} width={'60%'} justifyContent={'flex-start'} alignItems={'flex-start'}>
@@ -122,10 +123,10 @@ export const Profile = () => {
                     post.length==0?(
 
                       <Stack mt={2} spacing={1}>
-                        <Typography variant='h6' fontWeight={300}><PhotoIcon/> {profile.username} haven't posted anything</Typography>
+                        <Typography variant='h6' fontWeight={300}><PhotoIcon/>
+                        {loggedInUser.loggedInUser.userid===profile?._id?.$oid?(` you haven't posted anything`) :(` ${username} haven't posted anything`)}</Typography>
                       </Stack>
                     ):(
-
                       <Grid mt={4} container  justifyContent={'center'} alignContent={'center'} gridColumn={2} gap={2}>
                     
                       {post.map((post)=>{
@@ -144,11 +145,12 @@ export const Profile = () => {
 
                     )
                   }
-
-
                 </Stack>
 
             </Stack>  
-    </>
-  )
-}
+          
+          </>
+
+        )
+      }
+  
