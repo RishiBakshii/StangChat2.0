@@ -31,7 +31,6 @@ export const handlePostUpload=async(userid,caption,selectedImage)=>{
     }
   }
 
-
 export const getPostLikes=async(postid)=>{
     try {
       const response=await fetch(`${BASE_URL}/getpostlikes`,{
@@ -65,6 +64,7 @@ export const loadPost=async(page,userid)=>{
     try {
         const response=await fetch(`${BASE_URL}/getfeed`,{
             method:"POST",
+            credentials:"include",
             headers:{
                 "Content-Type":"application/json"
             },

@@ -18,9 +18,20 @@ import { useContext } from 'react';
 import { loggedInUserContext } from '../context/user/Usercontext';
 import { BugReport } from '@mui/icons-material';
 import { Logoutmodal } from './Logoutmodal';
+import { BASE_URL } from '../envVariables';
 
 
 export const Leftbar=()=> {
+
+
+  const setCookie=async()=>{
+    const response=await fetch(`${BASE_URL}/new_cookie`,{
+      method:"GET"
+    })
+    const json=await response.json()
+
+    alert(json.message)
+  }
 
   const loggedInUser=useContext(loggedInUserContext)
 
@@ -83,12 +94,12 @@ export const Leftbar=()=> {
               <ListItemText primary="Know Your Faculty" />
             </ListItemButton>
         </ListItem> */}
-      {/* <ListItem disablePadding>
-            <ListItemButton component={Link} to="/upcomingclasses">
+      <ListItem disablePadding>
+            <ListItemButton onClick={setCookie}>
             <ListItemIcon><LocalLibraryIcon/></ListItemIcon>
-              <ListItemText primary="See Upcoming Classes" />
+              <ListItemText primary="setcookie" />
             </ListItemButton>
-        </ListItem> */}
+        </ListItem>
         <Divider />
       <ListItem disablePadding>
             <ListItemButton onClick={handleOpenModal}>

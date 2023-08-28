@@ -2,43 +2,43 @@ import { BASE_URL } from "../screens/Home"
 import { INTERNAL_SERVER_ERROR_MESSAGE, SERVER_DOWN_MESSAGE } from "../envVariables"
 
 export const fetchLoggedInUser=async()=>{
-    const authToken=localStorage.getItem("authToken")
-
     try {
         const response=await fetch(`${BASE_URL}/decode_token`,{
         method:"POST",
         headers:{
-            "Content-Type":"application/json"
+          'Content-Type':"application/json"
         },
-        body:JSON.stringify({
-            "authToken":authToken
-                })
-            })
+        credentials: 'include'
+      })
     
-        const json=await response.json()    
-    
-        if(response.ok){
-            try{
-                const response2=await fetch(`${BASE_URL}/get_user_info`,{
-                method:"POST",
-                headers:{
-                    "Content-Type":"application/json"
-                },
-                body:JSON.stringify({
-                    "userID":json.decoded_token.user_id
-                        })
-                })
-                const json2=await response2.json()
-                return json2.data
-            }
-            catch(error){
-                alert(error)
-            }
-    }
+        const json=await response.json() 
 
+        if(response.ok){
+          const userinfo=await get_user_info(json.decoded_token.user_id)
+          return userinfo
+    }
     } catch (error) {
-        alert(error)
+        alert('frontend error')
     }  
+}
+
+export const get_user_info=async(userid)=>{
+  try{
+    const response=await fetch(`${BASE_URL}/get_user_info`,{
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json"
+      },
+      body:JSON.stringify({
+        "userID":userid
+      })
+      })
+      const json=await response.json()
+      return json.data
+    }
+    catch(error){
+      alert(error)
+    }
 }
 
 export const fetchUserProfile=async(username,userid)=>{
@@ -115,8 +115,7 @@ export const updateProfile=async(credentials,selectedImage)=>{
         }
     }
   }
-
-  
+ 
 const fetchUserPost=async(userid)=>{
   try {
     const response=await fetch(`${BASE_URL}/getuserpost`,{

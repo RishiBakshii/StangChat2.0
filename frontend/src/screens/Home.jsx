@@ -1,6 +1,6 @@
 import React, { useEffect,useState ,createContext, useContext} from 'react'
 import { Navbar } from '../components/Navbar'
-import {Stack, Typography} from '@mui/material'
+import {Box, Stack, Typography} from '@mui/material'
 import { Leftbar } from '../components/Leftbar'
 import { Rightbar } from '../components/Rightbar'
 import { Postcard } from '../components/Postcard'
@@ -8,6 +8,8 @@ import { loggedInUserContext } from '../context/user/Usercontext'
 import CircularProgress from '@mui/material/CircularProgress';
 import { Likesmodal } from '../components/Likesmodal'
 import { loadPost } from '../api/post'
+import catanimation from '../animations/login/catanimation.json'
+import Lottie from 'lottie-react';
 
 
 export const BASE_URL=process.env.REACT_APP_API_BASE_URL;
@@ -26,14 +28,15 @@ export const Home =() => {
     })
 
     useEffect(()=>{
-        getFeed()
-    },[page])
+        if(hasMore){
+            getFeed()
+        }
+    },[page,loggedInUser])
     
     useEffect(()=>{
         window.addEventListener("scroll", handelInfiniteScroll);
         return () => window.removeEventListener("scroll", handelInfiniteScroll);
     },[])
-
 
     const handelInfiniteScroll = async() => {
         try{
@@ -48,19 +51,24 @@ export const Home =() => {
       };
 
     const getFeed=async()=>{
-        try {
-        const result=await loadPost(page,loggedInUser.loggedInUser.userid)
-        if(result.success){
-            setFeed((prev) => [...prev, ...result.posts]);
-            console.log(result.posts)
+            try {
+            const result=await loadPost(page,loggedInUser.loggedInUser.userid)
+            
+            if(result.success){
+                if(result.posts.length!==0){
+                    setFeed((prev) => [...prev, ...result.posts]);
+                }
+                else{
+                    sethasMore(false)
+                }
         }
-        else{
-            alert(result.message)
-        }
+            else{
+                alert(result.message)
+            }
+
         } catch (error) {
             console.log(error)
         }
-
     }
 
     const updateFeed = (newPost) => {
@@ -69,6 +77,7 @@ export const Home =() => {
 
   return (
     <feedUpdate.Provider value={updateFeed}>
+    <>
     <Navbar/>
         <Stack direction={"row"} spacing={2} justifyContent={"space-between"} alignItems="flex-start">
                 
@@ -96,6 +105,10 @@ export const Home =() => {
                         loading?(<CircularProgress />):("")
                     ):(
                         <Stack justifyContent={'center'} alignItems={"center"}>
+                            <Box width={'10rem'}>
+
+                        <Lottie animationData={catanimation} />
+                            </Box>
                         <Typography variant='body1' fontWeight={300}>You are all caught up!✅</Typography>
                         <Typography variant='body1' fontWeight={300}>Follow more users for more content🚀</Typography>
                         </Stack>
@@ -106,6 +119,7 @@ export const Home =() => {
                 <Rightbar/>
         </Stack>  
         <Likesmodal postid={likeModalOpen.postid} open={likeModalOpen.state} handleClose={()=>setLikeModalOpen({state:false,postid:""})}/>
+        </>
     </feedUpdate.Provider>
   )
 }

@@ -2,15 +2,21 @@ import Modal from '@mui/material/Modal';
 import { Button, Stack, Typography } from '@mui/material';
 import React, { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom';
+import { logoutUser } from '../api/auth';
 
   
 export const Logoutmodal = ({open,handleClose}) => {
+
+    const initiateLogout=async()=>{
+        const islogoutTrue=await logoutUser()
+        if(islogoutTrue){
+            navigate("/login")
+        }
+    }
+
+
     const navigate=useNavigate()
 
-    const logoutUser=()=>{
-        localStorage.removeItem('authToken')
-        navigate('/login')
-    }
 
   return (
         <Modal open={open} onClose={handleClose}>
@@ -20,7 +26,7 @@ export const Logoutmodal = ({open,handleClose}) => {
         Are you sure you want to logout?🤫
     </Typography>
     <Stack direction={'row'} spacing={2}>
-        <Button onClick={logoutUser} variant='outlined'>Yes</Button>
+        <Button onClick={initiateLogout} variant='outlined'>Yes</Button>
         <Button onClick={handleClose} variant='contained'>No</Button>
     </Stack>
 

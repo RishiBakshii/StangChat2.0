@@ -5,6 +5,7 @@ import { Link,useNavigate} from 'react-router-dom'
 import { loggedInUserContext } from '../context/user/Usercontext';
 import { login } from '../api/auth';
 import { LoadingButtons } from '../components/LoadingButtons';
+import { BASE_URL } from '../envVariables';
 
 export const Login = () => {
     const navigate=useNavigate();
@@ -15,7 +16,7 @@ export const Login = () => {
     })
     const [loading,setLoading]=useState(false)
     const [isCredentialsFilled,setIsCredentialsFilled]=useState(false)
-    const [alert,setAlert]=useState({message:"",severity:""})
+    const [alert,setAlert]=useState({message:"",severity:'info'})
     useEffect(()=>{
         setIsCredentialsFilled(credentials.email && credentials.password.length>=8)
     },[credentials])
@@ -56,10 +57,10 @@ export const Login = () => {
                     :(<Button disabled={!isCredentialsFilled} onClick={handleLoginSubmit} sx={{height:"3rem"}} variant='contained'>Login</Button>)
                 }
                 {
-                    alert!==''?(<Alert onClick={()=>setAlert("")} variant='standard' severity={alert.severity}>{alert.message}</Alert>):("")
+                    alert.message!==''?(<Alert onClick={()=>setAlert({"message":""})} variant='standard' severity={alert.severity}>{alert.message}</Alert>):("")
                 }
             </Stack>
-            <Typography sx={{"textDecoration":"none",color:"black"}} mt={1} component={Link} variant='body1' to={'/signup'}>Create a new account</Typography>
+            <Typography sx={{"textDecoration":"none",color:"black"}} mt={2} component={Link} variant='body2' to={'/signup'}>Create a new account</Typography>
         </Stack>
     </Stack>
     </>

@@ -59,8 +59,6 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 
 export const Navbar = () => {
   const loggedInUser=useContext(loggedInUserContext)
-  console.log('loggin from navbar regarding the user state')
-  console.log(loggedInUser)
   return (
     <>
     <AppBar position='sticky'>

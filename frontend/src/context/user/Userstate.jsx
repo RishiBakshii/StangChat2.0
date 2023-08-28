@@ -9,10 +9,7 @@ export const Userstate = ({children}) => {
     const [loggedInUser,setLoggedInUser]=useState({})
 
     const updateLoggedInUser=(updatedData)=> {
-        console.log("updation funtion called for user state!😮")
         setLoggedInUser(updatedData)
-        console.log("updated user state is -->>")
-        console.log(loggedInUser)
     }
 
     const getLoggedInUserandUpdateState=async()=>{
@@ -21,9 +18,8 @@ export const Userstate = ({children}) => {
     }
 
     useEffect(()=>{
-        const authToken=localStorage.getItem("authToken")
-
-        if(authToken){
+        const loggedIn=localStorage.getItem("loggedIn")
+        if(loggedIn){
             getLoggedInUserandUpdateState()
         }
     },[])

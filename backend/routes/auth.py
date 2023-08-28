@@ -3,9 +3,9 @@ import jwt
 import os
 import bcrypt
 from bson.json_util import dumps
-from utils.common import generate_jwt_token,format_user_data,hash_password
+from utils.common import generate_jwt_token,format_user_data,hash_password,decode_jwt_token
 from schema.user import user_schema
-from utils.validation import is_valid_email,is_valid_username
+from utils.validation import is_existing_email,is_valid_username,is_valid_password
 auth = Blueprint('auth', __name__)
 
 
@@ -32,13 +32,14 @@ def login():
             email=data.get("email")
             password=data.get("password")
 
-            user=mongo.db.users.find_one({'email':email})
+            user=is_existing_email(mongo,email)
 
-            if user and bcrypt.checkpw(password.encode("utf-8"),user['password']):
+            if user and is_valid_password(user,password):
                 payload={'user_id':str(user['_id']),'email':str(user['email'])}
                 token=generate_jwt_token(payload)
-
-                return jsonify({"message":"Login Successful","authToken":token,'userdata':format_user_data(user)}),200
+                response=make_response(jsonify({"message":"Login Successful",'userdata':format_user_data(user)}))
+                response.set_cookie("authToken", token, samesite="None", secure=True,httponly=True)
+                return response
             else:
                 return jsonify({'message':"Invalid username or password"}),400
         except Exception as e:
@@ -95,12 +96,23 @@ def signup():
 
 @auth.route("/decode_token",methods=['POST'])
 def decode_token():
-    print(f'{"*"*100}')
     if request.method=='POST':
         try:
-            data=request.json
-            token=data.get("authToken")
-            decoded_token=jwt.decode(token,os.environ.get('SECRET_KEY'),algorithms='HS256')
+            authToken=request.cookies.get("authToken")
+            decoded_token=decode_jwt_token(authToken)
             return jsonify({"message":"token decoded","decoded_token":decoded_token}),200
         except Exception as e:
-            return jsonify({"message":str(e)}),400
+            return jsonify({"message":str(e)}),500
+
+@auth.route("/logout", methods=['POST'])
+def logout():
+    if request.method=='POST':
+        try: 
+            response = make_response(jsonify({"message": "Logout successful"}),200)
+            response.delete_cookie("authToken",samesite="None", secure=True,httponly=True)
+            return response
+        except Exception as e:
+            return jsonify({"message":str(e)}),500
+
+
+    

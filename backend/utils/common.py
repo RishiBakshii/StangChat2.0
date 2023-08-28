@@ -5,9 +5,16 @@ from werkzeug.utils import secure_filename
 from flask import current_app
 from bson.json_util import dumps
 from bson import ObjectId
+import datetime
 
-def generate_jwt_token(payload):
+def generate_jwt_token(payload,expire_days=30):
+    expiration = datetime.datetime.utcnow() + datetime.timedelta(days=expire_days)
+    payload['exp'] = expiration
     return jwt.encode(payload,os.environ.get('SECRET_KEY'),algorithm='HS256')
+
+def decode_jwt_token(authToken):
+    return jwt.decode(authToken, os.environ.get('SECRET_KEY'), algorithms=['HS256'])
+
 
 def format_user_data(user):
     return {
