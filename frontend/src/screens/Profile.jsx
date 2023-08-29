@@ -130,13 +130,15 @@ export const Profile = () => {
                         return <Postcard 
                         username={post.username} 
                         caption={post.caption} 
-                        likesCount={post.likesCount} 
-                        imageUrl={`${BASE_URL}/${post.postPath}`}
-                        unique_id={post._id.$oid} 
-                        postedAt={post.postedAt} 
+                        likesCount={post.likesCount}
+                        imageUrl={`${BASE_URL}/${post.postPath}`} 
+                        unique_id={post._id.$oid}
+                        postedAt={post.postedAt}
                         profilePath={post.profilePath}
-                        isLiked={`${post.likes.includes(loggedInUser.loggedInUser.userid)?(1):(0)}`}
-                        userid={post.user_id.$oid}/>
+                        isLiked={post.likes.includes(loggedInUser.loggedInUser.userid)?(true):(false)}
+                        // setLikeModalOpen={setLikeModalOpen}
+                        userid={post.user_id.$oid}
+                        commentCount={post.commentsCount}/>
                       })
                     }
                     

@@ -1,22 +1,22 @@
 import React, { useContext, useEffect, useState } from "react";
-import {Avatar,Box,Card,CardActions,CardContent,CardHeader,CardMedia,IconButton,Typography,Checkbox,Stack,TextField,InputAdornment,Menu,MenuItem, Button,} from "@mui/material";
+import {Avatar,Box,Card,CardActions,CardContent,CardHeader,CardMedia,IconButton,Typography,Checkbox,Stack,TextField,InputAdornment,Menu,MenuItem,} from "@mui/material";
 import {MoreVert,Favorite,FavoriteBorder,Comment,Send,Delete} from "@mui/icons-material";
-import { BASE_URL, feedUpdate } from "../screens/Home";
+import { BASE_URL} from "../screens/Home";
 import CircularProgress from "@mui/material/CircularProgress";
 import { Link } from "react-router-dom";
 import { loggedInUserContext } from "../context/user/Usercontext";
 import LoadingButton from "@mui/lab/LoadingButton/LoadingButton";
+import { postContext } from "../context/posts/PostContext";
 
 export const Postcard = ({username,caption,likesCount,imageUrl,unique_id,postedAt,profilePath,isLiked,setLikeModalOpen,userid,commentCount}) => {
   const [isLikedstate, setIsLikedState] = useState(isLiked);
-  const updateFeed=useContext(feedUpdate)
+  const [likeCountState,setLikeCountState]=useState(likesCount)
+  const {feed,setFeed}=useContext(postContext)
   const loggedInUser = useContext(loggedInUserContext);
-  const [showComment, setShowComment] = useState({
-    show: false,
-    cardHeight: 700,
-  });
+  const [showComment, setShowComment] = useState({show: false,cardHeight: 700});
   const [postingComment,setPostingComment]=useState(false)
   const [fetchedComment, setFetchedComment] = useState([]);
+  const [isLikedCommentstate,setIsLikedCommentState]=useState(null)
   const [comment, setComment] = useState([]);
   const toggleComments = () => {
     setShowComment({
@@ -110,8 +110,9 @@ export const Postcard = ({username,caption,likesCount,imageUrl,unique_id,postedA
       const json = await response.json();
 
       if (response.ok) {
-        console.log(json.message);
+        console.log(json);
         setIsLikedState(json.message);
+        setLikeCountState(json.updated_like_count)
         console.log(`state is updated to ${isLikedstate}`);
       }
       if (response.status == 500) {
@@ -138,7 +139,7 @@ export const Postcard = ({username,caption,likesCount,imageUrl,unique_id,postedA
       const json = await response.json();
 
       if (response.ok) {
-        loadComment();
+        console.log(json)
       }
       if (response.status == 500) {
         alert("interal server error");
@@ -154,6 +155,7 @@ export const Postcard = ({username,caption,likesCount,imageUrl,unique_id,postedA
     try {
       const response=await fetch(`${BASE_URL}/deletepost`,{
         method:"POST",
+        credentials:"include",
         headers:{
           'Content-Type':'application/json'
         },
@@ -166,7 +168,7 @@ export const Postcard = ({username,caption,likesCount,imageUrl,unique_id,postedA
       const json=await response.json()
 
       if(response.ok){
-        updateFeed(prevFeed => prevFeed.filter(post => post._id.$oid !== json.deletedPostId))
+        setFeed(prevFeed => prevFeed.filter(post => post._id.$oid !== json.deletedPostId))
       }
 
       if(response.status==400){
@@ -180,6 +182,7 @@ export const Postcard = ({username,caption,likesCount,imageUrl,unique_id,postedA
 
 
     } catch (error) {
+      console.log(error)
       alert('frontend error')
     }
   }
@@ -239,12 +242,7 @@ export const Postcard = ({username,caption,likesCount,imageUrl,unique_id,postedA
         subheader={postedAt}
       />
 
-      <CardMedia
-        component="img"
-        image={imageUrl}
-        alt={`Unable to load ${username}s post`}
-        style={{ height:"500px",objectFit: "contain" }}
-      />
+      <CardMedia component="img" image={imageUrl} alt={`Unable to load ${username}s post`} style={{ height:"500px",objectFit: "contain" }}/>
 
       <CardContent>
         <Typography variant="body2" color="text.secondary">
@@ -256,10 +254,9 @@ export const Postcard = ({username,caption,likesCount,imageUrl,unique_id,postedA
             
             <IconButton aria-label="add to favorites">
                 <Checkbox onClick={handlePostLike} icon={<FavoriteBorder />} checked={isLikedstate} checkedIcon={<Favorite sx={{ color: "red" }} />}></Checkbox>
-                <Typography sx={{"cursor":"pointer"}} onClick={()=>setLikeModalOpen({state:true,postid:unique_id})}>{likesCount}</Typography>
+                <Typography sx={{"cursor":"pointer"}} onClick={()=>setLikeModalOpen({state:true,postid:unique_id})}>{likeCountState}</Typography>
             </IconButton>
 
-            
             <IconButton onClick={toggleComments} aria-label="share">
               <Comment />
               </IconButton>
@@ -269,40 +266,17 @@ export const Postcard = ({username,caption,likesCount,imageUrl,unique_id,postedA
 
       {/* COMMENTS section */}
       {showComment.show ? (
-        <CardContent
-          sx={{
-            bgcolor: "",
-            height: "100%",
-            padding: ".5rem 1rem",
-            overflowY: "scroll",
-          }}
-        >
-          <Box
-            bgcolor={""}
-            sx={{
-              overflowY: "scroll",
-              height: "28rem",
-              display: "flex",
-              flexDirection: "column",
-            }}
-          >
+        <CardContent sx={{bgcolor: "",height: "100%",padding: ".5rem 1rem",overflowY: "scroll",}}>
+          <Box bgcolor={""} sx={{ overflowY: "scroll", height: "28rem", display: "flex",flexDirection: "column",}}>
+
             {isLoadingComments ? (
-              <CircularProgress
-                sx={{
-                  alignSelf: "center",
-                  justifySelf: "center",
-                  marginTop: 4,
-                }}
-              />
+              <CircularProgress sx={{ alignSelf: "center",justifySelf: "center",marginTop: 4}}/>
             ) : fetchedComment.length == 0 ? (
               <Stack mt={4} sx={{ alignSelf: "center", justifySelf: "center" }}>
                 There are no comments☹️
               </Stack>
             ) : (
               fetchedComment.map((comment) => {
-                  const isLikedByUser = comment.likes.includes(
-                  loggedInUser.loggedInUser.userid
-                );
                 return (
                   <Stack key={comment._id.$oid} mt={4} bgcolor={"white"} spacing={1} p={'0 1rem'}>
 
@@ -318,7 +292,7 @@ export const Postcard = ({username,caption,likesCount,imageUrl,unique_id,postedA
                         </Typography>
 
                       <Stack direction={"row"} alignItems={"center"}>
-                        <Checkbox checked={isLikedByUser} onClick={() => handleCommentLike(comment._id.$oid)} icon={<FavoriteBorder fontSize="small"/>} 
+                        <Checkbox checked={comment.likes.includes(loggedInUser.loggedInUser.userid)} onClick={() => handleCommentLike(comment._id.$oid)} icon={<FavoriteBorder fontSize="small"/>} 
                         checkedIcon={<Favorite fontSize="small" sx={{ color: "red" }} />}/>
                         {comment.likeCount}
                       </Stack>

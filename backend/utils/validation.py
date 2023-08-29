@@ -29,3 +29,9 @@ def is_existing_postid(mongo,postid):
     if POST:
         return POST
     return False
+
+def is_existing_commentid(mongo,commentid):
+    COMMENT=mongo.db.comments.find_one({"_id":ObjectId(commentid)})
+    if COMMENT:
+        return COMMENT
+    return False

@@ -6,7 +6,8 @@ from flask import current_app
 from bson.json_util import dumps
 from bson import ObjectId
 import datetime
-from utils.validation import is_existing_userid
+from utils.validation import is_existing_userid,is_existing_commentid
+from flask import jsonify
 
 def generate_jwt_token(payload,expire_days=30):
     expiration = datetime.datetime.utcnow() + datetime.timedelta(days=expire_days)
@@ -90,3 +91,25 @@ def delete_post_and_related_comments(mongo,postid):
     mongo.db.post.delete_one({"_id": ObjectId(postid)})
     mongo.db.comments.delete_many({"post_id":postid})
     return True
+
+def handle_like_post(mongo,userid,postid):
+    mongo.db.post.update_one({"_id": ObjectId(postid)},{"$addToSet": {"likes": userid},"$inc": {"likesCount": 1}})
+    updated_post = mongo.db.post.find_one({"_id": ObjectId(postid)})
+    return updated_post['likesCount']
+
+def handle_unlike_post(mongo,userid,postid):
+    mongo.db.post.update_one({"_id": ObjectId(postid)},{"$pull": {"likes": userid}, "$inc": {"likesCount": -1}})
+    updated_post = mongo.db.post.find_one({"_id": ObjectId(postid)})
+    return updated_post['likesCount']
+
+def handle_comment_like(mongo,userid,comment):
+    if userid in comment["likes"]:
+        mongo.db.comments.update_one({"_id": ObjectId(comment["_id"])},{"$pull": {"likes": userid},"$inc": {"likeCount": -1}})
+        updated_comment=is_existing_commentid(mongo,comment["_id"])
+        return {"message": False,'updated_like_count':updated_comment["likeCount"]}
+    else:
+        mongo.db.comments.update_one({"_id": ObjectId(comment["_id"])},{"$addToSet": {"likes": userid},"$inc": {"likeCount": 1}})
+        updated_comment=is_existing_commentid(mongo,comment["_id"])
+        return {"message": True,'updated_like_count':updated_comment["likeCount"]}
+
+

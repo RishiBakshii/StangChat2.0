@@ -9,10 +9,12 @@ import { Login } from "./screens/Login";
 import { Signup } from "./screens/Signup";
 import LeftbarMobile from "./components/LeftbarMobile";
 import { Userstate } from "./context/user/Userstate";
+import { Poststate } from "./context/posts/Poststate";
 
 function App() {
   return (
     <>
+    <Poststate>
     <Userstate>
     <Router>
       <Routes>
@@ -28,6 +30,7 @@ function App() {
       </Routes>
     </Router>
     </Userstate>
+    </Poststate>
     </>
   );
 }

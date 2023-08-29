@@ -11,17 +11,15 @@ import { loadPost } from '../api/post'
 import catanimation from '../animations/login/catanimation.json'
 import welcomecat from '../animations/login/welcomecat.json'
 import Lottie from 'lottie-react';
+import { postContext } from '../context/posts/PostContext'
 
 
 export const BASE_URL=process.env.REACT_APP_API_BASE_URL;
-export const feedData=createContext()
-export const feedUpdate=createContext();
 
 export const Home =() => {
     const loggedInUser=useContext(loggedInUserContext)
-    console.log(loggedInUser)
+    const {feed,setFeed}=useContext(postContext)
     const [page,setPage]=useState(1)
-    const [feed,setFeed]=useState([])
     const [loading,setLoading]=useState(false)
     const [hasMore,sethasMore]=useState(true)
     const [newUser,setNewUser]=useState(loggedInUser.loggedInUser.followingCount===0?true:false)
@@ -77,7 +75,6 @@ export const Home =() => {
 
 
   return (
-    <feedUpdate.Provider value={setFeed}>
     <>
     <Navbar/>
         <Stack direction={"row"} spacing={2} justifyContent={"space-between"} alignItems="flex-start">
@@ -96,7 +93,7 @@ export const Home =() => {
                         unique_id={post._id.$oid}
                         postedAt={post.postedAt}
                         profilePath={post.profilePath}
-                        isLiked={`${post.likes.includes(loggedInUser.loggedInUser.userid)?(1):(0)}`}
+                        isLiked={post.likes.includes(loggedInUser.loggedInUser.userid)?(true):(false)}
                         setLikeModalOpen={setLikeModalOpen}
                         userid={post.user_id.$oid}
                         commentCount={post.commentsCount}
@@ -137,6 +134,5 @@ export const Home =() => {
         </Stack>  
         <Likesmodal postid={likeModalOpen.postid} open={likeModalOpen.state} handleClose={()=>setLikeModalOpen({state:false,postid:""})}/>
         </>
-    </feedUpdate.Provider>
   )
 }

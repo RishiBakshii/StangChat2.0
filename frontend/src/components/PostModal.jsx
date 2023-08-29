@@ -1,8 +1,8 @@
 import {Button,Typography,Modal,Stack,TextField,styled} from '@mui/material';
 import { useContext, useState } from 'react';
-import { feedUpdate} from '../screens/Home';
 import { loggedInUserContext } from '../context/user/Usercontext';
 import LoadingButton from '@mui/lab/LoadingButton';
+import { postContext } from '../context/posts/PostContext';
 
 
 const style = {
@@ -30,7 +30,7 @@ const BASE_URL=process.env.REACT_APP_API_BASE_URL;
 
 export const PostModal=({ isOpen, onClose})=> {
     const loggedInUser=useContext(loggedInUserContext)
-    const updateFeed=useContext(feedUpdate)
+    const {setFeed}=useContext(postContext)
     const [selectedImage, setSelectedImage] = useState(null);
     const [displayImage,setDisplayImage]=useState(null)
     const [caption,setCaption]=useState('')
@@ -64,7 +64,7 @@ export const PostModal=({ isOpen, onClose})=> {
           const json=await response.json()
 
           if(response.ok){
-            updateFeed((prevFeed) => [json, ...prevFeed,])
+            setFeed((prevFeed) => [json, ...prevFeed,])
             setCaption("")
             setDisplayImage(null)
             onClose()

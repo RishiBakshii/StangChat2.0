@@ -2,6 +2,8 @@ from flask import Blueprint,request,jsonify
 from bson import ObjectId
 from flask import Flask,jsonify,request
 from bson.json_util import dumps
+from utils.validation import is_existing_userid,is_existing_commentid
+from utils.common import handle_comment_like
 
 comments=Blueprint('comments',__name__)
 
@@ -72,35 +74,18 @@ def commentLike():
             userid=data.get("userid")
             commentid=data.get("commentid")
 
-            user=mongo.db.users.find_one({"_id":ObjectId(userid)})
-
+            user=is_existing_userid(mongo,userid)
             if not user:
                 return jsonify({'message':"user not found"}),400
             
-            comment=mongo.db.comments.find_one({"_id":ObjectId(commentid)})
-
+            comment=is_existing_commentid(mongo,commentid)
             if not comment:
                 return jsonify({"message":"comment not found"}),400
             
-            if userid in comment["likes"]:
-                mongo.db.comments.update_one(
-                    {"_id": ObjectId(commentid)},
-                    {
-                        "$pull": {"likes": userid},
-                        "$inc": {"likeCount": -1},
-                    }
-                )
 
-                return jsonify({"message": 0}), 200
-            else:
-                mongo.db.comments.update_one(
-                    {"_id": ObjectId(commentid)},
-                    {
-                        "$addToSet": {"likes": userid},
-                        "$inc": {"likeCount": 1},
-                    }
-                )
-                return jsonify({"message": 1}), 200
+            response=handle_comment_like(mongo,userid,comment)
+
+            return jsonify(response),200
 
         except Exception as e:
             return jsonify({"message":str(e)}),500

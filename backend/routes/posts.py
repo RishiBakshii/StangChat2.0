@@ -8,7 +8,7 @@ from bson import ObjectId
 from werkzeug.utils import secure_filename
 from bson.json_util import dumps
 from utils.validation import is_existing_userid,is_existing_postid
-from utils.common import upload_post,delete_post_and_related_comments
+from utils.common import upload_post,delete_post_and_related_comments,handle_like_post,handle_unlike_post
 from schema.post import post_schema
 load_dotenv()
 
@@ -78,33 +78,23 @@ def likepost():
             data=request.json
             userid=data.get("userid")
             postid=data.get("postid")
-            
-            user=mongo.db.users.find_one({"_id":ObjectId(userid)})
+
+            print(f'user id is {userid}\npost id is {postid}')
+
+            user=is_existing_userid(mongo,userid)
             if not user:
                 return jsonify({"message": "User not found"}), 400
             
-            post=mongo.db.post.find_one({"_id":ObjectId(postid)})
+            post=is_existing_postid(mongo,postid)
             if not post:
                 return jsonify({"message": "Post not found"}), 400
             
-            if userid in post["likes"]:
-                mongo.db.post.update_one(
-        {"_id": ObjectId(postid)},
-        {
-            "$pull": {"likes": userid},
-            "$inc": {"likesCount": -1}
-        }
-    )
-                return jsonify({"message": 0}), 200
+            if userid not in post["likes"]:
+                updated_like_count=handle_like_post(mongo,userid,postid)
+                return jsonify({"message": True,'updated_like_count':updated_like_count}), 200
             else:
-                mongo.db.post.update_one(
-        {"_id": ObjectId(postid)},
-        {
-            "$addToSet": {"likes": userid},
-            "$inc": {"likesCount": 1}
-        }
-    )
-                return jsonify({"message": 1}), 200
+                updated_like_count=handle_unlike_post(mongo,userid,postid)
+                return jsonify({"message": False,'updated_like_count':updated_like_count}), 200
 
         except Exception as e:
             return jsonify({"message":str(e)}),500
