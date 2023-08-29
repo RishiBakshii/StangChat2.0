@@ -7,7 +7,9 @@ from datetime import datetime
 from bson import ObjectId
 from werkzeug.utils import secure_filename
 from bson.json_util import dumps
-from utils.validation import is_valid_userid
+from utils.validation import is_existing_userid,is_existing_postid
+from utils.common import upload_post,delete_post_and_related_comments
+from schema.post import post_schema
 load_dotenv()
 
 posts=Blueprint('posts',__name__)
@@ -19,27 +21,31 @@ def createPost():
         try:
             mongo=posts.mongo
             userid=request.form.get("userid")
-            user=mongo.db.users.find_one({'_id':ObjectId(userid)})
+            caption=request.form.get('caption')
+            user_post=request.files.get("post")
+
+
+            user=is_existing_userid(mongo,userid)
+
             if user:
-                user_post=request.files.get("post")
-                secureFilename=secure_filename(user_post.filename)
-                user_post_path=os.path.join(app.config['POST_FOLDER'],secureFilename).replace("\\","/")
-                user_post.save(user_post_path)
-                new_post={
+                user_post_path=upload_post(user_post,app.config['POST_FOLDER'])
+                new_post=post_schema.copy()
+
+                new_post.update({
                     "user_id":user["_id"],
                     "username":user['username'],
-                    "caption":request.form.get('caption'),
+                    "caption":caption,
                     "postPath":user_post_path,
                     "profilePath":user['profilePicture'],
-                    'likesCount':0,
-                    'commentsCount':0,
-                    'likes':[],
-                    'postedAt':datetime.now().strftime("%B %d, %Y"),
-                    'exactTime':datetime.now(),
-                    'commentCount':0
-                    }
-                uploaded_post_id=posts.mongo.db.post.insert_one(new_post).inserted_id
-                newly_uploaded_post=posts.mongo.db.post.find_one({"_id":uploaded_post_id})
+                })
+
+                uploaded_post_id=mongo.db.post.insert_one(new_post).inserted_id
+                mongo.db.users.update_one(
+                    {"_id": user['_id']},
+                    {"$inc": {"postCount": 1}}
+                )
+
+                newly_uploaded_post=mongo.db.post.find_one({"_id":uploaded_post_id})
                 return dumps(newly_uploaded_post),200
                 
                 
@@ -54,11 +60,10 @@ def getuserposts():
             data=request.json
             mongo=posts.mongo
             userid=data.get("userid")
-            user=mongo.db.users.find_one({"_id":ObjectId(userid)})
+            user=is_existing_userid(mongo,userid)
             if user:
                 user_posts=list(mongo.db.post.find({"user_id":ObjectId(userid)}))
                 user_posts_dump=dumps(user_posts)
-                print(user_posts_dump)
                 return user_posts_dump,200
             if not user:
                 return jsonify({"message":"user not found"}),400
@@ -112,17 +117,16 @@ def getfeed():
             mongo=posts.mongo
             page=data.get('page')
             userid = data.get('userid')
+
             per_page = 5
             skip = (page - 1) * per_page
 
-            user=is_valid_userid(mongo,userid)
-            
+            user=is_existing_userid(mongo,userid)
+
             if not user:
                 return jsonify({"message":'user does not exists'}),404
             
-            userFollowing = user['following']
-
-            feed = mongo.db.post.find({'user_id': {'$in': userFollowing}}).skip(skip).limit(per_page)
+            feed = mongo.db.post.find({'user_id': {'$in': [ObjectId(id) for id in user['following']]}}).skip(skip).limit(per_page)
             feed_list = list(feed)
             feed_json = dumps(feed_list)
             return feed_json,200
@@ -152,7 +156,7 @@ def getPostLikes():
         except Exception as e:
             return jsonify({"message":str(e)}),500
        
-@posts.route("/deletePost",methods=['POST'])
+@posts.route("/deletepost",methods=['POST'])
 def deletePost():
     if request.method=='POST':
         try:
@@ -161,18 +165,23 @@ def deletePost():
             userid=data.get("userid")
             postid=data.get("postid")
 
-            user=mongo.db.users.find_one({"_id":ObjectId(userid)})
+            user=is_existing_userid(mongo,userid)
             if not user:
                 return jsonify({"message":'user does not exist'}),400
             
-            post=mongo.db.post.find_one({"_id":ObjectId(postid)})
+            post=is_existing_postid(mongo,postid)
             if not post:
                 return jsonify({"message":"post does not exist"}),400
-
             
-            mongo.db.post.delete_one({"_id": ObjectId(postid)})
-            mongo.db.comments.delete_one({"post_id":postid})
+            if post['user_id'] != ObjectId(userid):
+                return jsonify({"message": "You do not have permission to delete this post"}), 403
 
+            delete_post_and_related_comments(mongo,postid)
+            mongo.db.users.update_one(
+                {"_id": ObjectId(userid)},
+                {"$inc": {"postCount": -1}}
+            )
+            
             return jsonify({"message":"post deleted successfully",'deletedPostId':postid}),200
 
         except Exception as e:

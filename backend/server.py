@@ -9,7 +9,7 @@ from bson.json_util import dumps
 import jwt
 
 from utils.common import decode_jwt_token
-from utils.validation import is_valid_userid
+from utils.validation import is_existing_userid
 
 
 from routes.auth import auth
@@ -47,7 +47,7 @@ def check_token_and_user():
         if authToken:
             decoded_token = decode_jwt_token(authToken)
             user_id = decoded_token['user_id']
-            user = is_valid_userid(mongo, user_id)
+            user = is_existing_userid(mongo, user_id)
             if not user:
                 raise InvalidUserError() 
             else:

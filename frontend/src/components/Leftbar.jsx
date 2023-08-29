@@ -3,15 +3,10 @@ import PersonIcon from '@mui/icons-material/Person';
 import Diversity3Icon from '@mui/icons-material/Diversity3';
 import SettingsIcon from '@mui/icons-material/Settings';
 import LogoutIcon from '@mui/icons-material/Logout';
-import FaceRetouchingNaturalIcon from '@mui/icons-material/FaceRetouchingNatural';
 import ForumIcon from '@mui/icons-material/Forum';
-import ErrorIcon from '@mui/icons-material/Error';
-import LocalLibraryIcon from '@mui/icons-material/LocalLibrary';
 import HomeIcon from '@mui/icons-material/Home';
-import { Link ,useNavigate} from 'react-router-dom';
+import { Link} from 'react-router-dom';
 import PostAddIcon from '@mui/icons-material/PostAdd';
-import Modal from '@mui/material/Modal';
-import { Button, Stack, Typography } from '@mui/material';
 import {useState } from 'react';
 import {PostModal} from '../components/PostModal'
 import { useContext } from 'react';
@@ -88,18 +83,6 @@ export const Leftbar=()=> {
         </List>
       </nav>
       <Divider />
-      {/* <ListItem disablePadding>
-            <ListItemButton component={Link} to='/aboutfaculty'>
-            <ListItemIcon><FaceRetouchingNaturalIcon/></ListItemIcon>
-              <ListItemText primary="Know Your Faculty" />
-            </ListItemButton>
-        </ListItem> */}
-      <ListItem disablePadding>
-            <ListItemButton onClick={setCookie}>
-            <ListItemIcon><LocalLibraryIcon/></ListItemIcon>
-              <ListItemText primary="setcookie" />
-            </ListItemButton>
-        </ListItem>
         <Divider />
       <ListItem disablePadding>
             <ListItemButton onClick={handleOpenModal}>

@@ -9,6 +9,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import { Likesmodal } from '../components/Likesmodal'
 import { loadPost } from '../api/post'
 import catanimation from '../animations/login/catanimation.json'
+import welcomecat from '../animations/login/welcomecat.json'
 import Lottie from 'lottie-react';
 
 
@@ -18,10 +19,12 @@ export const feedUpdate=createContext();
 
 export const Home =() => {
     const loggedInUser=useContext(loggedInUserContext)
+    console.log(loggedInUser)
     const [page,setPage]=useState(1)
     const [feed,setFeed]=useState([])
     const [loading,setLoading]=useState(false)
     const [hasMore,sethasMore]=useState(true)
+    const [newUser,setNewUser]=useState(loggedInUser.loggedInUser.followingCount===0?true:false)
     const [likeModalOpen,setLikeModalOpen]=useState({
       'state':false,
       'postid':''
@@ -55,6 +58,7 @@ export const Home =() => {
             const result=await loadPost(page,loggedInUser.loggedInUser.userid)
             
             if(result.success){
+                console.log(result.posts)
                 if(result.posts.length!==0){
                     setFeed((prev) => [...prev, ...result.posts]);
                 }
@@ -71,12 +75,9 @@ export const Home =() => {
         }
     }
 
-    const updateFeed = (newPost) => {
-        setFeed((prevFeed) => [newPost, ...prevFeed,]);
-      };
 
   return (
-    <feedUpdate.Provider value={updateFeed}>
+    <feedUpdate.Provider value={setFeed}>
     <>
     <Navbar/>
         <Stack direction={"row"} spacing={2} justifyContent={"space-between"} alignItems="flex-start">
@@ -85,34 +86,50 @@ export const Home =() => {
 
                 <Stack flex={4} p={2} justifyContent={'center'} alignItems={'center'}>
                     {
-                    feed.map((feed) => 
+                    feed.map((post) => 
                         (
-                        <Postcard key={feed._id}
-                        imageUrl={`${BASE_URL}/${feed.postPath}`} 
-                        username={feed.username} 
-                        likesCount={feed.likes.length}
-                        caption={feed.caption} 
-                        unique_id={feed._id.$oid}
-                        postedAt={feed.postedAt}
-                        profilePath={feed.profilePath}
-                        isLiked={`${feed.likes.includes(loggedInUser.loggedInUser.userid)?(1):(0)}`}
+                        <Postcard key={post._id}
+                        username={post.username} 
+                        caption={post.caption} 
+                        likesCount={post.likesCount}
+                        imageUrl={`${BASE_URL}/${post.postPath}`} 
+                        unique_id={post._id.$oid}
+                        postedAt={post.postedAt}
+                        profilePath={post.profilePath}
+                        isLiked={`${post.likes.includes(loggedInUser.loggedInUser.userid)?(1):(0)}`}
                         setLikeModalOpen={setLikeModalOpen}
+                        userid={post.user_id.$oid}
+                        commentCount={post.commentsCount}
                         />
                         ))
                     }
                     {
-                    hasMore?(
+                    newUser?(
+                        <Stack justifyContent={'center'} alignItems={"center"}>
+                            
+                            <Box width={'30rem'}>
+                                <Lottie animationData={welcomecat} />
+                            </Box>
+
+                            <Typography variant='body1' fontWeight={300}>hmm! you seem new🤔</Typography>
+                            <Typography variant='body1' fontWeight={300}>Follow some people to see their posts</Typography>
+                        </Stack>
+                    ):(
+                        hasMore?(
                         loading?(<CircularProgress />):("")
                     ):(
                         <Stack justifyContent={'center'} alignItems={"center"}>
+                            
                             <Box width={'10rem'}>
-
-                        <Lottie animationData={catanimation} />
+                                <Lottie animationData={catanimation} />
                             </Box>
-                        <Typography variant='body1' fontWeight={300}>You are all caught up!✅</Typography>
-                        <Typography variant='body1' fontWeight={300}>Follow more users for more content🚀</Typography>
+
+                            <Typography variant='body1' fontWeight={300}>You are all caught up!✅</Typography>
+                            <Typography variant='body1' fontWeight={300}>Follow more users for more content🚀</Typography>
                         </Stack>
                     )
+                    )
+                    
                     
                     }
                 </Stack>

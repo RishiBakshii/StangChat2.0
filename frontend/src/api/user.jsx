@@ -41,19 +41,21 @@ export const get_user_info=async(userid)=>{
     }
 }
 
-export const fetchUserProfile=async(username,userid)=>{
+export const fetchUserProfile=async(username,loggedInUserId)=>{
     try {
       const response=await fetch(`${BASE_URL}/profile/${username}`,{
         method:"POST",
+        credentials:"include",
         headers:{
           'Content-Type':"application/json"
         },
         body:JSON.stringify({
-          'userid':userid
+          'userid':loggedInUserId
         })
       })
       const json=await response.json()
       if (response.ok){
+        console.log(json)
         const postData=await fetchUserPost(username=json._id.$oid)
         return {
           'profileData':json,
@@ -129,7 +131,6 @@ const fetchUserPost=async(userid)=>{
     })
     const json=await response.json()
     if(response.ok){
-      console.log(json)
       return json
     }
     if(response.status==500){

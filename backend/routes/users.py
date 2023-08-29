@@ -3,8 +3,8 @@ from flask import Blueprint,request,jsonify,make_response,current_app
 from werkzeug.utils import secure_filename
 import os
 from bson.json_util import dumps
-from utils.common import upload_profile_picture,update_profile_data
-from utils.validation import is_valid_userid
+from utils.common import upload_profile_picture,update_profile_data,format_user_data,handle_follow,handle_unfollow
+from utils.validation import is_existing_username,is_existing_userid
 
 users=Blueprint('users',__name__)
 
@@ -17,21 +17,9 @@ def get_user_info():
             userID=data.get('userID')
             user_data=mongo.db.users.find_one({"_id":ObjectId(userID)})
 
-            formatted_user_data={
-                'userid':str(user_data['_id']),
-                'username':user_data['username'],
-                'email':user_data['email'],
-                'location':user_data['location'],
-                'bio':user_data['bio'],
-                'linkedinProfile':"",
-                'profilePicture':user_data['profilePicture'],
-                'followers':[],
-                'following':[],
-                'post':[],
-            }
 
             if user_data:
-                return jsonify({"data":formatted_user_data}),200
+                return jsonify({"data":format_user_data(user_data)}),200
             else:
                 return make_response(jsonify({"message":"user not found"}),400)
 
@@ -44,17 +32,15 @@ def fetch_user_profile(username):
         try:
             data=request.json
             mongo=users.mongo
-            user=mongo.db.users.find_one({'username':username})
-            logged_in_user_id=data.get("userid")
-            
-
+            logged_in_user_id=data.get('userid')
+            user=is_existing_username(mongo,username)
+    
             if user:
                 is_following = logged_in_user_id in user['followers']
                 user['isFollowing']=is_following
-                print(dumps(user))
                 return dumps(user),200
                 
-            return jsonify({"message":"user not found"}),400
+            return jsonify({"message":"user not found"}),404
         except Exception as e:
             return jsonify({"message":str(e)}),500
             
@@ -84,7 +70,7 @@ def updateProfile():
             location=request.form.get("location")
             username=request.form.get("username")
 
-            user=is_valid_userid(mongo,userid)
+            user=is_existing_userid(mongo,userid)
 
             if not user:
                 return jsonify({'message':"User Does Not Exist"}),404
@@ -102,39 +88,28 @@ def handleFollowUnfollow():
         try:
             data=request.json
             mongo=users.mongo
-
             userid=data.get('userid')
             target_user_id=data.get("target_user_id")
-            isFollowing=False
 
-            user=mongo.db.users.find_one({"_id":ObjectId(userid)})
+            user=is_existing_userid(mongo,userid)
 
             if not user:
                 return jsonify({"message":"user does not exist"}),400
             
-            target_user=mongo.db.users.find_one({"_id":ObjectId(target_user_id)})
+            target_user=is_existing_userid(mongo,target_user_id)
 
             if not target_user:
                 return jsonify({"message":"target user does not exist"}),400
             
-            if user['_id'] in target_user['followers']: #unfollow
+            if userid in target_user['followers']:
+                updated_state=handle_unfollow(mongo,target_user_id,userid)
 
-                mongo.db.users.update_one({"_id": ObjectId(target_user_id)},{"$pull": {"followers": user['_id']},"$inc": {"followerCount": -1}})
-                mongo.db.users.update_one({"_id": ObjectId(userid)},{"$pull": {"following": target_user['_id']},"$inc": {"followingCount": -1}})
-                isFollowing=True
-            if user['_id'] not in target_user['followers']: #follow
-
-                mongo.db.users.update_one({"_id": ObjectId(target_user_id)},
-                                          {"$push": {"followers": user['_id']},
-                                           "$inc": {"followerCount": 1}}
-                                           
-                                           )
-                mongo.db.users.update_one({"_id": ObjectId(userid)},{"$push": {"following": target_user['_id']},"$inc": {"followingCount": 1}})
-                isFollowing=False
-
-            return jsonify({"updatedFollowingCount":target_user['followingCount'],"updatedFollowerCount":target_user['followerCount'],'isFollowing':isFollowing}),200
+            if userid not in target_user['followers']:
+                updated_state=handle_follow(mongo,target_user_id,userid)
             
-
-
+            print(updated_state)
+            return jsonify(updated_state),200
+            
+        
         except Exception as e:
             return jsonify({"message":str(e)}),500

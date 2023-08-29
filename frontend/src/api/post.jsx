@@ -77,6 +77,7 @@ export const loadPost=async(page,userid)=>{
         const json=await response.json()
 
         if(response.ok){
+          console.log(json)
           return {
                 success:true,
                 posts:json

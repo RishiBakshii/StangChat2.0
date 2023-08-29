@@ -1,42 +1,15 @@
 import React, { useContext, useEffect, useState } from "react";
-import {
-  Avatar,
-  Box,
-  Card,
-  CardActions,
-  CardContent,
-  CardHeader,
-  CardMedia,
-  IconButton,
-  Typography,
-  Checkbox,
-  Stack,
-  TextField,
-  InputAdornment,
-  Button,
-  Menu,
-  MenuItem,
-} from "@mui/material";
-import {
-  ExpandMore,
-  MoreVert,
-  Share,
-  Favorite,
-  CheckBox,
-  FavoriteBorder,
-  Comment,
-  Send,
-  HeartBroken,
-  Delete,
-} from "@mui/icons-material";
-import { BASE_URL } from "../screens/Home";
+import {Avatar,Box,Card,CardActions,CardContent,CardHeader,CardMedia,IconButton,Typography,Checkbox,Stack,TextField,InputAdornment,Menu,MenuItem, Button,} from "@mui/material";
+import {MoreVert,Favorite,FavoriteBorder,Comment,Send,Delete} from "@mui/icons-material";
+import { BASE_URL, feedUpdate } from "../screens/Home";
 import CircularProgress from "@mui/material/CircularProgress";
 import { Link } from "react-router-dom";
 import { loggedInUserContext } from "../context/user/Usercontext";
 import LoadingButton from "@mui/lab/LoadingButton/LoadingButton";
 
-export const Postcard = ({username,caption,likesCount,imageUrl,unique_id,postedAt,profilePath,isLiked,setLikeModalOpen}) => {
+export const Postcard = ({username,caption,likesCount,imageUrl,unique_id,postedAt,profilePath,isLiked,setLikeModalOpen,userid,commentCount}) => {
   const [isLikedstate, setIsLikedState] = useState(isLiked);
+  const updateFeed=useContext(feedUpdate)
   const loggedInUser = useContext(loggedInUserContext);
   const [showComment, setShowComment] = useState({
     show: false,
@@ -121,7 +94,6 @@ export const Postcard = ({username,caption,likesCount,imageUrl,unique_id,postedA
       alert(error);
     }
   };
-
   const handlePostLike = async () => {
     try {
       const response = await fetch(`${BASE_URL}/likepost`, {
@@ -150,7 +122,6 @@ export const Postcard = ({username,caption,likesCount,imageUrl,unique_id,postedA
       alert(error);
     }
   };
-
   const handleCommentLike = async (commentid) => {
     try {
       const response = await fetch(`${BASE_URL}/commentlike`, {
@@ -179,6 +150,39 @@ export const Postcard = ({username,caption,likesCount,imageUrl,unique_id,postedA
       alert(error);
     }
   };
+  const handleDelete=async()=>{
+    try {
+      const response=await fetch(`${BASE_URL}/deletepost`,{
+        method:"POST",
+        headers:{
+          'Content-Type':'application/json'
+        },
+        body:JSON.stringify({
+          'userid':loggedInUser.loggedInUser.userid,
+          'postid':unique_id
+        })
+      })
+
+      const json=await response.json()
+
+      if(response.ok){
+        updateFeed(prevFeed => prevFeed.filter(post => post._id.$oid !== json.deletedPostId))
+      }
+
+      if(response.status==400){
+        alert(json.message)
+      }
+
+      if(response.status==500){
+        console.log(json.message)
+        alert("internal server error")
+      }
+
+
+    } catch (error) {
+      alert('frontend error')
+    }
+  }
 
   const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
@@ -192,22 +196,14 @@ export const Postcard = ({username,caption,likesCount,imageUrl,unique_id,postedA
 
   return (
     <Card sx={{ margin: 5, height: showComment.cardHeight, width: "100%" }}>
-      <CardHeader
-        avatar={
-          <Avatar
-            sx={{ bgcolor: "blue" }}
-            aria-label="recipe"
-            component={Link}
-            to={`/profile/${username}`}
-            src={`${BASE_URL}/${profilePath}`}
-          ></Avatar>
-        }
+      <CardHeader avatar={ <Avatar sx={{ bgcolor: "blue" }} aria-label="recipe" component={Link} to={`/profile/${username}`} src={`${BASE_URL}/${profilePath}`}></Avatar>}
         action={
-          <Box>
-              <IconButton id="basic-button" aria-controls={open ? 'basic-menu' : undefined} aria-haspopup="true" aria-expanded={open ? 'true' : undefined} onClick={handleClick}>
-        <MoreVert/>
+          <Box> 
+            <IconButton id="basic-button" aria-controls={open ? 'basic-menu' : undefined} aria-haspopup="true" aria-expanded={open ? 'true' : undefined} onClick={handleClick}>
+          <MoreVert/>
       </IconButton>
-      <Menu
+        {loggedInUser.loggedInUser.userid===userid?(
+                <Menu
         id="basic-menu"
         anchorEl={anchorEl}
         open={open}
@@ -218,11 +214,15 @@ export const Postcard = ({username,caption,likesCount,imageUrl,unique_id,postedA
       >
         <MenuItem onClick={handleClose}>
           <Stack direction={'row'} justifyContent={'center'} alignItems={'center'} spacing={1}>
-          <Typography color={'red'} variant="body1">Delete</Typography>
-          <Delete sx={{color:'red'}} />
+            <Typography color={'red'} variant="body1">Delete</Typography>
+            <IconButton onClick={handleDelete}>
+                <Delete sx={{color:'red'}} />
+            </IconButton>
           </Stack>
         </MenuItem>
       </Menu>
+        ):("")}
+
       </Box>
 
         }
@@ -263,7 +263,7 @@ export const Postcard = ({username,caption,likesCount,imageUrl,unique_id,postedA
             <IconButton onClick={toggleComments} aria-label="share">
               <Comment />
               </IconButton>
-              <Typography sx={{"cursor":"pointer"}} onClick={()=>setLikeModalOpen({state:true,postid:unique_id})}>{likesCount}</Typography>
+              <Typography>{commentCount}</Typography>
 
       </CardActions>
 

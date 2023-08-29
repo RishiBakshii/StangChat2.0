@@ -64,7 +64,7 @@ export const PostModal=({ isOpen, onClose})=> {
           const json=await response.json()
 
           if(response.ok){
-            updateFeed(json)
+            updateFeed((prevFeed) => [json, ...prevFeed,])
             setCaption("")
             setDisplayImage(null)
             onClose()

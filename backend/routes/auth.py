@@ -5,7 +5,7 @@ import bcrypt
 from bson.json_util import dumps
 from utils.common import generate_jwt_token,format_user_data,hash_password,decode_jwt_token
 from schema.user import user_schema
-from utils.validation import is_existing_email,is_valid_username,is_valid_password
+from utils.validation import is_existing_email,is_existing_username,is_valid_password
 auth = Blueprint('auth', __name__)
 
 
@@ -71,10 +71,10 @@ def signup():
             password=data.get("password")
             location=data.get("location")
 
-            if not is_valid_email(mongo,email):
+            if is_existing_email(mongo,email):
                 return jsonify({'message': 'Email is already taken😭'}),400
             
-            if not is_valid_username(mongo,username):
+            if is_existing_username(mongo,username):
                  return jsonify({'message': 'Username is already taken😭'}),400
 
             hashed_password=hash_password(password)

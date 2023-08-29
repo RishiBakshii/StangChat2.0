@@ -1,9 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react'
 import { Navbar } from '../components/Navbar'
-import {Stack,Box, Avatar, Typography, Button, Grid} from '@mui/material'
+import {Stack,Avatar, Typography, Button, Grid} from '@mui/material'
 import { Leftbar } from '../components/Leftbar'
-import { Rightbar } from '../components/Rightbar'
-import LinkedInIcon from '@mui/icons-material/LinkedIn';
 import { useParams } from 'react-router-dom'
 import { BASE_URL} from './Home'
 import { fetchUserProfile } from '../api/user'
@@ -22,17 +20,22 @@ export const Profile = () => {
 
   const [followerCount,setFollowerCount]=useState()
   const [followingCount,setFollowingCount]=useState()
+  const [postCount,setPostCount]=useState()
   const [isFollowing,setIsFollowing]=useState()
 
-  
+  useEffect(()=>{
+    fetchProfileData()
+  },[loggedInUser])
   
   const fetchProfileData=async()=>{
     const userprofile=await fetchUserProfile(username,loggedInUser.loggedInUser.userid)
-    console.log(userprofile.profileData)
     setProfile(userprofile.profileData)
     setPost(userprofile.postData)
+
     setFollowerCount(userprofile.profileData.followerCount)
     setFollowingCount(userprofile.profileData.followingCount)
+    setPostCount(userprofile.profileData.postCount)
+
     setIsFollowing(userprofile.profileData.isFollowing)
   }
   
@@ -52,16 +55,15 @@ export const Profile = () => {
       const json=await response.json()
 
       if(response.ok){
-        console.log(json)
         setFollowerCount(json.updatedFollowerCount)
         setFollowingCount(json.updatedFollowingCount)
         setIsFollowing(json.isFollowing)
       }
-      if(response.status==500){
+      if(response.status===500){
         alert("internal server error")
         console.log(json.message)
       }
-      if(response.status==400){
+      if(response.status===400){
         alert(json.message)
       }
     } catch (error) {
@@ -69,18 +71,13 @@ export const Profile = () => {
     }
   }
 
-
-
-  useEffect(()=>{
-    fetchProfileData()
-  },[])
   return (
   <>
       <Navbar/>
       <Leftbar/>
         
           
-                      <Stack flex={"1"} bgcolor={''} spacing={5} justifyContent={'center'} alignItems={"center"} mt={5}>
+                <Stack flex={"1"} bgcolor={''} spacing={5} justifyContent={'center'} alignItems={"center"} mt={5}>
                 
                 {/* profile parent */}
                 <Stack padding={4} bgcolor={'white'} borderRadius={'.6rem'} width={'60%'} justifyContent={'flex-start'} alignItems={'flex-start'}>
@@ -117,10 +114,10 @@ export const Profile = () => {
                   <Stack mt={4} direction={'row'} justifyContent={'center'} alignItems={"center"} spacing={3}>
                             <Typography variant='h6' fontWeight={300} >{followerCount} Followers</Typography>
                             <Typography variant='h6' fontWeight={300} >{followingCount} Following</Typography>
-                            <Typography variant='h6' fontWeight={300} >{profile.postCount} Post</Typography>
+                            <Typography variant='h6' fontWeight={300} >{postCount} Post</Typography>
                   </Stack>
                   {
-                    post.length==0?(
+                    post.length===0?(
 
                       <Stack mt={2} spacing={1}>
                         <Typography variant='h6' fontWeight={300}><PhotoIcon/>
@@ -137,7 +134,9 @@ export const Profile = () => {
                         imageUrl={`${BASE_URL}/${post.postPath}`}
                         unique_id={post._id.$oid} 
                         postedAt={post.postedAt} 
-                        profilePath={post.profilePath} />
+                        profilePath={post.profilePath}
+                        isLiked={`${post.likes.includes(loggedInUser.loggedInUser.userid)?(1):(0)}`}
+                        userid={post.user_id.$oid}/>
                       })
                     }
                     
