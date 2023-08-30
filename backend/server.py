@@ -33,7 +33,11 @@ profile_photos=os.path.join(app.config['UPLOAD_FOLDER'],'profile')
 post_photos = os.path.join(app.config['UPLOAD_FOLDER'], 'postphotos')
 
 mongo=PyMongo(app)
+# CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}}, supports_credentials=True)
 CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}}, supports_credentials=True)
+# CORS(app, resources={r"/*": {"origins": ["*"]}}, supports_credentials=True)
+# CORS(app, resources={r"/*": {"origins": ["http://192.168.1.3"]}}, supports_credentials=True)
+
 
 @app.before_request
 def check_token_and_user():

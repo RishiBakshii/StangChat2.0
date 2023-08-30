@@ -11,28 +11,16 @@ import {useState } from 'react';
 import {PostModal} from '../components/PostModal'
 import { useContext } from 'react';
 import { loggedInUserContext } from '../context/user/Usercontext';
-import { BugReport } from '@mui/icons-material';
+import { BugReport, Search } from '@mui/icons-material';
 import { Logoutmodal } from './Logoutmodal';
 import { BASE_URL } from '../envVariables';
 
 
 export const Leftbar=()=> {
 
-
-  const setCookie=async()=>{
-    const response=await fetch(`${BASE_URL}/new_cookie`,{
-      method:"GET"
-    })
-    const json=await response.json()
-
-    alert(json.message)
-  }
-
   const loggedInUser=useContext(loggedInUserContext)
 
   const [open, setOpen] = useState(false);
-  const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
   const [isLogoutModal,setIsLogoutModal]=useState(false)
   const [isModalOpen, setIsModalOpen] = useState(false);
   const handleOpenModal = () => {
@@ -60,6 +48,12 @@ export const Leftbar=()=> {
             <ListItemButton component={Link} to='/'>
               <ListItemIcon><HomeIcon/></ListItemIcon>
               <ListItemText primary="Home"/>
+            </ListItemButton>
+          </ListItem>
+          <ListItem disablePadding>
+            <ListItemButton component={Link} to={`/search`}>
+              <ListItemIcon><Search/></ListItemIcon>
+              <ListItemText primary="Search"/>
             </ListItemButton>
           </ListItem>
           <ListItem disablePadding>

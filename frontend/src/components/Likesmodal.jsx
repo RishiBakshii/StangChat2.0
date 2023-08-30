@@ -18,6 +18,7 @@ const style = {
   bgcolor: 'background.paper',
   boxShadow: 24,
   p: 4,
+  overflowY:"scroll"
 };
 
 export const Likesmodal=({open,handleClose,postid})=> {

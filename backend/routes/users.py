@@ -44,7 +44,6 @@ def fetch_user_profile(username):
         except Exception as e:
             return jsonify({"message":str(e)}),500
             
-
 @users.route('/updateprofile',methods=['POST'])
 def updateProfile():
     """
@@ -113,3 +112,82 @@ def handleFollowUnfollow():
         
         except Exception as e:
             return jsonify({"message":str(e)}),500
+        
+@users.route("/getfollowers",methods=['POST'])
+def getFollowers():
+    if request.method=='POST':
+        try:
+            data=request.json
+            mongo=users.mongo
+            userid=data.get("userid")
+            user=is_existing_userid(mongo,userid)
+            if not user:
+                return jsonify({"message":"user not found"}),400
+            
+            follower_ids=user['followers']
+            followers_data=[]
+
+            for follower_id in follower_ids:
+                follower = is_existing_userid(mongo,follower_id)
+                if follower:
+                    followers_data.append({
+                        "username": follower["username"],
+                        "profile_picture": follower["profilePicture"],
+                        "location": follower["location"],
+                    })
+            return followers_data, 200
+
+        except Exception as e:
+            print(e)
+            return jsonify({"message":str(e)}),500
+
+@users.route("/getfollowing", methods=['POST'])
+def getFollowing():
+    if request.method == 'POST':
+        try:
+            data = request.json
+            mongo = users.mongo
+            userid = data.get("userid")
+            user = is_existing_userid(mongo, userid)
+            
+            if not user:
+                return jsonify({"message": "user not found"}), 400
+            
+            following_ids = user['following']
+            following_data = []
+            
+            for following_id in following_ids:
+                following_user = is_existing_userid(mongo, following_id)
+                if following_user:
+                    following_data.append({
+                        "username": following_user["username"],
+                        "profile_picture": following_user["profilePicture"],
+                        "location": following_user["location"],
+                    })
+            
+            return jsonify(following_data), 200
+        
+        except Exception as e:
+            print(e)
+            return jsonify({"message": str(e)}), 500
+
+
+# @users.route("/searchuser", methods=['POST'])
+# def usersearch():
+#     try:
+#         data = request.json
+#         user_id = data.get("userid")
+#         search_query = data.get("searchquery")
+       
+#         search_results = []
+#         for profile in user_profiles:
+#             similarity_score = fuzz.partial_ratio(search_query, profile["username"])
+#             if similarity_score > 50:  # Adjust the threshold as needed
+#                 search_results.append(profile)
+
+#         return jsonify(search_results), 200
+
+#     except Exception as e:
+#         print(e)
+#         return jsonify({"message": str(e)}), 500
+
