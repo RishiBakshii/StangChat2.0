@@ -17,7 +17,7 @@ import { Likesmodal } from '../components/Likesmodal'
 
 export const Profile = () => {
 
-  const loggedInUser=useContext(loggedInUserContext)
+  const {loggedInUser,setLoggedInUser} = useContext(loggedInUserContext);
   const {username}=useParams()
   const [profile,setProfile]=useState({})
   const [post,setPost]=useState([])
@@ -34,7 +34,6 @@ export const Profile = () => {
 
   const [followersData,setFollowersData]=useState([])
   const [followingsData,setFollowingsData]=useState([])
-
 
   const [followerLoading,setFollowerLoading]=useState(false)
   const [followingLoading,setFollowingLoading]=useState(false)
@@ -59,7 +58,7 @@ export const Profile = () => {
   },[loggedInUser])
   
   const fetchProfileData=async()=>{
-    const userprofile=await fetchUserProfile(username,loggedInUser.loggedInUser.userid)
+    const userprofile=await fetchUserProfile(username,loggedInUser.userid)
     setProfile(userprofile.profileData)
     setPost(userprofile.postData)
     console.log(userprofile.profileData)
@@ -79,7 +78,7 @@ export const Profile = () => {
           "Content-Type":"application/json"
         },
         body:JSON.stringify({
-          userid:loggedInUser.loggedInUser.userid,
+          userid:loggedInUser.userid,
           target_user_id:profile._id.$oid
         })
       })
@@ -87,6 +86,7 @@ export const Profile = () => {
       const json=await response.json()
 
       if(response.ok){
+        setLoggedInUser({...loggedInUser,['followingCount']:json.updatedUserFollowingCount})
         setFollowerCount(json.updatedFollowerCount)
         setFollowingCount(json.updatedFollowingCount)
         setIsFollowing(json.isFollowing)
@@ -193,7 +193,7 @@ export const Profile = () => {
                       <Typography variant='h5' fontWeight={300}>He/Him</Typography>
 
 
-                      {loggedInUser.loggedInUser.userid===profile?._id?.$oid?(
+                      {loggedInUser.userid===profile?._id?.$oid?(
                         <Button size='large' variant='contained'>Edit Profile</Button>
                       ):(
 
@@ -222,7 +222,7 @@ export const Profile = () => {
 
                       <Stack mt={2} spacing={1}>
                         <Typography variant='h6' fontWeight={300}><PhotoIcon/>
-                        {loggedInUser.loggedInUser.userid===profile?._id?.$oid?(` you haven't posted anything`) :(` ${username} haven't posted anything`)}</Typography>
+                        {loggedInUser.userid===profile?._id?.$oid?(` you haven't posted anything`) :(` ${username} haven't posted anything`)}</Typography>
                       </Stack>
                     ):(
                       <Grid mt={4} container  justifyContent={'center'} alignContent={'center'} gridColumn={2} gap={2}>
@@ -236,7 +236,7 @@ export const Profile = () => {
                         unique_id={post._id.$oid}
                         postedAt={post.postedAt}
                         profilePath={post.profilePath}
-                        isLiked={post.likes.includes(loggedInUser.loggedInUser.userid)?(true):(false)}
+                        isLiked={post.likes.includes(loggedInUser.userid)?(true):(false)}
                         setLikeModalOpen={setLikeModalOpen}
                         userid={post.user_id.$oid}
                         commentCount={post.commentsCount}/>
@@ -297,7 +297,7 @@ export const Profile = () => {
       {/* following modal */}
       <Modal open={followingModalState} onClose={()=>setFollowingModalState(false)}>
         <Box sx={style}>
-        <Stack spacing={4} height={'25rem'} sx={{overflowY:"scroll"}}>
+        <Stack spacing={4} height={'30rem'} sx={{overflowY:"scroll"}}>
             <Typography variant='h6' fontWeight={300}>Followings of {username}</Typography>
             { 
               followingLoading?(<CircularProgress sx={{"alignSelf":"center",justifySelf:"center"}}/>):(
@@ -324,7 +324,7 @@ export const Profile = () => {
                             </Stack>
 
                       </Stack>
-                      <Stack justifyContent={'center'} alignItems={"center"}>
+                      <Stack justifyContent={'center'} alignItems={"center"} p={1}>
                           <Button size='small' variant='outlined'>follow</Button>
                       </Stack>
                 </Stack>

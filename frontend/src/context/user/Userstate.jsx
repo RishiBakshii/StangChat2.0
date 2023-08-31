@@ -12,6 +12,11 @@ export const Userstate = ({children}) => {
         setLoggedInUser(updatedData)
     }
 
+    useEffect(()=>{
+        console.log('user state updated !!!✅✅✅✅')
+        console.log(loggedInUser)
+    },[loggedInUser])
+
     const getLoggedInUserandUpdateState=async()=>{
         const userdata=await fetchLoggedInUser()
         updateLoggedInUser(userdata)
@@ -26,7 +31,7 @@ export const Userstate = ({children}) => {
 
 
   return (
-    <loggedInUserContext.Provider value={{loggedInUser,updateLoggedInUser}}>
+    <loggedInUserContext.Provider value={{loggedInUser,updateLoggedInUser,setLoggedInUser}}>
         {children}
     </loggedInUserContext.Provider>
   )

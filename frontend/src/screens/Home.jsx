@@ -22,7 +22,14 @@ export const Home =() => {
     const [page,setPage]=useState(1)
     const [loading,setLoading]=useState(false)
     const [hasMore,sethasMore]=useState(true)
-    const [newUser,setNewUser]=useState(loggedInUser.loggedInUser.followingCount===0?true:false)
+    const [newUser,setNewUser]=useState(null)
+
+    useEffect(() => {
+        setNewUser(loggedInUser.loggedInUser.followingCount === 0);
+    }, [loggedInUser.loggedInUser.followingCount]);
+    
+
+
     const [likeModalOpen,setLikeModalOpen]=useState({
       'state':false,
       'postid':''

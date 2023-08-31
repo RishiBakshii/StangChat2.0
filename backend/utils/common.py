@@ -62,11 +62,13 @@ def handle_follow(mongo,target_user_id,userid):
     mongo.db.users.update_one({"_id": ObjectId(userid)},{"$push": {"following": target_user_id},"$inc": {"followingCount": 1}})
 
     target_user=is_existing_userid(mongo,target_user_id)
+    user=is_existing_userid(mongo,userid)
 
     return {
         "updatedFollowingCount": target_user['followingCount'],
         "updatedFollowerCount": target_user['followerCount'],
-        "isFollowing": True
+        "isFollowing": True,
+        'updatedUserFollowingCount':user['followingCount']
     }
 
 def handle_unfollow(mongo,target_user_id,userid):
@@ -74,11 +76,13 @@ def handle_unfollow(mongo,target_user_id,userid):
     mongo.db.users.update_one({"_id": ObjectId(userid)},{"$pull": {"following": target_user_id},"$inc": {"followingCount": -1}})
 
     target_user=is_existing_userid(mongo,target_user_id)
+    user=is_existing_userid(mongo,userid)
 
     return {
         "updatedFollowingCount": target_user['followingCount'],
         "updatedFollowerCount": target_user['followerCount'],
-        "isFollowing": False
+        "isFollowing": False,
+        'updatedUserFollowingCount':user['followingCount']
     }
 
 def upload_post(user_post,target_folder):

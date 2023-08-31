@@ -172,22 +172,29 @@ def getFollowing():
             return jsonify({"message": str(e)}), 500
 
 
-# @users.route("/searchuser", methods=['POST'])
-# def usersearch():
-#     try:
-#         data = request.json
-#         user_id = data.get("userid")
-#         search_query = data.get("searchquery")
-       
-#         search_results = []
-#         for profile in user_profiles:
-#             similarity_score = fuzz.partial_ratio(search_query, profile["username"])
-#             if similarity_score > 50:  # Adjust the threshold as needed
-#                 search_results.append(profile)
+@users.route("/searchuser", methods=['POST'])
+def usersearch():
+    try:
+        data = request.json
+        mongo=users.mongo
+        user_id = data.get('userid')
+        search_query = data.get('query')
 
-#         return jsonify(search_results), 200
+        user_exists = is_existing_userid(mongo,user_id)
+        if not user_exists:
+            return jsonify({"message": "User not found"}), 404
 
-#     except Exception as e:
-#         print(e)
-#         return jsonify({"message": str(e)}), 500
+        if user_exists:
+            regex_pattern = f'.*{search_query}.*'
+            regex_query = {"username": {"$regex": regex_pattern, "$options": "i"}}
+
+            search_results = mongo.db.users.find(regex_query)
+            search_results_list = list(search_results)
+            return dumps(search_results_list), 200
+
+
+    except Exception as e:
+        print(e)
+        return jsonify({"message": str(e)}), 500
+
 
