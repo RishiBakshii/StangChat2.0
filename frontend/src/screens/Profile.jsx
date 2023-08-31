@@ -12,6 +12,7 @@ import { loggedInUserContext } from '../context/user/Usercontext'
 import Lottie from 'lottie-react';
 import ghostanimation from '../animations/ghostanimation.json'
 import sleepingcat from '../animations/sleepingcat.json'
+import { Likesmodal } from '../components/Likesmodal'
 
 
 export const Profile = () => {
@@ -20,6 +21,10 @@ export const Profile = () => {
   const {username}=useParams()
   const [profile,setProfile]=useState({})
   const [post,setPost]=useState([])
+  const [likeModalOpen,setLikeModalOpen]=useState({
+    'state':false,
+    'postid':''
+  })
 
   const [followerCount,setFollowerCount]=useState()
   const [followingCount,setFollowingCount]=useState()
@@ -173,7 +178,7 @@ export const Profile = () => {
       <Leftbar/>
         
           
-                <Stack flex={"1"} bgcolor={''} spacing={5} justifyContent={'center'} alignItems={"center"} mt={5}>
+                <Stack flex={"1"} spacing={5} justifyContent={'center'} alignItems={"center"} mt={5}>
                 
                 {/* profile parent */}
                 <Stack padding={4} bgcolor={'white'} borderRadius={'.6rem'} width={'60%'} justifyContent={'flex-start'} alignItems={'flex-start'}>
@@ -232,7 +237,7 @@ export const Profile = () => {
                         postedAt={post.postedAt}
                         profilePath={post.profilePath}
                         isLiked={post.likes.includes(loggedInUser.loggedInUser.userid)?(true):(false)}
-                        // setLikeModalOpen={setLikeModalOpen}
+                        setLikeModalOpen={setLikeModalOpen}
                         userid={post.user_id.$oid}
                         commentCount={post.commentsCount}/>
                       })
@@ -243,7 +248,8 @@ export const Profile = () => {
                     )
                   }
                 </Stack>
-      
+      {/* likes modal */}
+                <Likesmodal postid={likeModalOpen.postid} open={likeModalOpen.state} handleClose={()=>setLikeModalOpen({state:false,postid:""})}/>
       {/* followers modal */}
       <Modal open={open} onClose={()=>setOpen(false)}>
         <Box sx={style} >

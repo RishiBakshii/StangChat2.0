@@ -281,13 +281,13 @@ export const Postcard = ({username,caption,likesCount,imageUrl,unique_id,postedA
                   <Stack key={comment._id.$oid} mt={4} bgcolor={"white"} spacing={1} p={'0 1rem'}>
 
                     <Stack direction={"row"} alignItems={"center"} spacing={1}>
-                      <Avatar alt={comment.username} src={`${BASE_URL}/${comment.profilepath}`}/>
-                      <Typography>{comment.username}</Typography>
+                      <Avatar alt={comment.username} src={`${BASE_URL}/${comment.profilepath}`} component={Link} to={`/profile/${comment.username}`}/>
+                      <Typography sx={{"textDecoration":"none",color:"black"}} component={Link} to={`/profile/${comment.username}`}>{comment.username}</Typography>
                     </Stack>
 
                     <Stack bgcolor={""} direction={"row"} alignItems={"center"} justifyContent={"space-between"}>
 
-                        <Typography variant="body2" color="text.secondary">
+                        <Typography variant="body2" color="text.primary">
                           {comment.comment}
                         </Typography>
 
