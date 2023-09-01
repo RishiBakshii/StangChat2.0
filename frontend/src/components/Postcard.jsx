@@ -242,7 +242,7 @@ export const Postcard = ({username,caption,likesCount,imageUrl,unique_id,postedA
         subheader={postedAt}
       />
 
-      <CardMedia component="img" image={imageUrl} alt={`Unable to load ${username}s post`} style={{ height:"500px",objectFit: "contain" }}/>
+      <CardMedia component={imageUrl.toLowerCase().endsWith('.mp4')?("video"):("img")} image={imageUrl} controls alt={`Unable to load ${username}s post`} style={{ height:"500px",objectFit: "contain" }}/>
 
       <CardContent>
         <Typography variant="body2" color="text.secondary">

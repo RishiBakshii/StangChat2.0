@@ -171,7 +171,6 @@ def getFollowing():
             print(e)
             return jsonify({"message": str(e)}), 500
 
-
 @users.route("/searchuser", methods=['POST'])
 def usersearch():
     try:
@@ -197,4 +196,19 @@ def usersearch():
         print(e)
         return jsonify({"message": str(e)}), 500
 
+
+@users.route('/randomusers', methods=['GET'])
+def get_random_users():
+    try:
+        mongo=users.mongo
+        random_users =  mongo.db.users.aggregate([
+            {"$sample": {"size": 5}}
+        ])
+        formatted_users = [{"id": str(user["_id"]),"username": user["username"],"profilePicture": user["profilePicture"],'location':user['location'],"bio":user['bio']}
+            for user in random_users
+        ]
+
+        return jsonify(formatted_users),200
+    except Exception as e:
+        return jsonify({"message":str(e)}),500
 

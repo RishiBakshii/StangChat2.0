@@ -51,6 +51,7 @@ def createPost():
                 
             return jsonify({"message":"user does not exist"}),400
         except Exception as e:
+            print(e)
             return jsonify({"message":str(e)}),500
 
 @posts.route("/getuserpost",methods=['POST'])

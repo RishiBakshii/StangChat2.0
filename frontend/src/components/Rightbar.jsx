@@ -1,31 +1,55 @@
-import React from "react";
-import {
-  Avatar,
-  AvatarGroup,
-  Box,
-  ImageList,
-  ImageListItem,
-  Typography,
-  List,
-  ListItem,
-  ListItemAvatar,
-  ListItemText,
-  Divider,
-} from "@mui/material";
+import React, { useEffect, useState } from "react";
+import {Avatar,Box,ImageList,ImageListItem,Typography,List,ListItem,ListItemAvatar,ListItemText,Divider, Stack, IconButton, CircularProgress,} from "@mui/material";
+import RefreshIcon from '@mui/icons-material/Refresh';
+import { BASE_URL } from "../envVariables";
+import { Link } from "react-router-dom";
+
 export const Rightbar = () => {
+  const [loading,setLoading]=useState(false)
+  const [suggestions,setSuggestions]=useState([])
+
+  const handleRefreshSuggestions=async()=>{
+    setLoading(true)
+    try {
+
+      const response=await fetch(`${BASE_URL}/randomusers`,{
+        method:"GET"
+      })
+
+
+      const json=await response.json()
+
+      if(response.ok){
+        setSuggestions(json)
+        console.log(json)
+      }
+      if(response.status===500){
+        alert("internal server error")
+      }
+      if(response.status==400){
+        alert("status 400")
+      }
+    } catch (error) {
+      alert("error")
+    }
+    finally{
+      setLoading(false)
+    }
+  }
+
+
+  useEffect(()=>{
+    handleRefreshSuggestions()
+  },[])
+
   return (
     <Box p={2} flex={2} sx={{ display: { xs: "none", sm: "block" } }}>
-      <Box
-        p={2}
-        position={"fixed"}
-        display={"flex"}
-        flexDirection={"column"}
-        alignItems={"flex-start"}
+      <Box p={2} position={"fixed"} display={"flex"} flexDirection={"column"} alignItems={"flex-start"}
       >
-        <Typography variant="h6" fontWeight={100}>
+        {/* <Typography variant="h6" fontWeight={100}>
           Online Friends
-        </Typography>
-        <AvatarGroup max={7}>
+        </Typography> */}
+        {/* <AvatarGroup max={7}>
           <Avatar alt="Remy Sharp" src="/static/images/avatar/1.jpg" />
           <Avatar alt="Travis Howard" src="/static/images/avatar/2.jpg" />
           <Avatar alt="Cindy Baker" src="/static/images/avatar/3.jpg" />
@@ -34,16 +58,13 @@ export const Rightbar = () => {
           <Avatar alt="Trevor Henderson" src="/static/images/avatar/5.jpg" />
           <Avatar alt="Trevor Henderson" src="/static/images/avatar/5.jpg" />
           <Avatar alt="Trevor Henderson" src="/static/images/avatar/5.jpg" />
-        </AvatarGroup>
+        </AvatarGroup> */}
         <Typography mt={3} gutterBottom variant="h6" fontWeight={100}>
           LATEST PHOTOS
         </Typography>
-        <ImageList cols={3} rowHeight={100}>
+        <ImageList cols={3} rowHeight={100} sx={{"height":'20rem'}}>
           <ImageListItem>
-            <img
-              src="https://images.pexels.com/photos/3783513/pexels-photo-3783513.jpeg?auto=compress&cs=tinysrgb&w=1600"
-              alt=""
-            />
+            <img src="https://images.pexels.com/photos/461755/pexels-photo-461755.jpeg?auto=compress&cs=tinysrgb&w=1600" alt=""/>
           </ImageListItem>
           <ImageListItem>
             <img
@@ -75,79 +96,119 @@ export const Rightbar = () => {
               alt=""
             />
           </ImageListItem>
+          <ImageListItem>
+            <img
+              src="https://images.pexels.com/photos/7148973/pexels-photo-7148973.jpeg?auto=compress&cs=tinysrgb&w=1600"
+              alt=""
+            />
+          </ImageListItem>
+          <ImageListItem>
+            <img
+              src="https://images.pexels.com/photos/7148973/pexels-photo-7148973.jpeg?auto=compress&cs=tinysrgb&w=1600"
+              alt=""
+            />
+          </ImageListItem>
+          <ImageListItem>
+            <img
+              src="https://images.pexels.com/photos/7148973/pexels-photo-7148973.jpeg?auto=compress&cs=tinysrgb&w=1600"
+              alt=""
+            />
+          </ImageListItem>
+          <ImageListItem>
+            <img
+              src="https://images.pexels.com/photos/7148973/pexels-photo-7148973.jpeg?auto=compress&cs=tinysrgb&w=1600"
+              alt=""
+            />
+          </ImageListItem>
+          <ImageListItem>
+            <img
+              src="https://images.pexels.com/photos/7148973/pexels-photo-7148973.jpeg?auto=compress&cs=tinysrgb&w=1600"
+              alt=""
+            />
+          </ImageListItem>
+          <ImageListItem>
+            <img
+              src="https://images.pexels.com/photos/7148973/pexels-photo-7148973.jpeg?auto=compress&cs=tinysrgb&w=1600"
+              alt=""
+            />
+          </ImageListItem>
+          <ImageListItem>
+            <img
+              src="https://images.pexels.com/photos/7148973/pexels-photo-7148973.jpeg?auto=compress&cs=tinysrgb&w=1600"
+              alt=""
+            />
+          </ImageListItem>
+          <ImageListItem>
+            <img
+              src="https://images.pexels.com/photos/7148973/pexels-photo-7148973.jpeg?auto=compress&cs=tinysrgb&w=1600"
+              alt=""
+            />
+          </ImageListItem>
+          <ImageListItem>
+            <img
+              src="https://images.pexels.com/photos/7148973/pexels-photo-7148973.jpeg?auto=compress&cs=tinysrgb&w=1600"
+              alt=""
+            />
+          </ImageListItem>
+          <ImageListItem>
+            <img
+              src="https://images.pexels.com/photos/7148973/pexels-photo-7148973.jpeg?auto=compress&cs=tinysrgb&w=1600"
+              alt=""
+            />
+          </ImageListItem>
+          <ImageListItem>
+            <img
+              src="https://images.pexels.com/photos/7148973/pexels-photo-7148973.jpeg?auto=compress&cs=tinysrgb&w=1600"
+              alt=""
+            />
+          </ImageListItem>
+          <ImageListItem>
+            <img
+              src="https://images.pexels.com/photos/7148973/pexels-photo-7148973.jpeg?auto=compress&cs=tinysrgb&w=1600"
+              alt=""
+            />
+          </ImageListItem>
         </ImageList>
+
+        
+
         <Typography mt={3} gutterBottom variant="h6" fontWeight={100}>
-          Latest Conversations
+          User Sugeestions
+          <IconButton onClick={handleRefreshSuggestions}>
+            <RefreshIcon/>
+        </IconButton>
         </Typography>
 
-        <List
-          sx={{ width: "100%", maxWidth: 360, bgcolor: "background.paper" }}
-        >
-          <ListItem alignItems="flex-start">
+
+        <List sx={{ width: "100%", maxWidth: 360, bgcolor: "background.paper" ,height:"40rem"}}>
+
+              {
+                loading?(<CircularProgress/>):(
+                  suggestions.length!==0?(
+                    suggestions.map((data)=>{
+                      return               <ListItem alignItems="flex-start">
             <ListItemAvatar>
-              <Avatar alt="Remy Sharp" src="https://images.pexels.com/photos/16549310/pexels-photo-16549310/free-photo-of-smiling-woman-standing-in-garden.jpeg?auto=compress&cs=tinysrgb&w=1600" />
+              <Avatar alt={data.username} component={Link} to={`/profile/${data.username}`} src={`${BASE_URL}/${data.profilePicture}`} />
             </ListItemAvatar>
-            <ListItemText
-              primary="Brunch this weekend?"
+            <ListItemText component={Link} to={`/profile/${data.username}`} primary={data.username}
               secondary={
                 <React.Fragment>
-                  <Typography
-                    sx={{ display: "inline" }}
-                    component="span"
-                    variant="body2"
-                    color="text.primary"
-                  >
-                    Ali Connors
+                  <Typography sx={{ display: "inline" }} component="span"variant="body2" color="text.primary">
+                    {data.location}
                   </Typography>
-                  {" — I'll be in your neighborhood doing errands this…"}
+                  {`- ${data.bio}`}
                 </React.Fragment>
               }
             />
           </ListItem>
+                    })
+                  ):("")
+                )
+              }
+
+
+
           <Divider variant="inset" component="li" />
-          <ListItem alignItems="flex-start">
-            <ListItemAvatar>
-              <Avatar alt="Travis Howard" src="https://images.pexels.com/photos/3791528/pexels-photo-3791528.jpeg?auto=compress&cs=tinysrgb&w=1600" />
-            </ListItemAvatar>
-            <ListItemText
-              primary="Summer BBQ"
-              secondary={
-                <React.Fragment>
-                  <Typography
-                    sx={{ display: "inline" }}
-                    component="span"
-                    variant="body2"
-                    color="text.primary"
-                  >
-                    to Scott, Alex, Jennifer
-                  </Typography>
-                  {" — Wish I could come, but I'm out of town this…"}
-                </React.Fragment>
-              }
-            />
-          </ListItem>
-          <Divider variant="inset" component="li" />
-          <ListItem alignItems="flex-start">
-            <ListItemAvatar>
-              <Avatar alt="Cindy Baker" src="https://images.pexels.com/photos/4050395/pexels-photo-4050395.jpeg?auto=compress&cs=tinysrgb&w=1600" />
-            </ListItemAvatar>
-            <ListItemText
-              primary="Oui Oui"
-              secondary={
-                <React.Fragment>
-                  <Typography
-                    sx={{ display: "inline" }}
-                    component="span"
-                    variant="body2"
-                    color="text.primary"
-                  >
-                    Sandra Adams
-                  </Typography>
-                  {" — Do you have Paris recommendations? Have you ever…"}
-                </React.Fragment>
-              }
-            />
-          </ListItem>
         </List>
       </Box>
     </Box>

@@ -31,23 +31,45 @@ const BASE_URL=process.env.REACT_APP_API_BASE_URL;
 export const PostModal=({ isOpen, onClose})=> {
     const loggedInUser=useContext(loggedInUserContext)
     const {setFeed}=useContext(postContext)
+
     const [selectedImage, setSelectedImage] = useState(null);
     const [displayImage,setDisplayImage]=useState(null)
+
+    const [selectedVideo, setSelectedVideo] = useState(null);
+    const [displayVideo, setDisplayVideo] = useState(null);
+
     const [caption,setCaption]=useState('')
     const [loading,setLoading]=useState(false)
+
+    const [post,setPost]=useState(null)
+
     const defaultImage="https://t4.ftcdn.net/jpg/04/99/93/31/240_F_499933117_ZAUBfv3P1HEOsZDrnkbNCt4jc3AodArl.jpg"
 
+    const handleOnClose=()=>{
+      setSelectedImage(null)
+      setDisplayImage(null)
+      setSelectedVideo(null)
+      setDisplayVideo(null)
+      setCaption('')
+      onClose()
+    }
+
     const handleImageChange = (event) => {
-        const imageFile = event.target.files[0];
-        if (imageFile) {
-          setSelectedImage(imageFile)
-          console.log(selectedImage)
+      const file = event.target.files[0];
     
-          const imageUrl = URL.createObjectURL(imageFile);
-          setDisplayImage(imageUrl);
-          console.log(imageUrl)
+      if (file) {
+        const mimeType = file.type;
+    
+        if (mimeType.startsWith("image/")) {
+          setSelectedImage(file);
+          setDisplayImage(URL.createObjectURL(file));
+        } else if (mimeType.startsWith("video/")) {
+          setSelectedVideo(file);
+          setDisplayVideo(URL.createObjectURL(file));
         }
-      };
+      }
+    };
+    
 
       const handlePostUpload=async()=>{
         try {
@@ -55,7 +77,15 @@ export const PostModal=({ isOpen, onClose})=> {
           const formData=new FormData();
           formData.append("userid",loggedInUser.loggedInUser.userid);
           formData.append('caption',caption);
-          formData.append("post",selectedImage); 
+          selectedImage?formData.append('post',selectedImage):(formData.append('post',selectedVideo))
+
+          const fileType = selectedImage? selectedImage.type.split("/")[0]: selectedVideo.type.split("/")[0];
+
+          if (fileType !== "image" && fileType !== "video") {
+            alert("Please select a valid image or video file.");
+            setLoading(false);
+            return;
+          }
 
           const response=await fetch(`${BASE_URL}/uploadpost`,{
             method:"POST",
@@ -65,10 +95,10 @@ export const PostModal=({ isOpen, onClose})=> {
 
           if(response.ok){
             setFeed((prevFeed) => [json, ...prevFeed,])
-            setCaption("")
+            setCaption('')
             setDisplayImage(null)
-            onClose()
             setLoading(false)
+            handleOnClose()
           }
           if(response.status==400){
             alert("some bad request")
@@ -81,22 +111,32 @@ export const PostModal=({ isOpen, onClose})=> {
         } catch (error) {
             alert(error)
         }
+        finally{
+          setLoading(false)
+        }
       }
 
   return (
           <div>
-          <Modal open={isOpen} onClose={onClose} aria-labelledby="Create Post" aria-describedby="here a user can make a post, upload images and videos">
+          <Modal open={isOpen} onClose={handleOnClose} aria-labelledby="Create Post" aria-describedby="here a user can make a post, upload images and videos">
             <Stack sx={style} spacing={4}>
-                <Typography variant='h4'>Create Post</Typography>
-                <Stack bgcolor={'red'} position={'relative'}>
-                    <CustomPhotoinput  accept="image/*" type="file" onChange={handleImageChange} id="profile-image-input"/>
-                    <img style={{zIndex:0}}  alt="profile-picture" src={displayImage?(displayImage):(defaultImage)}/>
+                <Typography fontWeight={300} variant='h4'>Create Post</Typography>
+                <Stack position={'relative'}>
+                    <CustomPhotoinput  accept="image/png, image/jpeg, image/jpg, video/mp4" type="file" onChange={handleImageChange} id="profile-image-input"/>
+                    {
+                      selectedVideo?(
+                        <video style={{'zIndex':10}} controls src={displayVideo}></video>
+                      ):(
+
+                        <img style={{zIndex:0}}  alt="profile-picture" src={displayImage?(displayImage):(defaultImage)}/>
+                      )
+                    }
                 </Stack>
 
                 <Stack>
                     <TextField value={caption} onChange={(e)=>setCaption(e.target.value)} variant='standard' label='Caption ...'></TextField>
                 </Stack>
-                <LoadingButton loadingPosition='center' disabled={caption!=='' && displayImage!==null?false:true} onClick={handlePostUpload} loading={loading} variant="contained" >
+                <LoadingButton loadingPosition='center' disabled={(caption === '' || (selectedImage === null && selectedVideo === null)) ? true : false} onClick={handlePostUpload} loading={loading} variant="contained" >
                   Post
                 </LoadingButton>
             </Stack>

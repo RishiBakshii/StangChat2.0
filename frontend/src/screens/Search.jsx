@@ -85,7 +85,10 @@ export const Search = () => {
                 
                   })
                 
-                    ):(<Typography variant='h5'>no search results</Typography>)
+                    ):(
+                      query===''?(""):(<Typography variant='h5'>no search results</Typography>)
+                    
+                    )
                   )
 
                 }
