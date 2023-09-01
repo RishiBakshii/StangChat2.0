@@ -1,20 +1,20 @@
 import { createTheme } from "@mui/material/styles";
 
 const theme = createTheme({
-  // palette: {
-  //   primary: {
-  //     main:"#ffffff",
-  //     dark:"#191919"
-  //   },
-  //   buttonColors: {
-  //     main: "#white",
-  //     secondary: "#191919",
-  //   },
-  //   text: {
-  //     light: "#191919",
-  //     dark: "#191919",
-  //   },
-  // },
+  palette: {
+    // primary: {
+    //   main:"#ffffff",
+    //   dark:"#191919"
+    // },
+    // buttonColors: {
+    //   main: "#white",
+    //   secondary: "#191919",
+    // },
+    // text: {
+    //   light: "#191919",
+    //   dark: "#191919",
+    // },
+  },
 
   breakpoints: {
     values: {
@@ -96,19 +96,22 @@ const theme = createTheme({
     body1: {
       fontSize: "1rem",
       "@media (max-width:960px)": {
-        fontSize: "1.2rem",
+        fontSize: "1rem",
       },
       "@media (max-width:600px)": {
-        fontSize: "1rem",
+        fontSize: ".9rem",
       },
     },
     body2: {
       fontSize: "1rem",
       "@media (max-width:960px)": {
-        fontSize: "1.2rem",
+        fontSize: "1rem",
       },
       "@media (max-width:600px)": {
         fontSize: "1rem",
+      },
+      "@media (max-width:480px)": {
+        fontSize: ".97rem",
       },
     },
   },

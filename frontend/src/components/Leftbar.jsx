@@ -11,14 +11,19 @@ import {useState } from 'react';
 import {PostModal} from '../components/PostModal'
 import { useContext } from 'react';
 import { loggedInUserContext } from '../context/user/Usercontext';
-import { BugReport, Search } from '@mui/icons-material';
+import { BugReport, Explore, Search } from '@mui/icons-material';
 import { Logoutmodal } from './Logoutmodal';
 import { BASE_URL } from '../envVariables';
+import { useTheme } from '@mui/material/styles';
+import useMediaQuery from '@mui/material/useMediaQuery';
 
 
 export const Leftbar=()=> {
 
   const loggedInUser=useContext(loggedInUserContext)
+  const theme=useTheme()
+
+  const MD=useMediaQuery(theme.breakpoints.up("lg"))
 
   const [open, setOpen] = useState(false);
   const [isLogoutModal,setIsLogoutModal]=useState(false)
@@ -40,7 +45,10 @@ export const Leftbar=()=> {
   }
 
   return (
-    <Box p={2} flex={1}>
+    <>
+    {
+      MD?(
+         <Box p={2} flex={1} sx={{display:{xs:"none",sm:"none",md:"none",lg:"block",xl:"block"}}}>
       <Box position={'fixed'} bgcolor={'background.paper'}>
       <nav aria-label="secondary mailbox folders">
         <List>
@@ -84,6 +92,12 @@ export const Leftbar=()=> {
               <ListItemText primary="New Post" />
             </ListItemButton>
         </ListItem>
+      <ListItem disablePadding>
+            <ListItemButton component={Link} to={"/explore"}>
+            <ListItemIcon><Explore/></ListItemIcon>
+              <ListItemText primary="Explore" />
+            </ListItemButton>
+        </ListItem>
       <Divider />
       <nav aria-label="main mailbox folders">
         <List>
@@ -110,18 +124,18 @@ export const Leftbar=()=> {
               <ListItemText primary="Logout" />
             </ListItemButton>
           </ListItem>
-      {/* <ListItem disablePadding>
-            <ListItemButton>
-              <IconButton></IconButton>
-              <Switch defaultChecked />
-              <ListItemText primary="darkMode" />
-            </ListItemButton>
-          </ListItem> */}
 
           <PostModal isOpen={isModalOpen} onClose={handleCloseModal}/>
           <Logoutmodal open={isLogoutModal} handleClose={handleCloseLogoutModal}/>
     </Box>
-    </Box>
+        </Box> 
+      ):('')
+    }
+
+
+
+   
+    </>
     
   );
 }

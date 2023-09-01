@@ -11,6 +11,7 @@ import LeftbarMobile from "./components/LeftbarMobile";
 import { Userstate } from "./context/user/Userstate";
 import { Poststate } from "./context/posts/Poststate";
 import { Search } from "./screens/Search";
+import {Explore } from './screens/Explore'
 
 function App() {
   return (
@@ -29,6 +30,7 @@ function App() {
         <Route exact path="/signup" element={<Signup/>}/>
         <Route exact path="/leftbarmobile" element={<LeftbarMobile/>}/>
         <Route exact path="/search" element={<Search/>}/>
+        <Route exact path="/explore" element={<Explore/>}/>
       </Routes>
     </Router>
     </Userstate>

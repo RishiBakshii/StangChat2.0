@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
-import {Avatar,Box,Card,CardActions,CardContent,CardHeader,CardMedia,IconButton,Typography,Checkbox,Stack,TextField,InputAdornment,Menu,MenuItem,} from "@mui/material";
+import {Avatar,Box,Card,CardActions,CardContent,CardHeader,CardMedia,IconButton,Typography,Checkbox,Stack,TextField,InputAdornment,Menu,MenuItem, useTheme, useMediaQuery,} from "@mui/material";
 import {MoreVert,Favorite,FavoriteBorder,Comment,Send,Delete} from "@mui/icons-material";
 import { BASE_URL} from "../screens/Home";
 import CircularProgress from "@mui/material/CircularProgress";
@@ -10,18 +10,24 @@ import { postContext } from "../context/posts/PostContext";
 
 export const Postcard = ({username,caption,likesCount,imageUrl,unique_id,postedAt,profilePath,isLiked,setLikeModalOpen,userid,commentCount}) => {
   const [isLikedstate, setIsLikedState] = useState(isLiked);
+  const theme=useTheme()
   const [likeCountState,setLikeCountState]=useState(likesCount)
   const {feed,setFeed}=useContext(postContext)
+  const is400=useMediaQuery(theme.breakpoints.down("400"))
+  const is480=useMediaQuery(theme.breakpoints.down("480"))
   const loggedInUser = useContext(loggedInUserContext);
-  const [showComment, setShowComment] = useState({show: false,cardHeight: 700});
+  const [showComment, setShowComment] = useState({show: false,cardHeight: is480?(550):(700)});
   const [postingComment,setPostingComment]=useState(false)
   const [fetchedComment, setFetchedComment] = useState([]);
   const [isLikedCommentstate,setIsLikedCommentState]=useState(null)
   const [comment, setComment] = useState([]);
+  const MD=useMediaQuery(theme.breakpoints.down("md"))
+
+
   const toggleComments = () => {
     setShowComment({
       show: !showComment.show,
-      cardHeight: showComment.show ? 700 : 1250,
+      cardHeight: is480? (showComment.show ? 550 : 1105):(showComment.show ? 700 : 1255)
     });
   };
   const [isLoadingComments, setIsLoadingComments] = useState(false);
@@ -198,7 +204,7 @@ export const Postcard = ({username,caption,likesCount,imageUrl,unique_id,postedA
 
 
   return (
-    <Card sx={{ margin: 5, height: showComment.cardHeight, width: "100%" }}>
+    <Card sx={{margin:`${MD?("3rem"):"5rem"} 0rem`,height: showComment.cardHeight,width:`${is480?"95%":"80%"}`}}>
       <CardHeader avatar={ <Avatar sx={{ bgcolor: "blue" }} aria-label="recipe" component={Link} to={`/profile/${username}`} src={`${BASE_URL}/${profilePath}`}></Avatar>}
         action={
           <Box> 
@@ -242,7 +248,7 @@ export const Postcard = ({username,caption,likesCount,imageUrl,unique_id,postedA
         subheader={postedAt}
       />
 
-      <CardMedia component={imageUrl.toLowerCase().endsWith('.mp4')?("video"):("img")} image={imageUrl} controls alt={`Unable to load ${username}s post`} style={{ height:"500px",objectFit: "contain" }}/>
+      <CardMedia component={imageUrl.toLowerCase().endsWith('.mp4')?("video"):("img")} image={imageUrl} controls alt={`Unable to load ${username}s post`} style={{ height:`${is480?("350px"):("500px")}`,objectFit: "contain" }}/>
 
       <CardContent>
         <Typography variant="body2" color="text.secondary">

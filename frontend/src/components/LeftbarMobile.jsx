@@ -18,27 +18,26 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import InboxIcon from '@mui/icons-material/MoveToInbox';
 import MailIcon from '@mui/icons-material/Mail';
+import { Leftbar } from './Leftbar';
+import PersonIcon from '@mui/icons-material/Person';
+import Diversity3Icon from '@mui/icons-material/Diversity3';
+import SettingsIcon from '@mui/icons-material/Settings';
+import LogoutIcon from '@mui/icons-material/Logout';
+import ForumIcon from '@mui/icons-material/Forum';
+import HomeIcon from '@mui/icons-material/Home';
+import { Link} from 'react-router-dom';
+import PostAddIcon from '@mui/icons-material/PostAdd';
+import {useState } from 'react';
+import {PostModal} from '../components/PostModal'
+import { useContext } from 'react';
+import { loggedInUserContext } from '../context/user/Usercontext';
+import { ArrowBackTwoTone, BugReport, Search } from '@mui/icons-material';
+import { Logoutmodal } from './Logoutmodal';
+import { BASE_URL } from '../envVariables';
+import { Avatar, Stack, useMediaQuery } from '@mui/material';
+import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 
 const drawerWidth = 240;
-
-const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })(
-  ({ theme, open }) => ({
-    flexGrow: 1,
-    padding: theme.spacing(3),
-    transition: theme.transitions.create('margin', {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.leavingScreen,
-    }),
-    marginLeft: `-${drawerWidth}px`,
-    ...(open && {
-      transition: theme.transitions.create('margin', {
-        easing: theme.transitions.easing.easeOut,
-        duration: theme.transitions.duration.enteringScreen,
-      }),
-      marginLeft: 0,
-    }),
-  }),
-);
 
 const AppBar = styled(MuiAppBar, {
   shouldForwardProp: (prop) => prop !== 'open',
@@ -61,14 +60,15 @@ const DrawerHeader = styled('div')(({ theme }) => ({
   display: 'flex',
   alignItems: 'center',
   padding: theme.spacing(0, 1),
-  // necessary for content to be below app bar
   ...theme.mixins.toolbar,
   justifyContent: 'flex-end',
 }));
 
-export default function LeftbarMobile() {
+export default function PersistentDrawerLeft() {
   const theme = useTheme();
   const [open, setOpen] = React.useState(false);
+  const SM=useMediaQuery(theme.breakpoints.down("sm"))
+  const is480=useMediaQuery(theme.breakpoints.down("480"))
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -77,101 +77,134 @@ export default function LeftbarMobile() {
   const handleDrawerClose = () => {
     setOpen(false);
   };
+  // const [open, setOpen] = useState(false);
+  const [isLogoutModal,setIsLogoutModal]=useState(false)
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const handleOpenModal = () => {
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
+
+  const handleCloseLogoutModal=()=>{
+    setIsLogoutModal(false)
+  }
+
+  const handleOpenLogoutModal=()=>{
+    setIsLogoutModal(true)
+  }
+
+  const loggedInUser=useContext(loggedInUserContext)
 
   return (
-    <Box sx={{ display: 'flex' }}>
+    <Box sx={{display:{xs:"block",sm:"block",md:"block",lg:"none",xl:"none"}}}>
       <CssBaseline />
-      <AppBar position="fixed" open={open}>
-        <Toolbar>
-          <IconButton
-            color="inherit"
-            aria-label="open drawer"
-            onClick={handleDrawerOpen}
-            edge="start"
-            sx={{ mr: 2, ...(open && { display: 'none' }) }}
-          >
-            <MenuIcon />
-          </IconButton>
-          <Typography variant="h6" noWrap component="div">
-            Persistent drawer
+      <AppBar position='sticky' open={open}>
+
+        <Toolbar sx={{ display:"flex", justifyContent:"space-around",height:"4.5rem"}}>
+
+          <Box position={'absolute'} left={'2rem'}>
+            <IconButton color="inherit" aria-label="open drawer" onClick={handleDrawerOpen} edge="start" sx={{ mr: 2, ...(open && { display: 'none' }) }}>
+              <MenuIcon  fontSize='large'/>
+            </IconButton>
+          </Box>
+
+          <Typography variant='h5' component={Link} sx={{"textDecoration":"none","color":"white"}} fontWeight={"700"} >
+            {is480?(""):"StangChat"}
           </Typography>
+
+          <Stack direction={'row'} spacing={2} alignItems={'center'} justifySelf={'flex-end'}>
+              <Avatar alt={loggedInUser.loggedInUser.username} src={`${BASE_URL}/${loggedInUser.loggedInUser.profilePicture}`} />
+              <Typography variant='h5'>{`${loggedInUser.loggedInUser.username}`}</Typography>
+          </Stack>
+
+          {
+            SM?(
+               <IconButton sx={{"position":"absolute",'right':"1rem"}}>
+            <ArrowBackIosIcon sx={{"color":"white"}}/>
+          </IconButton>
+          
+            ):("")
+          }
+         
+
         </Toolbar>
       </AppBar>
-      <Drawer
-        sx={{
-          width: drawerWidth,
-          flexShrink: 0,
-          '& .MuiDrawer-paper': {
-            width: drawerWidth,
-            boxSizing: 'border-box',
-          },
-        }}
-        variant="persistent"
-        anchor="left"
-        open={open}
-      >
+
+      <Drawer sx={{ width: drawerWidth, flexShrink: 0, '& .MuiDrawer-paper': { width: drawerWidth, boxSizing: 'border-box', },}} variant="persistent"anchor="left" open={open}>
         <DrawerHeader>
           <IconButton onClick={handleDrawerClose}>
             {theme.direction === 'ltr' ? <ChevronLeftIcon /> : <ChevronRightIcon />}
           </IconButton>
         </DrawerHeader>
         <Divider />
-        <List>
-          {['Inbox', 'Starred', 'Send email', 'Drafts'].map((text, index) => (
-            <ListItem key={text} disablePadding>
-              <ListItemButton>
-                <ListItemIcon>
-                  {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
-                </ListItemIcon>
-                <ListItemText primary={text} />
-              </ListItemButton>
-            </ListItem>
-          ))}
-        </List>
         <Divider />
+
         <List>
-          {['All mail', 'Trash', 'Spam'].map((text, index) => (
-            <ListItem key={text} disablePadding>
-              <ListItemButton>
-                <ListItemIcon>
-                  {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
-                </ListItemIcon>
-                <ListItemText primary={text} />
-              </ListItemButton>
-            </ListItem>
-          ))}
+          <ListItem disablePadding>
+            <ListItemButton component={Link} to='/'>
+              <ListItemIcon><HomeIcon/></ListItemIcon>
+              <ListItemText primary="Home"/>
+            </ListItemButton>
+          </ListItem>
+          <ListItem disablePadding>
+            <ListItemButton component={Link} to={`/search`}>
+              <ListItemIcon><Search/></ListItemIcon>
+              <ListItemText primary="Search"/>
+            </ListItemButton>
+          </ListItem>
+          <ListItem disablePadding>
+            <ListItemButton component={Link} to={`/profile/${loggedInUser.loggedInUser.username}`}>
+              <ListItemIcon><PersonIcon/></ListItemIcon>
+              <ListItemText primary="Profile"/>
+            </ListItemButton>
+          </ListItem>
+          <ListItem disablePadding>
+            <ListItemButton component={Link} to='/friends'>
+            <ListItemIcon><Diversity3Icon/></ListItemIcon>
+              <ListItemText primary="Friends" />
+            </ListItemButton>
+          </ListItem>
+          <ListItem disablePadding>
+            <ListItemButton component={Link} to='/settings'>
+            <ListItemIcon><SettingsIcon/></ListItemIcon>
+              <ListItemText primary="Settings" />
+            </ListItemButton>
+          </ListItem>
+          <ListItem disablePadding>
+            <ListItemButton onClick={handleOpenModal}>
+            <ListItemIcon><PostAddIcon/></ListItemIcon>
+              <ListItemText primary="New Post" />
+            </ListItemButton>
+        </ListItem>
+      <Divider />
+          <ListItem disablePadding>
+            <ListItemButton>
+              <ListItemIcon>
+                <BugReport/>
+              </ListItemIcon>
+              <ListItemText primary="Report a bug"/>
+            </ListItemButton>
+          </ListItem>
+          <ListItem disablePadding>
+            <ListItemButton>
+              <ListItemIcon><ForumIcon/></ListItemIcon>
+              <ListItemText primary="Community" />
+            </ListItemButton>
+          </ListItem>
         </List>
+      <Divider />
+      <ListItem disablePadding>
+            <ListItemButton onClick={handleOpenLogoutModal}>
+            <ListItemIcon><LogoutIcon/></ListItemIcon>
+              <ListItemText primary="Logout" />
+            </ListItemButton>
+          </ListItem>
       </Drawer>
-      <Main open={open}>
-        <DrawerHeader />
-        <Typography paragraph>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
-          tempor incididunt ut labore et dolore magna aliqua. Rhoncus dolor purus non
-          enim praesent elementum facilisis leo vel. Risus at ultrices mi tempus
-          imperdiet. Semper risus in hendrerit gravida rutrum quisque non tellus.
-          Convallis convallis tellus id interdum velit laoreet id donec ultrices.
-          Odio morbi quis commodo odio aenean sed adipiscing. Amet nisl suscipit
-          adipiscing bibendum est ultricies integer quis. Cursus euismod quis viverra
-          nibh cras. Metus vulputate eu scelerisque felis imperdiet proin fermentum
-          leo. Mauris commodo quis imperdiet massa tincidunt. Cras tincidunt lobortis
-          feugiat vivamus at augue. At augue eget arcu dictum varius duis at
-          consectetur lorem. Velit sed ullamcorper morbi tincidunt. Lorem donec massa
-          sapien faucibus et molestie ac.
-        </Typography>
-        <Typography paragraph>
-          Consequat mauris nunc congue nisi vitae suscipit. Fringilla est ullamcorper
-          eget nulla facilisi etiam dignissim diam. Pulvinar elementum integer enim
-          neque volutpat ac tincidunt. Ornare suspendisse sed nisi lacus sed viverra
-          tellus. Purus sit amet volutpat consequat mauris. Elementum eu facilisis
-          sed odio morbi. Euismod lacinia at quis risus sed vulputate odio. Morbi
-          tincidunt ornare massa eget egestas purus viverra accumsan in. In hendrerit
-          gravida rutrum quisque non tellus orci ac. Pellentesque nec nam aliquam sem
-          et tortor. Habitant morbi tristique senectus et. Adipiscing elit duis
-          tristique sollicitudin nibh sit. Ornare aenean euismod elementum nisi quis
-          eleifend. Commodo viverra maecenas accumsan lacus vel facilisis. Nulla
-          posuere sollicitudin aliquam ultrices sagittis orci a.
-        </Typography>
-      </Main>
+      <PostModal isOpen={isModalOpen} onClose={handleCloseModal}/>
+      <Logoutmodal open={isLogoutModal} handleClose={handleCloseLogoutModal}/>
     </Box>
   );
 }

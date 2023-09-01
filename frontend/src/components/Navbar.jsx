@@ -1,4 +1,4 @@
-import {AppBar,Typography,styled,Stack, Avatar} from '@mui/material'
+import {AppBar,Typography,styled,Stack, Avatar, useMediaQuery} from '@mui/material'
 import {alpha } from '@mui/material/styles';
 import Toolbar from '@mui/material/Toolbar';
 import InputBase from '@mui/material/InputBase';
@@ -6,6 +6,8 @@ import SearchIcon from '@mui/icons-material/Search';
 import { useContext } from 'react';
 import { loggedInUserContext } from '../context/user/Usercontext';
 import { Link } from 'react-router-dom';
+import PersistentDrawerLeft from './LeftbarMobile';
+import {useTheme} from '@mui/material/styles';
 
 
 const BASE_URL=process.env.REACT_APP_API_BASE_URL;
@@ -58,10 +60,14 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 }));
 
 export const Navbar = () => {
+  const theme=useTheme()
+  const MD=useMediaQuery(theme.breakpoints.up("lg"))
+  const SM=useMediaQuery(theme.breakpoints.down("sm"))
   const loggedInUser=useContext(loggedInUserContext)
   return (
     <>
-    <AppBar position='sticky'>
+    {
+      MD?(<AppBar position='sticky' sx={{display:{xs:"none",sm:"none",md:"none",lg:"block",xl:"block"}}}>
         <Customtoolbar >
 
           <Typography variant='h5' component={Link} sx={{"textDecoration":"none","color":"white"}} fontWeight={"700"}>StangChat</Typography>
@@ -78,12 +84,12 @@ export const Navbar = () => {
           <Stack direction={'row'} spacing={2} alignItems={'center'}>
               <Avatar alt={loggedInUser.loggedInUser.username} src={`${BASE_URL}/${loggedInUser.loggedInUser.profilePicture}`} />
               <Typography variant='h5'>{`${loggedInUser.loggedInUser.username}`}</Typography>
-              {/* <Typography variant='p'>Home</Typography>
-              <Typography variant='p'>Notifications</Typography> */}
           </Stack>
 
         </Customtoolbar>
-    </AppBar>
+    </AppBar>):(<PersistentDrawerLeft/>)
+    }
+
     </>
   )
 }

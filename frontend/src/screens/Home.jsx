@@ -12,6 +12,9 @@ import catanimation from '../animations/login/catanimation.json'
 import welcomecat from '../animations/login/welcomecat.json'
 import Lottie from 'lottie-react';
 import { postContext } from '../context/posts/PostContext'
+import { useTheme } from '@mui/material/styles';
+import useMediaQuery from '@mui/material/useMediaQuery';
+
 
 
 export const BASE_URL=process.env.REACT_APP_API_BASE_URL;
@@ -23,6 +26,8 @@ export const Home =() => {
     const [loading,setLoading]=useState(false)
     const [hasMore,sethasMore]=useState(true)
     const [newUser,setNewUser]=useState(null)
+    const theme = useTheme();
+    const matchesMD = useMediaQuery(theme.breakpoints.down('md'));
 
     useEffect(() => {
         setNewUser(loggedInUser.loggedInUser.followingCount === 0);
@@ -84,11 +89,11 @@ export const Home =() => {
   return (
     <>
     <Navbar/>
-        <Stack direction={"row"} spacing={2} justifyContent={"space-between"} alignItems="flex-start">
-                
-                <Leftbar/>
+        <Stack direction={"row"} padding={matchesMD?0:2} justifyContent={"space-between"} alignItems="flex-start">
 
-                <Stack flex={4} p={2} justifyContent={'center'} alignItems={'center'}>
+                <Leftbar />
+
+                <Stack flex={4} p={matchesMD?0:2} justifyContent={'center'} alignItems={'center'}>
                     {
                     feed.map((post) => 
                         (
