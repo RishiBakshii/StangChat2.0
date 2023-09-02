@@ -61,41 +61,37 @@ export const Signup = () => {
         showProfileSetup?(
             <Editprofile firstSetup={true} userid={credentials.user_id} username={credentials.username} email={credentials.email} location={credentials.location}/>
         ):(
-        <Stack bgcolor={'white'} width={'100vw'} direction={'row'} justifyContent={"center"} alignItems={"center"} height={"100vh"}>
+        <Stack direction={'row'} padding={'0 4vw'} width={'100vw'} justifyContent={"center"} alignItems={"center"} height={"100vh"}>
         
-            <Stack bgcolor={'white'} borderRadius={".6rem"}  width={"40vw"} height={"100%"} padding={2} justifyContent={'center'} alignItems={"center"}>
+            <Stack  width={"30rem"} justifyContent={'center'} alignItems={"center"}>
             
-            <Stack direction={'column'} justifyContent={'center'} alignItems={'center'}>
+                    <Stack direction={'column'} justifyContent={'center'} alignItems={'center'}>
+                            <Typography variant='h3' color={"#191919"} fontWeight={700}>Stang<span style={{color:"#6c2ad7"}}>Chat</span></Typography>
+                    </Stack>
 
-            <Box width={'10rem'}>
-                    {/* <Lottie loop={false}  animationData={socialMediaTypo}></Lottie> */}
-            </Box>
-            <Typography variant='h3' color={"#191919"} fontWeight={700}>Stang<span style={{color:"#6c2ad7"}}>Chat</span></Typography>
+                    <Stack mt={5} width={'100%'} spacing={2}>
+                        <TextField fullWidth name='username' value={credentials.name} onChange={handleOnChange} label="Username" variant="outlined" />
+                        <TextField name="email" type='email' value={credentials.email} onChange={handleOnChange} label="Email" variant="outlined" />
+                        <TextField name="password" type='password' value={credentials.password} onChange={handleOnChange} label="Password" variant="outlined" />
+                        <TextField error={passwordMatch?(false):(true)} name="confirmPassword" type='password' value={credentials.confirmPassword} onChange={handleOnChange} label="Confirm Password" variant="outlined" />
+                        <TextField name="location" value={credentials.location} onChange={handleOnChange} label="Location" variant="outlined" />
+                        {
+                            loading?(<LoadingButtons/>)
+                            :(<Button disabled={!credentialsFilled || !passwordMatch} onClick={handleSignupSubmit} sx={{height:"3rem"}} variant='contained'>Signup</Button>)
+                        }
+                        {
+                            alert.message!==''?(
+                                <>
+                                <Alert onClick={()=>setAlert({"message":""})} variant='standard' severity={alert.severity}>{alert.message}</Alert>
+                                </>
+                            ):("")
+                        }
+                        
+                    </Stack>
+
+                    <Typography sx={{"textDecoration":"none",color:"black"}} mt={2} component={Link} variant='body2' to={'/login'}>Already Have an account? Login</Typography>
+
             </Stack>
-
-            <Stack mt={5} spacing={2} width={'60%'}>
-                <TextField name='username' value={credentials.name} onChange={handleOnChange} label="Username" variant="outlined" />
-                <TextField name="email" type='email' value={credentials.email} onChange={handleOnChange} label="Email" variant="outlined" />
-                <TextField name="password" type='password' value={credentials.password} onChange={handleOnChange} label="Password" variant="outlined" />
-                <TextField error={passwordMatch?(false):(true)} name="confirmPassword" type='password' value={credentials.confirmPassword} onChange={handleOnChange} label="Confirm Password" variant="outlined" />
-                <TextField name="location" value={credentials.location} onChange={handleOnChange} label="Location" variant="outlined" />
-                {
-                    loading?(<LoadingButtons/>)
-                    :(<Button disabled={!credentialsFilled || !passwordMatch} onClick={handleSignupSubmit} sx={{height:"3rem"}} variant='contained'>Signup</Button>)
-                }
-                {
-                    alert!==''?(
-                        <>
-                        <Alert onClick={()=>setAlert("")} variant='standard' severity={alert.severity}>{alert.message}</Alert>
-                        </>
-                    ):("")
-                }
-                
-            </Stack>
-
-            <Typography sx={{"textDecoration":"none",color:"black"}} mt={2} component={Link} variant='p' to={'/login'}>Already Have an account? Login</Typography>
-
-        </Stack>
 
         </Stack>
         )

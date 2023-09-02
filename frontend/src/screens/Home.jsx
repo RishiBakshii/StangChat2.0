@@ -1,6 +1,6 @@
 import React, { useEffect,useState ,createContext, useContext} from 'react'
 import { Navbar } from '../components/Navbar'
-import {Box, Stack, Typography} from '@mui/material'
+import {Avatar, Box, Stack, Typography} from '@mui/material'
 import { Leftbar } from '../components/Leftbar'
 import { Rightbar } from '../components/Rightbar'
 import { Postcard } from '../components/Postcard'
@@ -89,10 +89,21 @@ export const Home =() => {
   return (
     <>
     <Navbar/>
-        <Stack direction={"row"} padding={matchesMD?0:2} justifyContent={"space-between"} alignItems="flex-start">
 
+    {/* <Stack position={'sticky'} top={0} justifyContent={'center'} alignItems={'center'}>
+        <Stack direction={'row'} justifyContent={'center'} alignItems={'center'} spacing={5} p={1}>
+            <Avatar sx={{"width":'6rem',height:"6rem"}}></Avatar>
+            <Avatar sx={{"width":'6rem',height:"6rem"}}></Avatar>
+            <Avatar sx={{"width":'6rem',height:"6rem"}}></Avatar>
+            <Avatar sx={{"width":'6rem',height:"6rem"}}></Avatar>
+            <Avatar sx={{"width":'6rem',height:"6rem"}}></Avatar>
+            <Avatar sx={{"width":'6rem',height:"6rem"}}></Avatar>
+        </Stack>
+    </Stack> */}
+
+
+        <Stack direction={"row"} justifyContent={"space-between"} alignItems="flex-start">
                 <Leftbar />
-
                 <Stack flex={4} p={matchesMD?0:2} justifyContent={'center'} alignItems={'center'}>
                     {
                     feed.map((post) => 

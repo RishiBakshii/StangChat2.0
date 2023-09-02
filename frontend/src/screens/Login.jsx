@@ -9,17 +9,20 @@ import { BASE_URL } from '../envVariables';
 
 export const Login = () => {
     const navigate=useNavigate();
+
     const loggedInUser=useContext(loggedInUserContext)
-    const [credentials,setCredentials]=useState({
-        email:"",
-        password:""
-    })
-    const [loading,setLoading]=useState(false)
+
+    const [credentials,setCredentials]=useState({email:"",password:""})
     const [isCredentialsFilled,setIsCredentialsFilled]=useState(false)
+
+    const [loading,setLoading]=useState(false)
     const [alert,setAlert]=useState({message:"",severity:'info'})
+
+
     useEffect(()=>{
         setIsCredentialsFilled(credentials.email && credentials.password.length>=8)
     },[credentials])
+    
     const handleOnChange=(e)=>{
         setCredentials({...credentials,[e.target.name]:e.target.value})
     }

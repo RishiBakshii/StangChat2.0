@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react'
 import { Navbar } from '../components/Navbar'
-import {Stack,Avatar, Typography, Button, Grid, Modal, Box, CircularProgress} from '@mui/material'
+import {Stack,Avatar, Typography, Button, Grid, Modal, Box, CircularProgress, useMediaQuery, useTheme, TextField} from '@mui/material'
 import { Leftbar } from '../components/Leftbar'
 import { Link, useParams } from 'react-router-dom'
 import { BASE_URL} from './Home'
@@ -13,9 +13,15 @@ import Lottie from 'lottie-react';
 import ghostanimation from '../animations/ghostanimation.json'
 import sleepingcat from '../animations/sleepingcat.json'
 import { Likesmodal } from '../components/Likesmodal'
+import { LoadingButtons } from '../components/LoadingButtons'
+import { Editprofile } from '../components/Editprofile'
 
 
 export const Profile = () => {
+
+  const theme=useTheme()
+  const LG=useMediaQuery(theme.breakpoints.down("lg"))
+  const is480=useMediaQuery(theme.breakpoints.down("480"))
 
   const {loggedInUser,setLoggedInUser} = useContext(loggedInUserContext);
   const {username}=useParams()
@@ -38,9 +44,19 @@ export const Profile = () => {
   const [followerLoading,setFollowerLoading]=useState(false)
   const [followingLoading,setFollowingLoading]=useState(false)
 
+  const [followUnfollowButtonLoader,setFollowUnfollowButtonLoader]=useState(false)
+
 
   const [open, setOpen] = useState(false)
   const [followingModalState,setFollowingModalState]=useState(false)
+
+
+  const [editState,setEditState]=useState(false)
+
+  const [updatedData,setUpdatedData]=useState({
+    'bio':""
+  })
+
 
   const style = {
     position: 'absolute',
@@ -51,6 +67,10 @@ export const Profile = () => {
     bgcolor: 'background.paper',
     boxShadow: 24,
     p: 4,
+    [theme.breakpoints.down("480")]:{
+      width:"18rem",
+    }
+
   };
 
   useEffect(()=>{
@@ -71,6 +91,7 @@ export const Profile = () => {
   }
   
   const handleFollowAndUnFollow=async()=>{
+    setFollowUnfollowButtonLoader(true)
     try {
       const response=await fetch(`${BASE_URL}/followunfollow`,{
         method:"POST",
@@ -100,6 +121,9 @@ export const Profile = () => {
       }
     } catch (error) {
       alert(error)
+    }
+    finally{
+      setFollowUnfollowButtonLoader(false)
     }
   }
 
@@ -172,6 +196,10 @@ export const Profile = () => {
     }
   }
 
+  const handleEditProfileClick=()=>{
+    setEditState(true)
+  }
+
   return (
   <>
       <Navbar/>
@@ -179,13 +207,15 @@ export const Profile = () => {
         
           
                 <Stack flex={"1"} spacing={5} justifyContent={'center'} alignItems={"center"} mt={5}>
-                
-                {/* profile parent */}
-                <Stack padding={4} bgcolor={'white'} borderRadius={'.6rem'} width={'60%'} justifyContent={'flex-start'} alignItems={'flex-start'}>
+
+                  {
+                  editState?(<Editprofile userid={loggedInUser.userid} heading={'Edit your profile'} editProfile={true} username={loggedInUser.username} email={loggedInUser.email} bio={loggedInUser.bio} location={loggedInUser.location} profilePath={`${BASE_URL}/${loggedInUser.profilePicture}`}/>)
+                  :(
+                <Stack padding={is480?(.4):(4)}  borderRadius={'.6rem'} width={`${LG?"100%":"60%"}`} justifyContent={`${is480?("center"):("flex-start")}`} alignItems={`${is480?("center"):("flex-start")}`}>
 
                       {/* avatar */}
                       <Stack>
-                          <Avatar sx={{width:200,height:200}} alt={`profile picture of ${profile.username}`} src={`${BASE_URL}/${profile.profilePicture}`} />
+                          <Avatar sx={{width:is480?180:200,height:is480?180:200}} alt={`profile picture of ${profile.username}`} src={`${BASE_URL}/${profile.profilePicture}`} />
                       </Stack>
                   {/* username*/}
                   <Stack direction={'row'} alignItems={'center'} spacing={2} mt={5}>
@@ -194,16 +224,20 @@ export const Profile = () => {
 
 
                       {loggedInUser.userid===profile?._id?.$oid?(
-                        <Button size='large' variant='contained'>Edit Profile</Button>
+                        <Button size={`${is480?("medium"):("large")}`} onClick={handleEditProfileClick} variant='contained'>Edit Profile</Button>
                       ):(
 
-                      <Button onClick={handleFollowAndUnFollow} size='large' variant='contained'>{isFollowing?("Unfollow"):("Follow")}</Button>
+                        followUnfollowButtonLoader?(<LoadingButtons/>):(
+                          <Button onClick={handleFollowAndUnFollow} size={is480?"medium":"large"} variant='contained'>{isFollowing?("Unfollow"):("Follow")}</Button>
+                        )
                       )}
                   </Stack>
                   
                   {/* bio  adn location*/}
                   <Stack mt={2} spacing={1}>
+
                       <Typography variant='body1'>{profile.bio}</Typography>
+                      
                       <Stack direction={'row'} justifyContent={'flex-start'} alignItems={"center"} p={0}>
                         <Typography variant='body1'>{profile.location}</Typography>
                         <LocationOnIcon sx={{color:'lightblue'}}/>
@@ -248,12 +282,16 @@ export const Profile = () => {
                     )
                   }
                 </Stack>
+                  )}
+                
+                {/* profile parent */}
+
       {/* likes modal */}
                 <Likesmodal postid={likeModalOpen.postid} open={likeModalOpen.state} handleClose={()=>setLikeModalOpen({state:false,postid:""})}/>
       {/* followers modal */}
       <Modal open={open} onClose={()=>setOpen(false)}>
         <Box sx={style} >
-          <Stack spacing={4} height={'25rem'} sx={{overflowY:"scroll"}}>
+          <Stack spacing={4} height={`${is480?("25rem"):("25rem")}`} sx={{overflowY:"scroll"}}>
             <Typography variant='h6' fontWeight={300}>Followers of {username}</Typography>
             { 
               followerLoading?(<CircularProgress sx={{"alignSelf":"center",justifySelf:"center"}}/>):(
@@ -280,9 +318,9 @@ export const Profile = () => {
                             </Stack>
 
                       </Stack>
-                      <Stack justifyContent={'center'} alignItems={"center"}>
+                      {/* <Stack justifyContent={'center'} alignItems={"center"}>
                           <Button size='small' variant='outlined'>follow</Button>
-                      </Stack>
+                      </Stack> */}
                 </Stack>
               })
                 )
@@ -297,7 +335,7 @@ export const Profile = () => {
       {/* following modal */}
       <Modal open={followingModalState} onClose={()=>setFollowingModalState(false)}>
         <Box sx={style}>
-        <Stack spacing={4} height={'30rem'} sx={{overflowY:"scroll"}}>
+        <Stack spacing={4} height={`${is480?("25rem"):("25rem")}`} sx={{overflowY:"scroll"}}>
             <Typography variant='h6' fontWeight={300}>Followings of {username}</Typography>
             { 
               followingLoading?(<CircularProgress sx={{"alignSelf":"center",justifySelf:"center"}}/>):(
@@ -324,9 +362,9 @@ export const Profile = () => {
                             </Stack>
 
                       </Stack>
-                      <Stack justifyContent={'center'} alignItems={"center"} p={1}>
+                      {/* <Stack justifyContent={'center'} alignItems={"center"} p={1}>
                           <Button size='small' variant='outlined'>follow</Button>
-                      </Stack>
+                      </Stack> */}
                 </Stack>
               })
                 )

@@ -34,8 +34,18 @@ post_photos = os.path.join(app.config['UPLOAD_FOLDER'], 'postphotos')
 
 mongo=PyMongo(app)
 # CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}}, supports_credentials=True)
-# CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}}, supports_credentials=True)
-CORS(app, resources={r"/*": {"origins": '*'}}, supports_credentials=True)
+
+
+
+######
+CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}}, supports_credentials=True)
+
+
+# CORS(app, resources={r"/*": {"origins": ["http://192.168.1.7:3000",'http://localhost:3000']}}, supports_credentials=True)
+#############
+
+
+# CORS(app, resources={r"/*": {"origins": '*'}}, supports_credentials=True)
 # CORS(app, resources={r"/*": {"origins": ["*"]}}, supports_credentials=True)
 # CORS(app, resources={r"/*": {"origins": ["http://192.168.1.3"]}}, supports_credentials=True)
 
@@ -95,8 +105,13 @@ app.register_blueprint(posts)
 app.register_blueprint(users)
 app.register_blueprint(comments)
 
+@app.route("/")
+def default():
+    return jsonify({"running":True}),200
+
 
 
 
 if __name__=='__main__':
-    app.run(host='192.168.1.7',debug=True)
+    # app.run(host="192.168.1.7",debug=True)
+    app.run(debug=True)

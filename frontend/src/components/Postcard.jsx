@@ -13,7 +13,6 @@ export const Postcard = ({username,caption,likesCount,imageUrl,unique_id,postedA
   const theme=useTheme()
   const [likeCountState,setLikeCountState]=useState(likesCount)
   const {feed,setFeed}=useContext(postContext)
-  const is400=useMediaQuery(theme.breakpoints.down("400"))
   const is480=useMediaQuery(theme.breakpoints.down("480"))
   const loggedInUser = useContext(loggedInUserContext);
   const [showComment, setShowComment] = useState({show: false,cardHeight: is480?(550):(700)});

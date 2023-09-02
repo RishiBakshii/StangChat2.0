@@ -36,6 +36,8 @@ import { Logoutmodal } from './Logoutmodal';
 import { BASE_URL } from '../envVariables';
 import { Avatar, Stack, useMediaQuery } from '@mui/material';
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
+import { rightBarContext } from '../context/rigthbar/RightbarContext';
+import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 
 const drawerWidth = 240;
 
@@ -65,6 +67,7 @@ const DrawerHeader = styled('div')(({ theme }) => ({
 }));
 
 export default function PersistentDrawerLeft() {
+  const {rightBarOpen,setRightBarOpen}=useContext(rightBarContext)
   const theme = useTheme();
   const [open, setOpen] = React.useState(false);
   const SM=useMediaQuery(theme.breakpoints.down("sm"))
@@ -122,8 +125,8 @@ export default function PersistentDrawerLeft() {
 
           {
             SM?(
-               <IconButton sx={{"position":"absolute",'right':"1rem"}}>
-            <ArrowBackIosIcon sx={{"color":"white"}}/>
+               <IconButton sx={{"position":"absolute",'right':"1rem"}} onClick={()=>setRightBarOpen(!rightBarOpen)}>
+                {rightBarOpen?(<ArrowForwardIosIcon  sx={{"color":"white"}}/>):(<ArrowBackIosIcon sx={{"color":"white"}}/>)}
           </IconButton>
           
             ):("")
@@ -134,7 +137,12 @@ export default function PersistentDrawerLeft() {
       </AppBar>
 
       <Drawer sx={{ width: drawerWidth, flexShrink: 0, '& .MuiDrawer-paper': { width: drawerWidth, boxSizing: 'border-box', },}} variant="persistent"anchor="left" open={open}>
+  
         <DrawerHeader>
+          {
+            is480?(<Typography textAlign={'left'} p={2} color={"primary"} width={"100%"} variant='h4' fontWeight={900}>StangChat</Typography>):("")
+          }
+
           <IconButton onClick={handleDrawerClose}>
             {theme.direction === 'ltr' ? <ChevronLeftIcon /> : <ChevronRightIcon />}
           </IconButton>

@@ -12,10 +12,12 @@ import { Userstate } from "./context/user/Userstate";
 import { Poststate } from "./context/posts/Poststate";
 import { Search } from "./screens/Search";
 import {Explore } from './screens/Explore'
+import { RightBarState } from "./context/rigthbar/RightbarState";
 
 function App() {
   return (
     <>
+    <RightBarState>
     <Poststate>
     <Userstate>
     <Router>
@@ -35,6 +37,7 @@ function App() {
     </Router>
     </Userstate>
     </Poststate>
+    </RightBarState>
     </>
   );
 }

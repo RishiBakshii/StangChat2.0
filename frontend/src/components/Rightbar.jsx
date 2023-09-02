@@ -1,20 +1,25 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {Avatar,Box,ImageList,ImageListItem,Typography,List,ListItem,ListItemAvatar,ListItemText,Divider, Stack, IconButton, CircularProgress, useMediaQuery} from "@mui/material";
 import RefreshIcon from '@mui/icons-material/Refresh';
 import { BASE_URL } from "../envVariables";
 import { Link } from "react-router-dom";
 import {useTheme} from "@mui/material";
+import { rightBarContext } from "../context/rigthbar/RightbarContext";
 
 
 export const Rightbar = () => {
-
+  const {rightBarOpen,setRightBarOpen}=useContext(rightBarContext)
   const theme=useTheme()
   const MD=useMediaQuery(theme.breakpoints.down("md"))
   const LG=useMediaQuery(theme.breakpoints.down("lg"))
   const SM=useMediaQuery(theme.breakpoints.down("sm"))
+  const is345=useMediaQuery(theme.breakpoints.down('345'))
 
   const [loading,setLoading]=useState(false)
   const [suggestions,setSuggestions]=useState([])
+
+  const [latestPost,setLatestPost]=useState([])
+  const [postLoader,setPostLoader]=useState(false)
 
   const handleRefreshSuggestions=async()=>{
     setLoading(true)
@@ -45,140 +50,67 @@ export const Rightbar = () => {
     }
   }
 
+  const fetchLatestPost=async()=>{
+    setPostLoader(true)
+    try {
+      const response=await fetch(`${BASE_URL}/getlatestposts`,{method:"GET"})
+
+      const json=await response.json()
+
+      if(response.ok){
+        setLatestPost(json)
+      }
+
+      if(response.status===500){
+        alert("internal server error")
+      }
+
+    } catch (error) {
+      alert(error)
+    }
+    finally{
+      setPostLoader(false)
+    }
+  }
+
+  useEffect(()=>{
+    fetchLatestPost()
+  },[])
 
   useEffect(()=>{
     handleRefreshSuggestions()
   },[])
 
   return (
-    <Box p={2} flex={2} position={`${SM?("fixed"):("")}`} right={`${SM?("-20rem"):("")}`}>
-      <Box p={2} position={'fixed'} bgcolor={'white'} display={"flex"} flexDirection={"column"} alignItems={"flex-start"}>
+    <Box p={2} sx={{"transition":".2s cubic-bezier(0.25, 0.46, 0.45, 0.94)"}} flex={2} position={`${SM?("fixed"):("")}`} right={`${SM?(rightBarOpen?('97vw'):('-20rem')):("")}`}>
+        <Box p={2} position={'fixed'} display={"flex"} bgcolor={'white'} flexDirection={"column"} alignItems={"flex-start"}>
        
-        {
-          MD?(""):(
-                      <Box>
+          <Box>
             <Typography mt={LG?0:3} gutterBottom variant="h6" fontWeight={300}>
-          LATEST PHOTOS
-        </Typography>
-        <ImageList cols={LG?2:3} variant="woven" sx={{"height":'20rem'}}>
-          <ImageListItem>
-            <img src="https://images.pexels.com/photos/461755/pexels-photo-461755.jpeg?auto=compress&cs=tinysrgb&w=1600" alt=""/>
-          </ImageListItem>
-          <ImageListItem>
-            <img
-              src="https://images.pexels.com/photos/40504255/pexels-photo-4050425.jpeg?auto=compress&cs=tinysrgb&w=1600"
-              alt=""
-            />
-          </ImageListItem>
-          <ImageListItem>
-            <img
-              src="https://images.pexels.com/photos/3755828/pexels-photo-3755828.jpeg?auto=compress&cs=tinysrgb&w=1600"
-              alt=""
-            />
-          </ImageListItem>
-          <ImageListItem>
-            <img
-              src="https://images.pexels.com/photos/6287534/pexels-photo-6287534.jpeg?auto=compress&cs=tinysrgb&w=1600"
-              alt=""
-            />
-          </ImageListItem>
-          <ImageListItem>
-            <img
-              src="https://images.pexels.com/photos/2155817/pexels-photo-2155817.jpeg?auto=compress&cs=tinysrgb&w=1600"
-              alt=""
-            />
-          </ImageListItem>
-          <ImageListItem>
-            <img
-              src="https://images.pexels.com/photos/7148973/pexels-photo-7148973.jpeg?auto=compress&cs=tinysrgb&w=1600"
-              alt=""
-            />
-          </ImageListItem>
-          <ImageListItem>
-            <img
-              src="https://images.pexels.com/photos/7148973/pexels-photo-7148973.jpeg?auto=compress&cs=tinysrgb&w=1600"
-              alt=""
-            />
-          </ImageListItem>
-          <ImageListItem>
-            <img
-              src="https://images.pexels.com/photos/7148973/pexels-photo-7148973.jpeg?auto=compress&cs=tinysrgb&w=1600"
-              alt=""
-            />
-          </ImageListItem>
-          <ImageListItem>
-            <img
-              src="https://images.pexels.com/photos/7148973/pexels-photo-7148973.jpeg?auto=compress&cs=tinysrgb&w=1600"
-              alt=""
-            />
-          </ImageListItem>
-          <ImageListItem>
-            <img
-              src="https://images.pexels.com/photos/7148973/pexels-photo-7148973.jpeg?auto=compress&cs=tinysrgb&w=1600"
-              alt=""
-            />
-          </ImageListItem>
-          <ImageListItem>
-            <img
-              src="https://images.pexels.com/photos/7148973/pexels-photo-7148973.jpeg?auto=compress&cs=tinysrgb&w=1600"
-              alt=""
-            />
-          </ImageListItem>
-          <ImageListItem>
-            <img
-              src="https://images.pexels.com/photos/7148973/pexels-photo-7148973.jpeg?auto=compress&cs=tinysrgb&w=1600"
-              alt=""
-            />
-          </ImageListItem>
-          <ImageListItem>
-            <img
-              src="https://images.pexels.com/photos/7148973/pexels-photo-7148973.jpeg?auto=compress&cs=tinysrgb&w=1600"
-              alt=""
-            />
-          </ImageListItem>
-          <ImageListItem>
-            <img
-              src="https://images.pexels.com/photos/7148973/pexels-photo-7148973.jpeg?auto=compress&cs=tinysrgb&w=1600"
-              alt=""
-            />
-          </ImageListItem>
-          <ImageListItem>
-            <img
-              src="https://images.pexels.com/photos/7148973/pexels-photo-7148973.jpeg?auto=compress&cs=tinysrgb&w=1600"
-              alt=""
-            />
-          </ImageListItem>
-          <ImageListItem>
-            <img
-              src="https://images.pexels.com/photos/7148973/pexels-photo-7148973.jpeg?auto=compress&cs=tinysrgb&w=1600"
-              alt=""
-            />
-          </ImageListItem>
-          <ImageListItem>
-            <img
-              src="https://images.pexels.com/photos/7148973/pexels-photo-7148973.jpeg?auto=compress&cs=tinysrgb&w=1600"
-              alt=""
-            />
-          </ImageListItem>
-          <ImageListItem>
-            <img
-              src="https://images.pexels.com/photos/7148973/pexels-photo-7148973.jpeg?auto=compress&cs=tinysrgb&w=1600"
-              alt=""
-            />
-          </ImageListItem>
-        </ImageList>
+                LATEST PHOTOS
+            </Typography>
+
+            <ImageList cols={LG?2:3} variant="woven" sx={{"height":'20rem'}}>
+              {
+                postLoader?(<CircularProgress/>):(
+                  latestPost.length!==0?(
+                    latestPost.map((data)=>{
+                      return <ImageListItem component={Link} to={`/profile/${data.username}`}> <img src={`${BASE_URL}/${data.postPath}`} alt=""/></ImageListItem>
+                    })
+                  ):("")
+                )
+              }
+        
+            </ImageList>
+
           </Box>
-          )
-        }
 
 
-            <Typography mt={3} gutterBottom variant="h6" fontWeight={300}>
-          User Suggestions
-          <IconButton onClick={handleRefreshSuggestions}>
-            <RefreshIcon/>
-        </IconButton>
-        </Typography>
-                  <List sx={{ width: "100%",maxWidth: 360,height:`${MD?("75vh"):'20rem'}`,overflowY:"scroll"}}>
+          <Typography mt={3} gutterBottom variant="h6" fontWeight={300}>
+            User Suggestions
+          <IconButton onClick={handleRefreshSuggestions}><RefreshIcon/></IconButton>
+          </Typography>
+                  <List  sx={{width: "100%",height:`${MD?("75vh"):'20rem'}`,overflowY:"scroll"}}>
               {
                 loading?(<CircularProgress/>):(
                   suggestions.length!==0?(
@@ -205,15 +137,6 @@ export const Rightbar = () => {
 
           <Divider variant="inset" component="li" />
         </List>
-          
-          
-        
-
-
-  
-
-
-
       </Box>
     </Box>
   );

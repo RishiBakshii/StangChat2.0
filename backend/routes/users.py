@@ -4,7 +4,7 @@ from werkzeug.utils import secure_filename
 import os
 from bson.json_util import dumps
 from utils.common import upload_profile_picture,update_profile_data,format_user_data,handle_follow,handle_unfollow
-from utils.validation import is_existing_username,is_existing_userid
+from utils.validation import is_existing_username,is_existing_userid,is_existing_email
 
 users=Blueprint('users',__name__)
 
@@ -196,7 +196,6 @@ def usersearch():
         print(e)
         return jsonify({"message": str(e)}), 500
 
-
 @users.route('/randomusers', methods=['GET'])
 def get_random_users():
     try:
@@ -212,3 +211,66 @@ def get_random_users():
     except Exception as e:
         return jsonify({"message":str(e)}),500
 
+@users.route("/editprofile",methods=['POST'])
+def edit_profile():
+    try:
+        mongo=users.mongo
+
+        userid=request.form.get("userid")
+        username=request.form.get("username")
+        email=request.form.get("email")
+        bio=request.form.get("bio")
+        location=request.form.get("location")
+        profilePicture=request.files.get("profilePicture")
+
+
+        print('credentials revieved are')
+        print(userid)
+        print(username)
+        print(email)
+        print(bio)
+        print(location)
+        print(profilePicture)
+        
+        # checking if user exists
+        user=is_existing_userid(mongo,userid)
+        if not user:
+            return jsonify({"message":"user does not exists"}),400
+        
+        # checking is username is already taken or not
+        if is_existing_username(mongo,username):
+            return jsonify({"message":"username is taken"}),400
+        
+        # checking if the email is already taken or not
+        if is_existing_email(mongo,email):
+            return jsonify({"message":"email is already taken"}),400
+
+
+        prev_profile_picture_path = user["profilePicture"]
+
+        if prev_profile_picture_path:
+            try:
+                os.remove(prev_profile_picture_path)
+            except Exception as e:
+                return jsonify({"message":str(e)}),500
+
+
+        if profilePicture:
+            updated_profile_picture_path=upload_profile_picture(profilePicture,current_app.config['PROFILE_FOLDER'])
+
+        mongo.db.users.update_one({"_id":ObjectId(userid)},
+                                  {"$set": {"bio": bio,
+                                            'profilePicture':updated_profile_picture_path,
+                                            'username':username,
+                                            'location':location,
+                                            'email':email
+                                            }})
+        updated_user=is_existing_userid(mongo,userid)
+
+        return jsonify(updated_user),200
+
+
+
+
+    except Exception as e:
+        return jsonify({"message":str(e)}),500

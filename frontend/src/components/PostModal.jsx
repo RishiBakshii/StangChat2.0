@@ -1,21 +1,10 @@
-import {Button,Typography,Modal,Stack,TextField,styled} from '@mui/material';
+import {Button,Typography,Modal,Stack,TextField,styled, useTheme, useMediaQuery} from '@mui/material';
 import { useContext, useState } from 'react';
 import { loggedInUserContext } from '../context/user/Usercontext';
 import LoadingButton from '@mui/lab/LoadingButton';
 import { postContext } from '../context/posts/PostContext';
 
 
-const style = {
-  position: 'absolute',
-  top: '50%',
-  left: '50%',
-  transform: 'translate(-50%, -50%)',
-  width: 400,
-  bgcolor: 'background.paper',
-  boxShadow: 24,
-  p: 4,
-  borderRadius:".4rem"
-};
 
 const CustomPhotoinput=styled('input')({
     height:"100%",
@@ -31,6 +20,9 @@ const BASE_URL=process.env.REACT_APP_API_BASE_URL;
 export const PostModal=({ isOpen, onClose})=> {
     const loggedInUser=useContext(loggedInUserContext)
     const {setFeed}=useContext(postContext)
+
+    const theme=useTheme()
+    const is480=useMediaQuery(theme.breakpoints.down("480"))
 
     const [selectedImage, setSelectedImage] = useState(null);
     const [displayImage,setDisplayImage]=useState(null)
@@ -115,6 +107,21 @@ export const PostModal=({ isOpen, onClose})=> {
           setLoading(false)
         }
       }
+
+      const style = {
+        position: 'absolute',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+        width: 400,
+        bgcolor: 'background.paper',
+        boxShadow: 24,
+        p: 4,
+        borderRadius:".4rem",
+        [theme.breakpoints.down('480')]:{
+          width:'18rem'
+        }
+      };
 
   return (
           <div>

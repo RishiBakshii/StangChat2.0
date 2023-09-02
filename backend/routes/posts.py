@@ -15,6 +15,7 @@ load_dotenv()
 posts=Blueprint('posts',__name__)
 app=current_app
 
+
 @posts.route('/uploadpost',methods=['POST'])
 def createPost():
     if request.method=='POST':
@@ -146,7 +147,26 @@ def getPostLikes():
 
         except Exception as e:
             return jsonify({"message":str(e)}),500
-       
+
+@posts.route('/getlatestposts', methods=['GET'])
+def get_latest_posts():
+    try:
+        mongo=posts.mongo
+        latest_posts = mongo.db.post.find().sort('exactTime', -1).limit(10)
+        return dumps(latest_posts),200
+    except Exception as e:
+        print(e)
+        return jsonify({"message":str(e)}),500
+
+@posts.route("/getexplorefeed",methods=['GET'])
+def fetch_explore_feed():
+    try:
+        mongo=posts.mongo
+        all_post=mongo.db.post.find()
+        return dumps(all_post),200
+    except Exception as e:
+        return jsonify({"message":str(e)}),500
+
 @posts.route("/deletepost",methods=['POST'])
 def deletePost():
     if request.method=='POST':
