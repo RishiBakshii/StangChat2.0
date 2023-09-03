@@ -215,8 +215,8 @@ def get_random_users():
 def edit_profile():
     try:
         mongo=users.mongo
-
         userid=request.form.get("userid")
+
         username=request.form.get("username")
         email=request.form.get("email")
         bio=request.form.get("bio")
@@ -224,50 +224,55 @@ def edit_profile():
         profilePicture=request.files.get("profilePicture")
 
 
-        print('credentials revieved are')
-        print(userid)
-        print(username)
-        print(email)
-        print(bio)
-        print(location)
-        print(profilePicture)
+        print('credentials recvieved are :------')
+        print(f'userid : {userid}')
+        print(f'username: {username}')
+        print(f'email : {email}')
+        print(f'bio : {bio}')
+        print(f'location: {location}')
+        print(f'profilePicture : {profilePicture}')
+
+        updated_feilds={}
         
-        # checking if user exists
         user=is_existing_userid(mongo,userid)
         if not user:
             return jsonify({"message":"user does not exists"}),400
         
         # checking is username is already taken or not
-        if is_existing_username(mongo,username):
-            return jsonify({"message":"username is taken"}),400
+        if username is not None:
+            if is_existing_username(mongo, username):
+                return jsonify({"message": "username is already taken🤭"}), 400
+            updated_feilds['username'] = username
+
+        if email is not None:
+            if is_existing_email(mongo, email):
+                return jsonify({"message": "email is already taken"}), 400
+            updated_feilds['email'] = email
         
-        # checking if the email is already taken or not
-        if is_existing_email(mongo,email):
-            return jsonify({"message":"email is already taken"}),400
+        
+        if bio is not None:
+            updated_feilds['bio']=bio
 
-
-        prev_profile_picture_path = user["profilePicture"]
-
-        if prev_profile_picture_path:
-            try:
-                os.remove(prev_profile_picture_path)
-            except Exception as e:
-                return jsonify({"message":str(e)}),500
-
-
-        if profilePicture:
+        if location is not None:
+            updated_feilds['location'] = location
+        
+        if profilePicture is not None:
+            prev_profile_picture_path = user["profilePicture"]
+            if prev_profile_picture_path!=current_app.config['DEFAULT_PROFILE_PICTURE']:
+                try:
+                    os.remove(prev_profile_picture_path)
+                except Exception as e:
+                    return jsonify({"message",str(e)}),500
+                
             updated_profile_picture_path=upload_profile_picture(profilePicture,current_app.config['PROFILE_FOLDER'])
+            updated_feilds['profilePicture']=updated_profile_picture_path
 
-        mongo.db.users.update_one({"_id":ObjectId(userid)},
-                                  {"$set": {"bio": bio,
-                                            'profilePicture':updated_profile_picture_path,
-                                            'username':username,
-                                            'location':location,
-                                            'email':email
-                                            }})
+        if updated_feilds:
+            mongo.db.users.update_one({"_id":ObjectId(userid)},{'$set':updated_feilds})
+
         updated_user=is_existing_userid(mongo,userid)
 
-        return jsonify(updated_user),200
+        return format_user_data(updated_user),200
 
 
 

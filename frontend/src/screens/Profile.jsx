@@ -209,7 +209,19 @@ export const Profile = () => {
                 <Stack flex={"1"} spacing={5} justifyContent={'center'} alignItems={"center"} mt={5}>
 
                   {
-                  editState?(<Editprofile userid={loggedInUser.userid} heading={'Edit your profile'} editProfile={true} username={loggedInUser.username} email={loggedInUser.email} bio={loggedInUser.bio} location={loggedInUser.location} profilePath={`${BASE_URL}/${loggedInUser.profilePicture}`}/>)
+                  editState?(
+                  <Editprofile 
+                    userid={loggedInUser.userid} 
+                    heading={'Edit your profile'} 
+                    editProfile={true} 
+                    username={loggedInUser.username} 
+                    email={loggedInUser.email} 
+                    bio={loggedInUser.bio} 
+                    location={loggedInUser.location} 
+                    profilePath={`${BASE_URL}/${loggedInUser.profilePicture}`}
+                    />
+                  )
+
                   :(
                 <Stack padding={is480?(.4):(4)}  borderRadius={'.6rem'} width={`${LG?"100%":"60%"}`} justifyContent={`${is480?("center"):("flex-start")}`} alignItems={`${is480?("center"):("flex-start")}`}>
 

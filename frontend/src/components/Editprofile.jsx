@@ -47,6 +47,13 @@ export const Editprofile = ({userid,username,email,bio,location,heading,editProf
     const theme=useTheme()
     const MD=useMediaQuery(theme.breakpoints.down("md"))
 
+    const isAnythingChanged =
+  loggedInUser.loggedInUser.username !== editProfileCredentials.username ||
+  loggedInUser.loggedInUser.email !== editProfileCredentials.email ||
+  editProfileDisplayImage !== profilePath ||
+  loggedInUser.loggedInUser.location !== editProfileCredentials.location ||
+  loggedInUser.loggedInUser.bio !== editProfileCredentials.bio;
+
     const handleAvatarChange=(event)=>{
         const result=ImageSelector(event)
           if(editProfile){
@@ -108,24 +115,42 @@ export const Editprofile = ({userid,username,email,bio,location,heading,editProf
 
         const formData=new FormData();
         formData.append("userid",editProfileCredentials.userid);
-        formData.append('username',editProfileCredentials.username);
-        formData.append("email",editProfileCredentials.email); 
-        formData.append("bio",editProfileCredentials.bio); 
-        formData.append("location",editProfileCredentials.location); 
-        formData.append("profilePicture",editProfileSelectedImage); 
+
+        if(loggedInUser.loggedInUser.username!==editProfileCredentials.username){
+          formData.append('username',editProfileCredentials.username)
+        }
+
+        if(loggedInUser.loggedInUser.email!==editProfileCredentials.email){
+          formData.append("email",editProfileCredentials.email); 
+        }
+
+        if(editProfileDisplayImage!==profilePath){
+          formData.append("profilePicture",editProfileSelectedImage); 
+        }
+
+        if(loggedInUser.loggedInUser.location!==editProfileCredentials.location){
+          formData.append("location",editProfileCredentials.location); 
+        }
+        if(loggedInUser.loggedInUser.bio!==editProfileCredentials.bio){
+          formData.append("bio",editProfileCredentials.bio)
+        }
+
+        formData.forEach((value, key) => {
+          console.log(`${key}: ${value}\n\n`);
+        });
 
         const response=await fetch(`${BASE_URL}/editprofile`,{
           method:"POST",
           body:formData
         })
 
-        console.log(formData)
-
         const json=await response.json()
 
         if(response.ok){
-          alert("success")
-          navigate('/')
+          navigate("/")
+          setTimeout(() => {
+            loggedInUser.updateLoggedInUser(json)
+          }, 2000);
         }
         if(response.status===400){
           alert(json.message)
@@ -136,7 +161,7 @@ export const Editprofile = ({userid,username,email,bio,location,heading,editProf
         }
 
       } catch (error) {
-        alert('frontend-error')
+        console.log(error)
       }
     }
 
@@ -204,7 +229,7 @@ export const Editprofile = ({userid,username,email,bio,location,heading,editProf
                   editProfile?(
                     <Box mt={5}>
                     {loading?(<LoadingButtons/>)
-                    :(<Button onClick={handleProfileUpdateClick} fullWidth disabled={!editProfileCredentialsFilled} variant='contained'>Update Profile</Button>)
+                    :(<Button onClick={handleProfileUpdateClick} fullWidth disabled={!isAnythingChanged} variant='contained'>Update Profile</Button>)
                     }
                 </Box>
                   ):(

@@ -28,6 +28,7 @@ PROFILE_FOLDER='profile'
 app.config['UPLOAD_FOLDER']=UPLOAD_FOLDER
 app.config['POST_FOLDER']=os.path.join(app.config['UPLOAD_FOLDER'],POST_FOLDER)
 app.config['PROFILE_FOLDER']=os.path.join(app.config['UPLOAD_FOLDER'],PROFILE_FOLDER)
+app.config['DEFAULT_PROFILE_PICTURE']=os.path.join(app.config['PROFILE_FOLDER'],'defaultProfile.png')
 
 profile_photos=os.path.join(app.config['UPLOAD_FOLDER'],'profile')
 post_photos = os.path.join(app.config['UPLOAD_FOLDER'], 'postphotos')

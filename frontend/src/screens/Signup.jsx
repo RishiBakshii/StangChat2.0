@@ -59,7 +59,7 @@ export const Signup = () => {
     <>
     {
         showProfileSetup?(
-            <Editprofile firstSetup={true} userid={credentials.user_id} username={credentials.username} email={credentials.email} location={credentials.location}/>
+            <Editprofile firstSetup={true} heading={'Lets Build Your Profile'} userid={credentials.user_id} username={credentials.username} email={credentials.email} location={credentials.location}/>
         ):(
         <Stack direction={'row'} padding={'0 4vw'} width={'100vw'} justifyContent={"center"} alignItems={"center"} height={"100vh"}>
         

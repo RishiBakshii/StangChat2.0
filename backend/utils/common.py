@@ -8,6 +8,7 @@ from bson import ObjectId
 import datetime
 from utils.validation import is_existing_userid,is_existing_commentid
 from flask import jsonify
+import uuid
 
 def generate_jwt_token(payload,expire_days=30):
     expiration = datetime.datetime.utcnow() + datetime.timedelta(days=expire_days)
@@ -87,7 +88,11 @@ def handle_unfollow(mongo,target_user_id,userid):
 
 def upload_post(user_post,target_folder):
     secureFilename=secure_filename(user_post.filename)
-    user_post_path=os.path.join(target_folder,secureFilename).replace("\\","/")
+    unique_id=uuid.uuid4()
+    file_extension = os.path.splitext(secureFilename)[-1]
+    unique_filename = f"{secureFilename.split('.')[0]}_{unique_id}{file_extension}"
+
+    user_post_path=os.path.join(target_folder,unique_filename).replace("\\","/")
     user_post.save(user_post_path)
     return user_post_path
 

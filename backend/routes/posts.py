@@ -1,6 +1,6 @@
 from bson import ObjectId
 from flask import Blueprint,current_app
-from flask import Flask,jsonify,request
+from flask import jsonify,request
 from dotenv import load_dotenv
 import os
 from datetime import datetime
@@ -25,7 +25,6 @@ def createPost():
             caption=request.form.get('caption')
             user_post=request.files.get("post")
 
-
             user=is_existing_userid(mongo,userid)
 
             if user:
@@ -48,11 +47,9 @@ def createPost():
 
                 newly_uploaded_post=mongo.db.post.find_one({"_id":uploaded_post_id})
                 return dumps(newly_uploaded_post),200
-                
-                
+ 
             return jsonify({"message":"user does not exist"}),400
         except Exception as e:
-            print(e)
             return jsonify({"message":str(e)}),500
 
 @posts.route("/getuserpost",methods=['POST'])
@@ -80,8 +77,6 @@ def likepost():
             data=request.json
             userid=data.get("userid")
             postid=data.get("postid")
-
-            print(f'user id is {userid}\npost id is {postid}')
 
             user=is_existing_userid(mongo,userid)
             if not user:
@@ -155,7 +150,6 @@ def get_latest_posts():
         latest_posts = mongo.db.post.find().sort('exactTime', -1).limit(10)
         return dumps(latest_posts),200
     except Exception as e:
-        print(e)
         return jsonify({"message":str(e)}),500
 
 @posts.route("/getexplorefeed",methods=['GET'])
@@ -186,8 +180,15 @@ def deletePost():
             
             if post['user_id'] != ObjectId(userid):
                 return jsonify({"message": "You do not have permission to delete this post"}), 403
+            
+            post_path=post['postPath']
+            if post_path and os.path.exists(post_path):
+                os.remove(post_path)
+            else:
+                return jsonify({"message":"error deleting the post"}),400
 
             delete_post_and_related_comments(mongo,postid)
+
             mongo.db.users.update_one(
                 {"_id": ObjectId(userid)},
                 {"$inc": {"postCount": -1}}
