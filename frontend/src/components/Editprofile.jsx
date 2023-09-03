@@ -135,9 +135,9 @@ export const Editprofile = ({userid,username,email,bio,location,heading,editProf
           formData.append("bio",editProfileCredentials.bio)
         }
 
-        formData.forEach((value, key) => {
-          console.log(`${key}: ${value}\n\n`);
-        });
+        // formData.forEach((value, key) => {
+        //   console.log(`${key}: ${value}\n\n`);
+        // });
 
         const response=await fetch(`${BASE_URL}/editprofile`,{
           method:"POST",
@@ -161,7 +161,7 @@ export const Editprofile = ({userid,username,email,bio,location,heading,editProf
         }
 
       } catch (error) {
-        console.log(error)
+        alert("frontend Error")
       }
     }
 

@@ -46,20 +46,6 @@ def fetch_user_profile(username):
             
 @users.route('/updateprofile',methods=['POST'])
 def updateProfile():
-    """
-    Handle user profile update via POST request.
-
-    This function handles the process of updating a user's profile information.
-
-    Args:
-        None
-
-    Returns:
-        Flask Response: A JSON response indicating the outcome of the profile update attempt.
-            - If the user does not exist, returns a 404 status with an error message.
-            - If the profile update is successful, returns a 200 status with a success message.
-            - If an exception occurs, returns a 500 status with an error message.
-    """
     if request.method=='POST':
         try:
             mongo=users.mongo
@@ -196,11 +182,14 @@ def usersearch():
         print(e)
         return jsonify({"message": str(e)}), 500
 
-@users.route('/randomusers', methods=['GET'])
+@users.route('/randomusers', methods=['POST'])
 def get_random_users():
     try:
+        data=request.json
         mongo=users.mongo
+        userid=data.get("userid")
         random_users =  mongo.db.users.aggregate([
+            {"$match": {"_id": {"$ne": ObjectId(userid)}}},
             {"$sample": {"size": 5}}
         ])
         formatted_users = [{"id": str(user["_id"]),"username": user["username"],"profilePicture": user["profilePicture"],'location':user['location'],"bio":user['bio']}
@@ -258,7 +247,7 @@ def edit_profile():
         
         if profilePicture is not None:
             prev_profile_picture_path = user["profilePicture"]
-            if prev_profile_picture_path!=current_app.config['DEFAULT_PROFILE_PICTURE']:
+            if os.path.normpath(prev_profile_picture_path)!= os.path.normpath(current_app.config['DEFAULT_PROFILE_PICTURE']):
                 try:
                     os.remove(prev_profile_picture_path)
                 except Exception as e:
@@ -271,6 +260,7 @@ def edit_profile():
             mongo.db.users.update_one({"_id":ObjectId(userid)},{'$set':updated_feilds})
 
         updated_user=is_existing_userid(mongo,userid)
+        print(format_user_data(updated_user))
 
         return format_user_data(updated_user),200
 
@@ -278,4 +268,5 @@ def edit_profile():
 
 
     except Exception as e:
+        print(e)
         return jsonify({"message":str(e)}),500

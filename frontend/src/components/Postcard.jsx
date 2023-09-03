@@ -20,6 +20,7 @@ export const Postcard = ({username,caption,likesCount,imageUrl,unique_id,postedA
   const [fetchedComment, setFetchedComment] = useState([]);
   const [isLikedCommentstate,setIsLikedCommentState]=useState(null)
   const [comment, setComment] = useState([]);
+  const [commentLikes, setCommentLikes] = useState({});
   const MD=useMediaQuery(theme.breakpoints.down("md"))
 
 
@@ -30,11 +31,26 @@ export const Postcard = ({username,caption,likesCount,imageUrl,unique_id,postedA
     });
   };
   const [isLoadingComments, setIsLoadingComments] = useState(false);
+
   useEffect(() => {
     if (showComment.show) {
       loadComment();
     }
   }, [showComment.show]);
+
+
+  useEffect(() => {
+    // Initialize commentLikes with the initial like status from props
+    const initialLikes = {};
+    fetchedComment.forEach((comment) => {
+      initialLikes[comment._id.$oid] = comment.likes.includes(
+        loggedInUser.loggedInUser.userid
+      );
+    });
+    setCommentLikes(initialLikes);
+  }, [fetchedComment, loggedInUser]);
+
+
 
   const loadComment = async () => {
     setIsLoadingComments(true);
@@ -145,6 +161,10 @@ export const Postcard = ({username,caption,likesCount,imageUrl,unique_id,postedA
 
       if (response.ok) {
         console.log(json)
+        setCommentLikes((prevLikes) => ({
+          ...prevLikes,
+          [commentid]: json.message,
+        }));
       }
       if (response.status == 500) {
         alert("interal server error");
@@ -274,33 +294,34 @@ export const Postcard = ({username,caption,likesCount,imageUrl,unique_id,postedA
         <CardContent sx={{bgcolor: "",height: "100%",padding: ".5rem 1rem",overflowY: "scroll",}}>
           <Box bgcolor={""} sx={{ overflowY: "scroll", height: "28rem", display: "flex",flexDirection: "column",}}>
 
-            {isLoadingComments ? (
+            {
+            isLoadingComments?
+            (
               <CircularProgress sx={{ alignSelf: "center",justifySelf: "center",marginTop: 4}}/>
-            ) : fetchedComment.length == 0 ? (
+            ):
+            fetchedComment.length == 0?
+            (
               <Stack mt={4} sx={{ alignSelf: "center", justifySelf: "center" }}>
                 There are no comments☹️
               </Stack>
-            ) : (
+            ):(
               fetchedComment.map((comment) => {
                 return (
-                  <Stack key={comment._id.$oid} mt={4} bgcolor={"white"} spacing={1} p={'0 1rem'}>
+                    <Stack key={comment._id.$oid} mt={4} bgcolor={"white"} spacing={1} p={'0 1rem'}>
 
-                    <Stack direction={"row"} alignItems={"center"} spacing={1}>
-                      <Avatar alt={comment.username} src={`${BASE_URL}/${comment.profilepath}`} component={Link} to={`/profile/${comment.username}`}/>
-                      <Typography sx={{"textDecoration":"none",color:"black"}} component={Link} to={`/profile/${comment.username}`}>{comment.username}</Typography>
-                    </Stack>
+                        <Stack direction={"row"} alignItems={"center"} spacing={1}>
+                              <Avatar alt={comment.username} src={`${BASE_URL}/${comment.profilepath}`} component={Link} to={`/profile/${comment.username}`}/>
+                              <Typography sx={{"textDecoration":"none",color:"black"}} component={Link} to={`/profile/${comment.username}`}>{comment.username}</Typography>
+                        </Stack>
 
-                    <Stack bgcolor={""} direction={"row"} alignItems={"center"} justifyContent={"space-between"}>
+                        <Stack bgcolor={""} direction={"row"} alignItems={"center"} justifyContent={"space-between"}>
 
-                        <Typography variant="body2" color="text.primary">
-                          {comment.comment}
-                        </Typography>
+                        <Typography variant="body2" color="text.primary">{comment.comment}</Typography>
 
-                      <Stack direction={"row"} alignItems={"center"}>
-                        <Checkbox checked={comment.likes.includes(loggedInUser.loggedInUser.userid)} onClick={() => handleCommentLike(comment._id.$oid)} icon={<FavoriteBorder fontSize="small"/>} 
-                        checkedIcon={<Favorite fontSize="small" sx={{ color: "red" }} />}/>
-                        {comment.likeCount}
-                      </Stack>
+                        <Stack direction={"row"} alignItems={"center"}>
+                                <Checkbox checked={commentLikes[comment._id.$oid]} onClick={() => handleCommentLike(comment._id.$oid)} icon={<FavoriteBorder fontSize="small"/>} checkedIcon={<Favorite fontSize="small" sx={{ color: "red" }} />}/>
+                                <Typography variant="body2">{commentLikes[comment._id.$oid] ? comment.likeCount + 1 : comment.likeCount}</Typography>        
+                        </Stack>
                     </Stack>
 
                   </Stack>

@@ -113,7 +113,7 @@ def getfeed():
             if not user:
                 return jsonify({"message":'user does not exists'}),404
             
-            feed = mongo.db.post.find({'user_id': {'$in': [ObjectId(id) for id in user['following']]}}).skip(skip).limit(per_page)
+            feed = mongo.db.post.find({'user_id': {'$in': [ObjectId(id) for id in user['following']]}}).sort([("exactTime", -1)]).skip(skip).limit(per_page)
             feed_list = list(feed)
             feed_json = dumps(feed_list)
             return feed_json,200

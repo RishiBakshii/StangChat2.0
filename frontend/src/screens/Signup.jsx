@@ -59,7 +59,7 @@ export const Signup = () => {
     <>
     {
         showProfileSetup?(
-            <Editprofile firstSetup={true} heading={'Lets Build Your Profile'} userid={credentials.user_id} username={credentials.username} email={credentials.email} location={credentials.location}/>
+            <Editprofile heading={'Lets Build Your Profile'} userid={credentials.user_id} username={credentials.username} email={credentials.email} location={credentials.location}/>
         ):(
         <Stack direction={'row'} padding={'0 4vw'} width={'100vw'} justifyContent={"center"} alignItems={"center"} height={"100vh"}>
         
@@ -70,7 +70,7 @@ export const Signup = () => {
                     </Stack>
 
                     <Stack mt={5} width={'100%'} spacing={2}>
-                        <TextField fullWidth name='username' value={credentials.name} onChange={handleOnChange} label="Username" variant="outlined" />
+                        <TextField fullWidth name='username' value={credentials.username} onChange={handleOnChange} label="Username" variant="outlined" />
                         <TextField name="email" type='email' value={credentials.email} onChange={handleOnChange} label="Email" variant="outlined" />
                         <TextField name="password" type='password' value={credentials.password} onChange={handleOnChange} label="Password" variant="outlined" />
                         <TextField error={passwordMatch?(false):(true)} name="confirmPassword" type='password' value={credentials.confirmPassword} onChange={handleOnChange} label="Confirm Password" variant="outlined" />

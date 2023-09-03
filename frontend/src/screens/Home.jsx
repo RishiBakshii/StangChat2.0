@@ -44,7 +44,7 @@ export const Home =() => {
         if(hasMore){
             getFeed()
         }
-    },[page,loggedInUser])
+    },[page])
     
     useEffect(()=>{
         window.addEventListener("scroll", handelInfiniteScroll);
@@ -64,21 +64,14 @@ export const Home =() => {
       };
 
     const getFeed=async()=>{
-            try {
+        try {
             const result=await loadPost(page,loggedInUser.loggedInUser.userid)
             
             if(result.success){
-                console.log(result.posts)
-                if(result.posts.length!==0){
-                    setFeed((prev) => [...prev, ...result.posts]);
-                }
-                else{
-                    sethasMore(false)
-                }
-        }
-            else{
-                alert(result.message)
+                if(result.posts.length!==0){setFeed((prev) => [...prev, ...result.posts]);}
+                else{sethasMore(false)}
             }
+            else{alert(result.message)}
 
         } catch (error) {
             console.log(error)
@@ -89,18 +82,6 @@ export const Home =() => {
   return (
     <>
     <Navbar/>
-
-    {/* <Stack position={'sticky'} top={0} justifyContent={'center'} alignItems={'center'}>
-        <Stack direction={'row'} justifyContent={'center'} alignItems={'center'} spacing={5} p={1}>
-            <Avatar sx={{"width":'6rem',height:"6rem"}}></Avatar>
-            <Avatar sx={{"width":'6rem',height:"6rem"}}></Avatar>
-            <Avatar sx={{"width":'6rem',height:"6rem"}}></Avatar>
-            <Avatar sx={{"width":'6rem',height:"6rem"}}></Avatar>
-            <Avatar sx={{"width":'6rem',height:"6rem"}}></Avatar>
-            <Avatar sx={{"width":'6rem',height:"6rem"}}></Avatar>
-        </Stack>
-    </Stack> */}
-
 
         <Stack direction={"row"} justifyContent={"space-between"} alignItems="flex-start">
                 <Leftbar />

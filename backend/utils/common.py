@@ -40,7 +40,10 @@ def hash_password(password):
 def upload_profile_picture(file,target_folder):
     if file!=None:
         secureFilename=secure_filename(file.filename)
-        profile_picture_path=os.path.join(target_folder,secureFilename).replace("\\","/")
+        unique_id=uuid.uuid4()
+        file_extension = os.path.splitext(secureFilename)[-1]
+        unique_filename = f"{secureFilename.split('.')[0]}_{unique_id}{file_extension}"
+        profile_picture_path=os.path.join(target_folder,unique_filename).replace("\\","/")
         file.save(profile_picture_path)
     else:
         profile_picture_path=os.path.join(target_folder,'defaultProfile.png').replace("\\","/")

@@ -1,16 +1,11 @@
-from flask import Flask,jsonify,make_response,request
+from flask import Flask,jsonify,request
 from flask_pymongo import PyMongo
 from flask_cors import CORS
 from dotenv import load_dotenv
 import os
-from werkzeug.utils import secure_filename
-from pathlib import Path
-from bson.json_util import dumps
 import jwt
-
 from utils.common import decode_jwt_token
 from utils.validation import is_existing_userid
-
 
 from routes.auth import auth
 from routes.posts import posts
@@ -34,21 +29,11 @@ profile_photos=os.path.join(app.config['UPLOAD_FOLDER'],'profile')
 post_photos = os.path.join(app.config['UPLOAD_FOLDER'], 'postphotos')
 
 mongo=PyMongo(app)
-# CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}}, supports_credentials=True)
 
 
-
-######
 CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}}, supports_credentials=True)
+# CORS(app, resources={r"/*": {"origins": "http://192.168.1.7:3000"}}, supports_credentials=True)
 
-
-# CORS(app, resources={r"/*": {"origins": ["http://192.168.1.7:3000",'http://localhost:3000']}}, supports_credentials=True)
-#############
-
-
-# CORS(app, resources={r"/*": {"origins": '*'}}, supports_credentials=True)
-# CORS(app, resources={r"/*": {"origins": ["*"]}}, supports_credentials=True)
-# CORS(app, resources={r"/*": {"origins": ["http://192.168.1.3"]}}, supports_credentials=True)
 
 
 @app.before_request
