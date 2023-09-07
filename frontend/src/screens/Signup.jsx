@@ -1,12 +1,14 @@
 import { Box, Stack, TextField, Typography ,Button, Alert} from '@mui/material'
-import React, { useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { Link} from 'react-router-dom'
 import { signup } from '../api/auth';
 import { LoadingButtons } from '../components/LoadingButtons';
 import { Editprofile } from '../components/Editprofile';
+import { GlobalAlertContext } from '../context/globalAlert/GlobalAlertContext';
 
 
 export const Signup = () => {
+    const {setGlobalAlertOpen}=useContext(GlobalAlertContext)
     const [loading,setLoading]=useState(false)
     const [alert,setAlert]=useState({message:"",severity:""})
     const [showProfileSetup,setshowProfileSetup]=useState(false)
@@ -38,15 +40,14 @@ export const Signup = () => {
         try {
             const result=await signup(credentials)
                 if(result.success){
-                    setAlert({message:result.message,severity:"success"})
-                    setCredentials({...credentials,["user_id"]:result.userid})
-                    setTimeout(() => {
-                        setshowProfileSetup(true)
-                    }, 1500);
+                    console.log(result)
+                    setGlobalAlertOpen({state:true,message:`Welcome on board ${credentials.username}`})
+                    setCredentials({...credentials,["user_id"]:result.data})
+                    setshowProfileSetup(true)
             }
-        else{
-            setAlert({ message: result.message, severity: "info" });
-        }
+                else{
+                    setGlobalAlertOpen({state:true,message:result.message})
+                }
         } catch (error) {
             console.log(error)
         }
@@ -59,7 +60,7 @@ export const Signup = () => {
     <>
     {
         showProfileSetup?(
-            <Editprofile heading={'Lets Build Your Profile'} userid={credentials.user_id} username={credentials.username} email={credentials.email} location={credentials.location}/>
+            <Editprofile editProfile={false} heading={'Lets Build Your Profile'} userid={credentials.user_id} username={credentials.username} email={credentials.email} location={credentials.location}/>
         ):(
         <Stack direction={'row'} padding={'0 4vw'} width={'100vw'} justifyContent={"center"} alignItems={"center"} height={"100vh"}>
         

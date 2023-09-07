@@ -16,14 +16,9 @@ import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
-import InboxIcon from '@mui/icons-material/MoveToInbox';
-import MailIcon from '@mui/icons-material/Mail';
-import { Leftbar } from './Leftbar';
 import PersonIcon from '@mui/icons-material/Person';
 import Diversity3Icon from '@mui/icons-material/Diversity3';
 import SettingsIcon from '@mui/icons-material/Settings';
-import LogoutIcon from '@mui/icons-material/Logout';
-import ForumIcon from '@mui/icons-material/Forum';
 import HomeIcon from '@mui/icons-material/Home';
 import { Link} from 'react-router-dom';
 import PostAddIcon from '@mui/icons-material/PostAdd';
@@ -38,6 +33,9 @@ import { Avatar, Stack, useMediaQuery } from '@mui/material';
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 import { rightBarContext } from '../context/rigthbar/RightbarContext';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
+import {Explore} from '../screens/Explore'
+import { LeftBarItems } from './LeftBarItems';
+// import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 
 const drawerWidth = 240;
 
@@ -72,6 +70,8 @@ export default function PersistentDrawerLeft() {
   const [open, setOpen] = React.useState(false);
   const SM=useMediaQuery(theme.breakpoints.down("sm"))
   const is480=useMediaQuery(theme.breakpoints.down("480"))
+  const [isLogoutModal,setIsLogoutModal]=useState(false)
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -80,9 +80,7 @@ export default function PersistentDrawerLeft() {
   const handleDrawerClose = () => {
     setOpen(false);
   };
-  // const [open, setOpen] = useState(false);
-  const [isLogoutModal,setIsLogoutModal]=useState(false)
-  const [isModalOpen, setIsModalOpen] = useState(false);
+
   const handleOpenModal = () => {
     setIsModalOpen(true);
   };
@@ -95,9 +93,6 @@ export default function PersistentDrawerLeft() {
     setIsLogoutModal(false)
   }
 
-  const handleOpenLogoutModal=()=>{
-    setIsLogoutModal(true)
-  }
 
   const loggedInUser=useContext(loggedInUserContext)
 
@@ -136,7 +131,12 @@ export default function PersistentDrawerLeft() {
         </Toolbar>
       </AppBar>
 
+
+      <Divider />
+      <Divider />
       <Drawer sx={{ width: drawerWidth, flexShrink: 0, '& .MuiDrawer-paper': { width: drawerWidth, boxSizing: 'border-box', },}} variant="persistent"anchor="left" open={open}>
+
+
   
         <DrawerHeader>
           {
@@ -150,66 +150,12 @@ export default function PersistentDrawerLeft() {
         <Divider />
         <Divider />
 
-        <List>
-          <ListItem disablePadding>
-            <ListItemButton component={Link} to='/'>
-              <ListItemIcon><HomeIcon/></ListItemIcon>
-              <ListItemText primary="Home"/>
-            </ListItemButton>
-          </ListItem>
-          <ListItem disablePadding>
-            <ListItemButton component={Link} to={`/search`}>
-              <ListItemIcon><Search/></ListItemIcon>
-              <ListItemText primary="Search"/>
-            </ListItemButton>
-          </ListItem>
-          <ListItem disablePadding>
-            <ListItemButton component={Link} to={`/profile/${loggedInUser.loggedInUser.username}`}>
-              <ListItemIcon><PersonIcon/></ListItemIcon>
-              <ListItemText primary="Profile"/>
-            </ListItemButton>
-          </ListItem>
-          <ListItem disablePadding>
-            <ListItemButton component={Link} to='/friends'>
-            <ListItemIcon><Diversity3Icon/></ListItemIcon>
-              <ListItemText primary="Friends" />
-            </ListItemButton>
-          </ListItem>
-          <ListItem disablePadding>
-            <ListItemButton component={Link} to='/settings'>
-            <ListItemIcon><SettingsIcon/></ListItemIcon>
-              <ListItemText primary="Settings" />
-            </ListItemButton>
-          </ListItem>
-          <ListItem disablePadding>
-            <ListItemButton onClick={handleOpenModal}>
-            <ListItemIcon><PostAddIcon/></ListItemIcon>
-              <ListItemText primary="New Post" />
-            </ListItemButton>
-        </ListItem>
-      <Divider />
-          <ListItem disablePadding>
-            <ListItemButton>
-              <ListItemIcon>
-                <BugReport/>
-              </ListItemIcon>
-              <ListItemText primary="Report a bug"/>
-            </ListItemButton>
-          </ListItem>
-          <ListItem disablePadding>
-            <ListItemButton>
-              <ListItemIcon><ForumIcon/></ListItemIcon>
-              <ListItemText primary="Community" />
-            </ListItemButton>
-          </ListItem>
-        </List>
-      <Divider />
-      <ListItem disablePadding>
-            <ListItemButton onClick={handleOpenLogoutModal}>
-            <ListItemIcon><LogoutIcon/></ListItemIcon>
-              <ListItemText primary="Logout" />
-            </ListItemButton>
-          </ListItem>
+          <LeftBarItems/>
+
+        <Divider />
+        <Divider />
+
+        
       </Drawer>
       <PostModal isOpen={isModalOpen} onClose={handleCloseModal}/>
       <Logoutmodal open={isLogoutModal} handleClose={handleCloseLogoutModal}/>

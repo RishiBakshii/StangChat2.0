@@ -11,11 +11,12 @@ from utils.validation import is_existing_userid,is_existing_postid
 from utils.common import upload_post,delete_post_and_related_comments,handle_like_post,handle_unlike_post
 from schema.post import post_schema
 load_dotenv()
+import json
 
 posts=Blueprint('posts',__name__)
 app=current_app
 
-
+# ✅
 @posts.route('/uploadpost',methods=['POST'])
 def createPost():
     if request.method=='POST':
@@ -46,12 +47,14 @@ def createPost():
                 )
 
                 newly_uploaded_post=mongo.db.post.find_one({"_id":uploaded_post_id})
-                return dumps(newly_uploaded_post),200
+                return dumps(newly_uploaded_post),201
  
-            return jsonify({"message":"user does not exist"}),400
+            return jsonify({"message":"user does not exist"}),404
         except Exception as e:
+            print(e)
             return jsonify({"message":str(e)}),500
 
+# ✅
 @posts.route("/getuserpost",methods=['POST'])
 def getuserposts():
     if request.method=='POST':
@@ -65,10 +68,11 @@ def getuserposts():
                 user_posts_dump=dumps(user_posts)
                 return user_posts_dump,200
             if not user:
-                return jsonify({"message":"user not found"}),400
+                return jsonify({"message":"user not found"}),404
         except Exception as e:
             return jsonify({"message":str(e)}),500
 
+# ✅
 @posts.route('/likepost',methods=['POST'])
 def likepost():
     if request.method=='POST':
@@ -96,6 +100,7 @@ def likepost():
         except Exception as e:
             return jsonify({"message":str(e)}),500
 
+# ✅
 @posts.route("/getfeed",methods=['POST'])
 def getfeed():
     if request.method=='POST':
@@ -117,10 +122,12 @@ def getfeed():
             feed_list = list(feed)
             feed_json = dumps(feed_list)
             return feed_json,200
+
         
         except Exception as e:
             return jsonify({'message':str(e)}),500
 
+# ✅
 @posts.route("/getpostlikes",methods=['POST'])
 def getPostLikes():
     if request.method=='POST':
@@ -138,11 +145,12 @@ def getPostLikes():
                 data=mongo.db.users.find_one({"_id":ObjectId(user_ids)})
                 if data:
                     likes_data.append({"username":data['username'],'profilePicture':data['profilePicture'],"bio":data['bio']})
-            return jsonify({"message":likes_data}),200
+            return dumps(likes_data),200
 
         except Exception as e:
             return jsonify({"message":str(e)}),500
 
+# ✅
 @posts.route('/getlatestposts', methods=['GET'])
 def get_latest_posts():
     try:
@@ -152,6 +160,7 @@ def get_latest_posts():
     except Exception as e:
         return jsonify({"message":str(e)}),500
 
+# ✅
 @posts.route("/getexplorefeed",methods=['GET'])
 def fetch_explore_feed():
     try:
@@ -161,6 +170,7 @@ def fetch_explore_feed():
     except Exception as e:
         return jsonify({"message":str(e)}),500
 
+# ✅
 @posts.route("/deletepost",methods=['POST'])
 def deletePost():
     if request.method=='POST':
@@ -194,7 +204,7 @@ def deletePost():
                 {"$inc": {"postCount": -1}}
             )
             
-            return jsonify({"message":"post deleted successfully",'deletedPostId':postid}),200
+            return jsonify({'deletedPostId':postid}),200
 
         except Exception as e:
             return jsonify({'message':str(e)}),500

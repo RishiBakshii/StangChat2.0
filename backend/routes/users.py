@@ -8,6 +8,7 @@ from utils.validation import is_existing_username,is_existing_userid,is_existing
 
 users=Blueprint('users',__name__)
 
+# ✅
 @users.route('/get_user_info',methods=['POST'])
 def get_user_info():
     if request.method=='POST':
@@ -15,17 +16,17 @@ def get_user_info():
             mongo=users.mongo
             data=request.json
             userID=data.get('userID')
-            user_data=mongo.db.users.find_one({"_id":ObjectId(userID)})
-
+            user_data=is_existing_userid(mongo,userID)
 
             if user_data:
                 return jsonify({"data":format_user_data(user_data)}),200
             else:
-                return make_response(jsonify({"message":"user not found"}),400)
+                return jsonify({"message":"User Not Found"}),404
 
         except Exception as e:
-            return make_response(jsonify({'message':str(e)}),500)
+            return jsonify({'message':str(e)}),500
 
+# ✅
 @users.route("/profile/<username>",methods=['POST'])
 def fetch_user_profile(username):
     if request.method=='POST':
@@ -43,7 +44,8 @@ def fetch_user_profile(username):
             return jsonify({"message":"user not found"}),404
         except Exception as e:
             return jsonify({"message":str(e)}),500
-            
+
+# ✅
 @users.route('/updateprofile',methods=['POST'])
 def updateProfile():
     if request.method=='POST':
@@ -52,21 +54,19 @@ def updateProfile():
             userid = request.form.get('userid')
             bio = request.form.get('bio')
             profile_picture = request.files.get("profilepicture")
-            location=request.form.get("location")
-            username=request.form.get("username")
 
             user=is_existing_userid(mongo,userid)
-
             if not user:
                 return jsonify({'message':"User Does Not Exist"}),404
 
             profile_picture_path=upload_profile_picture(profile_picture,current_app.config['PROFILE_FOLDER'])
 
-            if update_profile_data(mongo,userid,username,bio,profile_picture_path,location):
+            if update_profile_data(mongo,userid,bio,profile_picture_path):
                 return jsonify({'message':"Profile Updated"}),200
         except Exception as e:
             return jsonify({"message":str(e)}),500
 
+# ✅
 @users.route("/followunfollow",methods=['POST'])
 def handleFollowUnfollow():
     if request.method=='POST':
@@ -79,12 +79,12 @@ def handleFollowUnfollow():
             user=is_existing_userid(mongo,userid)
 
             if not user:
-                return jsonify({"message":"user does not exist"}),400
+                return jsonify({"message":"user does not exist"}),404
             
             target_user=is_existing_userid(mongo,target_user_id)
 
             if not target_user:
-                return jsonify({"message":"target user does not exist"}),400
+                return jsonify({"message":"User Profile Does not Exist"}),404
             
             if userid in target_user['followers']:
                 updated_state=handle_unfollow(mongo,target_user_id,userid)
@@ -92,13 +92,14 @@ def handleFollowUnfollow():
             if userid not in target_user['followers']:
                 updated_state=handle_follow(mongo,target_user_id,userid)
             
-            print(updated_state)
             return jsonify(updated_state),200
             
         
         except Exception as e:
             return jsonify({"message":str(e)}),500
-        
+
+
+# ✅
 @users.route("/getfollowers",methods=['POST'])
 def getFollowers():
     if request.method=='POST':
@@ -108,7 +109,7 @@ def getFollowers():
             userid=data.get("userid")
             user=is_existing_userid(mongo,userid)
             if not user:
-                return jsonify({"message":"user not found"}),400
+                return jsonify({"message":"user not found"}),404
             
             follower_ids=user['followers']
             followers_data=[]
@@ -121,12 +122,14 @@ def getFollowers():
                         "profile_picture": follower["profilePicture"],
                         "location": follower["location"],
                     })
-            return followers_data, 200
+            return jsonify(followers_data), 200
 
         except Exception as e:
             print(e)
             return jsonify({"message":str(e)}),500
 
+
+# ✅
 @users.route("/getfollowing", methods=['POST'])
 def getFollowing():
     if request.method == 'POST':
@@ -137,7 +140,7 @@ def getFollowing():
             user = is_existing_userid(mongo, userid)
             
             if not user:
-                return jsonify({"message": "user not found"}), 400
+                return jsonify({"message": "user not found"}), 404
             
             following_ids = user['following']
             following_data = []
@@ -157,6 +160,7 @@ def getFollowing():
             print(e)
             return jsonify({"message": str(e)}), 500
 
+# ✅
 @users.route("/searchuser", methods=['POST'])
 def usersearch():
     try:
@@ -182,6 +186,8 @@ def usersearch():
         print(e)
         return jsonify({"message": str(e)}), 500
 
+
+# ✅
 @users.route('/randomusers', methods=['POST'])
 def get_random_users():
     try:
@@ -200,6 +206,8 @@ def get_random_users():
     except Exception as e:
         return jsonify({"message":str(e)}),500
 
+
+# ✅
 @users.route("/editprofile",methods=['POST'])
 def edit_profile():
     try:
@@ -212,22 +220,12 @@ def edit_profile():
         location=request.form.get("location")
         profilePicture=request.files.get("profilePicture")
 
-
-        print('credentials recvieved are :------')
-        print(f'userid : {userid}')
-        print(f'username: {username}')
-        print(f'email : {email}')
-        print(f'bio : {bio}')
-        print(f'location: {location}')
-        print(f'profilePicture : {profilePicture}')
-
         updated_feilds={}
         
         user=is_existing_userid(mongo,userid)
         if not user:
             return jsonify({"message":"user does not exists"}),400
         
-        # checking is username is already taken or not
         if username is not None:
             if is_existing_username(mongo, username):
                 return jsonify({"message": "username is already taken🤭"}), 400
@@ -265,8 +263,43 @@ def edit_profile():
         return format_user_data(updated_user),200
 
 
-
-
     except Exception as e:
         print(e)
         return jsonify({"message":str(e)}),500
+
+
+# ✅
+@users.route("/getfriends",methods=['POST'])
+def get_friends():
+    if request.method=='POST':
+        try:
+            data=request.json
+            mongo=users.mongo
+            userid=data.get("userid")
+
+            user=is_existing_userid(mongo,userid)
+            if not user:
+                return jsonify({"message":'user does not exists'}),404
+            
+            following = user['following']
+            followers = user['followers']
+
+            common_friends_ids = list(set(following) & set(followers))
+
+            common_friends_data = []
+
+            for friend_id in common_friends_ids:
+                friend = is_existing_userid(mongo,friend_id)
+                if friend:
+                    common_friends_data.append({
+                        'userid':str(friend["_id"]),
+                        "username": friend["username"],
+                        "profilePicture": friend["profilePicture"],
+                        'location':friend['location']
+                    })
+
+            return jsonify(common_friends_data),200
+
+
+        except Exception as e:
+            return jsonify({"message":str(e)}),500

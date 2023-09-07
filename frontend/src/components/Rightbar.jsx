@@ -1,15 +1,19 @@
 import React, { useContext, useEffect, useState } from "react";
-import {Avatar,Box,ImageList,ImageListItem,Typography,List,ListItem,ListItemAvatar,ListItemText,Divider, Stack, IconButton, CircularProgress, useMediaQuery} from "@mui/material";
+import {Avatar,Box,ImageList,ImageListItem,Typography,List,ListItem,ListItemAvatar,ListItemText,Divider, Stack, IconButton, CircularProgress, useMediaQuery, CardMedia} from "@mui/material";
 import RefreshIcon from '@mui/icons-material/Refresh';
-import { BASE_URL } from "../envVariables";
-import { Link } from "react-router-dom";
+import { BASE_URL, SERVER_DOWN_MESSAGE } from "../envVariables";
+import { Link, useNavigate } from "react-router-dom";
 import {useTheme} from "@mui/material";
 import { rightBarContext } from "../context/rigthbar/RightbarContext";
 import { loggedInUserContext } from "../context/user/Usercontext";
+import { handleApiResponse } from "../utils/common";
+import { GlobalAlertContext } from "../context/globalAlert/GlobalAlertContext";
+
 
 
 export const Rightbar = () => {
   const {loggedInUser}=useContext(loggedInUserContext)
+  const {setGlobalAlertOpen}=useContext(GlobalAlertContext)
   const {rightBarOpen,setRightBarOpen}=useContext(rightBarContext)
   const theme=useTheme()
   const MD=useMediaQuery(theme.breakpoints.down("md"))
@@ -23,6 +27,9 @@ export const Rightbar = () => {
   const [latestPost,setLatestPost]=useState([])
   const [postLoader,setPostLoader]=useState(false)
 
+  const navigate=useNavigate()
+
+  // 401 handled ✅
   const handleRefreshSuggestions=async()=>{
     setLoading(true)
     try {
@@ -32,25 +39,28 @@ export const Rightbar = () => {
         headers:{
           'Content-Type':"application/json"
         },
+        credentials:"include",
         body:JSON.stringify({
           'userid':loggedInUser.userid
         })
       })
 
-      const json=await response.json()
+      const result=await handleApiResponse(response)
 
-      if(response.ok){
-        setSuggestions(json)
-        console.log(json)
+      if(result.success){
+        setSuggestions(result.data)
       }
-      if(response.status===500){
-        alert("internal server error")
+      else if(result.logout){
+        navigate("/login")
+        setGlobalAlertOpen({state:true,message:result.message})
       }
-      if(response.status==400){
-        alert("status 400")
+      else{
+        setGlobalAlertOpen({state:true,message:result.message})
       }
+
     } catch (error) {
-      alert("error")
+      console.log(error)
+      setGlobalAlertOpen({state:true,message:SERVER_DOWN_MESSAGE})
     }
     finally{
       setLoading(false)
@@ -94,7 +104,7 @@ export const Rightbar = () => {
        
           <Box>
             <Typography mt={LG?0:3} gutterBottom variant="h6" fontWeight={300}>
-                LATEST PHOTOS
+                LATEST POST
             </Typography>
 
             <ImageList cols={LG?2:3} variant="woven" sx={{"height":'20rem'}}>
@@ -102,7 +112,15 @@ export const Rightbar = () => {
                 postLoader?(<CircularProgress/>):(
                   latestPost.length!==0?(
                     latestPost.map((data)=>{
-                      return <ImageListItem component={Link} to={`/profile/${data.username}`}> <img src={`${BASE_URL}/${data.postPath}`} alt=""/></ImageListItem>
+                      return <ImageListItem component={Link} to={`/profile/${data.username}`}>
+                        {
+                        data.postPath.toLowerCase().endsWith('.mp4')?(
+                          <video src={`${BASE_URL}/${data.postPath}`} controls width={'200px'}></video>
+                        ):(
+                          <img src={`${BASE_URL}/${data.postPath}`} alt={data.username}/>
+                        )
+                        }
+                        </ImageListItem>
                     })
                   ):("")
                 )

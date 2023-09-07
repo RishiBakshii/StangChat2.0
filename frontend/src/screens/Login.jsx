@@ -6,9 +6,11 @@ import { loggedInUserContext } from '../context/user/Usercontext';
 import { login } from '../api/auth';
 import { LoadingButtons } from '../components/LoadingButtons';
 import { BASE_URL } from '../envVariables';
+import { GlobalAlertContext } from '../context/globalAlert/GlobalAlertContext';
 
 export const Login = () => {
     const navigate=useNavigate();
+    const {setGlobalAlertOpen}=useContext(GlobalAlertContext)
 
     const loggedInUser=useContext(loggedInUserContext)
 
@@ -32,12 +34,12 @@ export const Login = () => {
         try {
             const result=await login(credentials)
             if(result.success){
-            setAlert({message:result.message,severity:"success"})
-            loggedInUser.updateLoggedInUser(result.userdata)
-            setTimeout(()=>{navigate("/");},1500)
+                setGlobalAlertOpen({state:true,message:'Login Sucessful'})
+                loggedInUser.updateLoggedInUser(result.data)
+                navigate("/") 
             }
             else{
-            setAlert({message:result.message,severity:"info"})
+                setGlobalAlertOpen({state:true,message:result.message})
             }
         } catch (error) {
             console.log(error)

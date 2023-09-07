@@ -1,6 +1,6 @@
-import React, { useEffect,useState ,createContext, useContext} from 'react'
+import React, { useEffect,useState,useContext} from 'react'
 import { Navbar } from '../components/Navbar'
-import {Avatar, Box, Stack, Typography} from '@mui/material'
+import {Stack} from '@mui/material'
 import { Leftbar } from '../components/Leftbar'
 import { Rightbar } from '../components/Rightbar'
 import { Postcard } from '../components/Postcard'
@@ -8,19 +8,21 @@ import { loggedInUserContext } from '../context/user/Usercontext'
 import CircularProgress from '@mui/material/CircularProgress';
 import { Likesmodal } from '../components/Likesmodal'
 import { loadPost } from '../api/post'
-import catanimation from '../animations/login/catanimation.json'
-import welcomecat from '../animations/login/welcomecat.json'
-import Lottie from 'lottie-react';
 import { postContext } from '../context/posts/PostContext'
 import { useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
-
+import { Newuserdisplay } from '../components/Newuserdisplay'
+import { CaughtUpDisplay } from '../components/CaughtUpDisplay'
+import {SnackAlert} from '../components/SnackAlert'
+import { GlobalAlertContext } from '../context/globalAlert/GlobalAlertContext'
+import { SERVER_DOWN_MESSAGE } from '../envVariables'
 
 
 export const BASE_URL=process.env.REACT_APP_API_BASE_URL;
 
 export const Home =() => {
     const loggedInUser=useContext(loggedInUserContext)
+    const {setGlobalAlertOpen}=useContext(GlobalAlertContext)
     const {feed,setFeed}=useContext(postContext)
     const [page,setPage]=useState(1)
     const [loading,setLoading]=useState(false)
@@ -28,24 +30,22 @@ export const Home =() => {
     const [newUser,setNewUser]=useState(null)
     const theme = useTheme();
     const matchesMD = useMediaQuery(theme.breakpoints.down('md'));
+    const [likeModalOpen,setLikeModalOpen]=useState({'state':false,'postid':''})
+    const [usermessage,setUserMessage]=useState({
+        state:false,
+        message:''
+    })
 
     useEffect(() => {
         setNewUser(loggedInUser.loggedInUser.followingCount === 0);
     }, [loggedInUser.loggedInUser.followingCount]);
     
-
-
-    const [likeModalOpen,setLikeModalOpen]=useState({
-      'state':false,
-      'postid':''
-    })
-
     useEffect(()=>{
         if(hasMore){
             getFeed()
         }
-    },[page])
-    
+    },[page,loggedInUser.loggedInUser])
+
     useEffect(()=>{
         window.addEventListener("scroll", handelInfiniteScroll);
         return () => window.removeEventListener("scroll", handelInfiniteScroll);
@@ -66,15 +66,25 @@ export const Home =() => {
     const getFeed=async()=>{
         try {
             const result=await loadPost(page,loggedInUser.loggedInUser.userid)
-            
             if(result.success){
-                if(result.posts.length!==0){setFeed((prev) => [...prev, ...result.posts]);}
-                else{sethasMore(false)}
+                if(result.data.length!==0){
+                    setFeed((prev) => [...prev,...result.data]);
+                }
+                if(result.logout){
+                    setGlobalAlertOpen({state:true,message:result.message})
+                }
+                else{
+                    sethasMore(false)
+                }
             }
-            else{alert(result.message)}
+            else{
+                setUserMessage({state:true,message:result.message})
+            }
 
         } catch (error) {
-            console.log(error)
+            // setGlobalAlertOpen({ state: true, message:SERVER_DOWN_MESSAGE});
+            console.log('error')
+            
         }
     }
 
@@ -106,37 +116,19 @@ export const Home =() => {
                     }
                     {
                     newUser?(
-                        <Stack justifyContent={'center'} alignItems={"center"}>
-                            
-                            <Box width={'30rem'}>
-                                <Lottie animationData={welcomecat} />
-                            </Box>
-
-                            <Typography variant='body1' fontWeight={300}>hmm! you seem new🤔</Typography>
-                            <Typography variant='body1' fontWeight={300}>Follow some people to see their posts</Typography>
-                        </Stack>
+                        <Newuserdisplay/>
                     ):(
-                        hasMore?(
-                        loading?(<CircularProgress />):("")
-                    ):(
-                        <Stack justifyContent={'center'} alignItems={"center"}>
-                            
-                            <Box width={'10rem'}>
-                                <Lottie animationData={catanimation} />
-                            </Box>
-
-                            <Typography variant='body1' fontWeight={300}>You are all caught up!✅</Typography>
-                            <Typography variant='body1' fontWeight={300}>Follow more users for more content🚀</Typography>
-                        </Stack>
+                        hasMore?
+                        (loading?(<CircularProgress />):("")):(
+                        <CaughtUpDisplay/>
                     )
                     )
-                    
-                    
                     }
                 </Stack>
                 <Rightbar/>
         </Stack>  
         <Likesmodal postid={likeModalOpen.postid} open={likeModalOpen.state} handleClose={()=>setLikeModalOpen({state:false,postid:""})}/>
+        <SnackAlert open={usermessage.state} message={usermessage.message}/>
         </>
   )
 }

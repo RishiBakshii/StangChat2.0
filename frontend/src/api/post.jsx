@@ -1,36 +1,9 @@
 import { BASE_URL } from "../screens/Home";
 import { INTERNAL_SERVER_ERROR_MESSAGE, SERVER_DOWN_MESSAGE } from "../envVariables"
+import { handleApiResponse } from "../utils/common";
 
 
-export const handlePostUpload=async(userid,caption,selectedImage)=>{
-    try {
-      const formData=new FormData();
-      formData.append("userid",userid);
-      formData.append('caption',caption);
-      formData.append("post",selectedImage); 
-
-      const response=await fetch(`${BASE_URL}/uploadpost`,{
-        method:"POST",
-        body:formData,
-      })
-      const json=await response.json()
-
-      if(response.ok){
-        return json
-      }
-      if(response.status==400){
-        alert("some bad request")
-      }
-      if(response.status==500){
-        console.log(response)
-        alert("internal server error")
-      }
-
-    } catch (error) {
-        alert(error)
-    }
-  }
-
+// 401 handled
 export const getPostLikes=async(postid)=>{
     try {
       const response=await fetch(`${BASE_URL}/getpostlikes`,{
@@ -38,28 +11,20 @@ export const getPostLikes=async(postid)=>{
         headers:{
           'Content-Type':"application/json"
         },
+        credentials:"include",
         body:JSON.stringify({
           postid:postid
         })
       })
 
-      const json=await response.json()
-      if(response.ok){
-        console.log(json.message)
-        return json.message
-      }
-      if(response.status==400){
-        alert(json.message)
-      }
-      if(response.status==500){
-        alert(json.message)
-      }
+      return await handleApiResponse(response)
 
     } catch (error) {
       console.log(error)
     }
   }
 
+  // ✅ 401 handled
 export const loadPost=async(page,userid)=>{
     try {
         const response=await fetch(`${BASE_URL}/getfeed`,{
@@ -74,22 +39,8 @@ export const loadPost=async(page,userid)=>{
             })
         })
 
-        const json=await response.json()
+         return await handleApiResponse(response)
 
-        if(response.ok){
-          console.log(json)
-          return {
-                success:true,
-                posts:json
-              }
-        }
-        if (response.status==500){
-          console.log(json.message)
-          return {
-            success:false,
-            message:INTERNAL_SERVER_ERROR_MESSAGE
-          }
-        }    
     }   catch (error) {
         console.log(error)
         return {

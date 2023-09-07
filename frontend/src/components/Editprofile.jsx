@@ -3,13 +3,15 @@ import { useContext, useEffect, useState } from 'react';
 import {BASE_URL} from '../screens/Home'
 import { useNavigate } from 'react-router-dom';
 import { LoadingButtons } from './LoadingButtons';
-import { ImageSelector } from '../utils/common';
+import { ImageSelector, handleApiResponse } from '../utils/common';
 import { updateProfile } from '../api/user';
 import { loggedInUserContext } from '../context/user/Usercontext';
+import { GlobalAlertContext } from '../context/globalAlert/GlobalAlertContext';
+import { SERVER_DOWN_MESSAGE } from '../envVariables';
 
 
 export const Editprofile = ({userid,username,email,bio,location,heading,editProfile,profilePath}) => {
-
+    const {setGlobalAlertOpen}=useContext(GlobalAlertContext)
     const loggedInUser=useContext(loggedInUserContext)
     const navigate=useNavigate()
     const [credentials,setCredentials]=useState({
@@ -56,15 +58,11 @@ export const Editprofile = ({userid,username,email,bio,location,heading,editProf
 
     const handleAvatarChange=(event)=>{
         const result=ImageSelector(event)
-          if(editProfile){
-            setEditProfileDisplayImage(result.displayImage)
-            setEditProfileSelectedImage(result.selectedImage)
-          }
-          else{
-            setDisplayImage(result.displayImage)
-            setSelectedImage(result.selectedImage)
-          }
-        
+        console.log(result)
+        setEditProfileDisplayImage(result.displayImage)
+        setEditProfileSelectedImage(result.selectedImage)
+        setDisplayImage(result.displayImage)
+        setSelectedImage(result.selectedImage)  
     }
 
       const handleClose = () => {
@@ -109,7 +107,8 @@ export const Editprofile = ({userid,username,email,bio,location,heading,editProf
       }
         
     }
-
+    
+    // 401 handled✅
     const handleProfileUpdateClick=async()=>{
       try {
 
@@ -135,33 +134,34 @@ export const Editprofile = ({userid,username,email,bio,location,heading,editProf
           formData.append("bio",editProfileCredentials.bio)
         }
 
-        // formData.forEach((value, key) => {
-        //   console.log(`${key}: ${value}\n\n`);
-        // });
-
         const response=await fetch(`${BASE_URL}/editprofile`,{
           method:"POST",
-          body:formData
+          body:formData,
+          credentials:"include"
         })
 
-        const json=await response.json()
+        const result=await handleApiResponse(response)
 
-        if(response.ok){
+        if(result.success){
           navigate("/")
           setTimeout(() => {
-            loggedInUser.updateLoggedInUser(json)
-          }, 2000);
+            loggedInUser.updateLoggedInUser(result.data)
+            setGlobalAlertOpen({state:true,message:'Profile Updated🚀'})
+          }, 1500);
         }
-        if(response.status===400){
-          alert(json.message)
+
+        else if(result.logout){
+          setGlobalAlertOpen({state:true,message:result.message})
+          navigate("/login")
         }
-        if(response.status===500){
-          alert("internal server error")
-          console.log(json)
+        else{
+          setGlobalAlertOpen({state:true,message:result.message})
         }
 
       } catch (error) {
-        alert("frontend Error")
+        console.log(error)
+        setGlobalAlertOpen({state:true,message:SERVER_DOWN_MESSAGE})
+
       }
     }
 

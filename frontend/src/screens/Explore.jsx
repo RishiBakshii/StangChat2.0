@@ -5,6 +5,7 @@ import { Leftbar } from '../components/Leftbar';
 import { Stack } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { BASE_URL } from '../envVariables';
+import { Link } from 'react-router-dom';
 
 function srcset(image, size, rows = 1, cols = 1) {
   return {
@@ -54,29 +55,30 @@ export const Explore=()=> {
     <>
     <Navbar/>
 
-        <Leftbar/>
+    <Stack direction={"row"} justifyContent={"space-between"} alignItems="flex-start">
+        <Leftbar />
+        
+        <Stack mt={1} flex={'100%'} padding={'1 4vw'} justifyContent={'center'} alignItems={'center'}>
+                <ImageList variant="quilted" cols={5} rowHeight={200}>
+                {
+                  exploreFeed.map((data) => (
+                        <ImageListItem component={Link} to={`/profile/${data.username}`} key={data._id} cols={data.cols || 1} rows={data.rows || 1}>
+                          {
+                            data.postPath.toLowerCase().endsWith('.mp4')?(
+                              <video control width={"300px"} {...srcset(`${BASE_URL}/${data.postPath}`, 121, data.rows, data.cols)}></video>
+                            ):(
+                            <img {...srcset(`${BASE_URL}/${data.postPath}`, 121, data.rows, data.cols)}alt={data.username} loading="lazy"/>
+                            )
+                          }
 
-        <Stack padding={'1 4vw'} spacing={5}  justifyContent={'center'} alignItems={"flex-end"} mt={2}>
-        <Stack>
-              <ImageList sx={{"width":400}} variant="woven" cols={5} rowHeight={70}>
-              {
-                exploreFeed.map((data) => (
+                    </ImageListItem>
+                    ))}
 
-                <ImageListItem key={data._id} cols={data.cols || 1} rows={data.rows || 1}>
-                <img
-                {...srcset(`${BASE_URL}/${data.postPath}`, 121, data.rows, data.cols)}
-                alt={data.username}
-                loading="lazy"
-              />
-            </ImageListItem>
-      ))}
-          </ImageList>
+                </ImageList>
         </Stack>
 
 
-
     </Stack>
-    
 
     </>
 

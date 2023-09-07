@@ -8,23 +8,9 @@ from schema.user import user_schema
 from utils.validation import is_existing_email,is_existing_username,is_valid_password
 auth = Blueprint('auth', __name__)
 
-
+# ✅
 @auth.route("/login", methods=['POST'])
 def login():
-    """
-    Handle user login via POST request.
-
-    This function handles the process of user authentication and generating a JWT token upon successful login.
-    
-    Args:
-        None
-    
-    Returns:
-        Flask Response: A JSON response indicating the outcome of the login attempt.
-            - If login is successful, returns a success message along with a JWT token and user data.
-            - If login fails due to invalid credentials, returns an error message with status code 400.
-            - If an exception occurs, returns an error message with status code 500.
-    """
     if request.method=='POST':
         try:
             data=request.json
@@ -37,7 +23,7 @@ def login():
             if user and is_valid_password(user,password):
                 payload={'user_id':str(user['_id']),'email':str(user['email'])}
                 token=generate_jwt_token(payload)
-                response=make_response(jsonify({"message":"Login Successful",'userdata':format_user_data(user)}))
+                response=make_response(jsonify({"message":"Login Successful",'data':format_user_data(user)}))
                 response.set_cookie("authToken", token, samesite="None", secure=True,httponly=True)
                 return response
             else:
@@ -45,23 +31,9 @@ def login():
         except Exception as e:
             return jsonify({"message":str(e)}),500
 
+# ✅
 @auth.route("/signup",methods=['POST'])
 def signup():
-    """
-    Handle user signup via POST request.
-
-    This function handles the process of user registration.
-
-    Args:
-        None
-
-    Returns:
-        Flask Response: A JSON response indicating the outcome of the signup attempt.
-            - If signup is successful, returns a success message along with the new user's ID.
-            - If the email is already taken, returns an error message with status code 400.
-            - If the username is already taken, returns an error message with status code 400.
-            - If an exception occurs, returns an error message with status code 500.
-    """
     if request.method == 'POST':
         try:
             data=request.json
@@ -88,22 +60,27 @@ def signup():
             })
             created_user=mongo.db.users.insert_one(new_user)
 
-            return jsonify({"message":f"Welcome on Board {username}🎉",'userid':str(created_user.inserted_id)}),201
+            return jsonify({'data':str(created_user.inserted_id)}),201
 
         except Exception as e:
-            print(e)
             return jsonify({"message":str(e)}),500
 
+# ✅
 @auth.route("/decode_token",methods=['POST'])
 def decode_token():
     if request.method=='POST':
         try:
             authToken=request.cookies.get("authToken")
             decoded_token=decode_jwt_token(authToken)
-            return jsonify({"message":"token decoded","decoded_token":decoded_token}),200
+            return jsonify({"decoded_token":decoded_token}),200
+        
+        except jwt.exceptions.DecodeError as error:
+            return jsonify({"message":str(error)}),401
+
         except Exception as e:
             return jsonify({"message":str(e)}),500
 
+# ✅
 @auth.route("/logout", methods=['POST'])
 def logout():
     if request.method=='POST':

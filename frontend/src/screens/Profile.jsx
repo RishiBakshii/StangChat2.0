@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from 'react'
 import { Navbar } from '../components/Navbar'
 import {Stack,Avatar, Typography, Button, Grid, Modal, Box, CircularProgress, useMediaQuery, useTheme, TextField} from '@mui/material'
 import { Leftbar } from '../components/Leftbar'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 import { BASE_URL} from './Home'
 import { fetchUserProfile } from '../api/user'
 import { Postcard } from '../components/Postcard'
@@ -15,16 +15,21 @@ import sleepingcat from '../animations/sleepingcat.json'
 import { Likesmodal } from '../components/Likesmodal'
 import { LoadingButtons } from '../components/LoadingButtons'
 import { Editprofile } from '../components/Editprofile'
+import userdoesnotexist from '../animations/userdoesnotexist.json'
+import { handleApiResponse } from '../utils/common'
+import { GlobalAlertContext } from '../context/globalAlert/GlobalAlertContext'
+import { SERVER_DOWN_MESSAGE } from '../envVariables'
 
 
 export const Profile = () => {
-
+  const {setGlobalAlertOpen}=useContext(GlobalAlertContext)
+  const navigate=useNavigate()
   const theme=useTheme()
   const LG=useMediaQuery(theme.breakpoints.down("lg"))
   const is480=useMediaQuery(theme.breakpoints.down("480"))
 
   const {loggedInUser,setLoggedInUser} = useContext(loggedInUserContext);
-  const {username}=useParams()
+  const { username = 'defaultUsername' } = useParams();
   const [profile,setProfile]=useState({})
   const [post,setPost]=useState([])
   const [likeModalOpen,setLikeModalOpen]=useState({
@@ -36,6 +41,9 @@ export const Profile = () => {
   const [followingCount,setFollowingCount]=useState()
   const [postCount,setPostCount]=useState()
   const [isFollowing,setIsFollowing]=useState()
+
+
+  const [wrongUser,setWrongUser]=useState(false)
 
 
   const [followersData,setFollowersData]=useState([])
@@ -74,22 +82,38 @@ export const Profile = () => {
   };
 
   useEffect(()=>{
-    fetchProfileData()
+    try {
+      fetchProfileData()
+    } catch (error) {
+      console.log(error) 
+    }
   },[loggedInUser])
   
   const fetchProfileData=async()=>{
-    const userprofile=await fetchUserProfile(username,loggedInUser.userid)
-    setProfile(userprofile.profileData)
-    setPost(userprofile.postData)
-    console.log(userprofile.profileData)
+    try {
+      const userprofile=await fetchUserProfile(username,loggedInUser.userid)
 
-    setFollowerCount(userprofile.profileData.followerCount)
-    setFollowingCount(userprofile.profileData.followingCount)
-    setPostCount(userprofile.profileData.postCount)
+      if(userprofile.profileData){
+        setProfile(userprofile.profileData)
+        setPost(userprofile.postData)
 
-    setIsFollowing(userprofile.profileData.isFollowing)
+        setFollowerCount(userprofile.profileData.followerCount)
+        setFollowingCount(userprofile.profileData.followingCount)
+        setPostCount(userprofile.profileData.postCount)
+
+        setIsFollowing(userprofile.profileData.isFollowing)
+      }
+      else{
+        setWrongUser(true)
+      }
+
+    } catch (error) {
+      console.log(error)
+    }
+    
+
   }
-  
+  // handled 401 ✅
   const handleFollowAndUnFollow=async()=>{
     setFollowUnfollowButtonLoader(true)
     try {
@@ -98,35 +122,37 @@ export const Profile = () => {
         headers:{
           "Content-Type":"application/json"
         },
+        credentials:"include",
         body:JSON.stringify({
           userid:loggedInUser.userid,
           target_user_id:profile._id.$oid
         })
       })
 
-      const json=await response.json()
-
-      if(response.ok){
-        setLoggedInUser({...loggedInUser,['followingCount']:json.updatedUserFollowingCount})
-        setFollowerCount(json.updatedFollowerCount)
-        setFollowingCount(json.updatedFollowingCount)
-        setIsFollowing(json.isFollowing)
+      const result=await handleApiResponse(response)
+      if(result.success){
+        setLoggedInUser({...loggedInUser,['followingCount']:result.data.updatedUserFollowingCount})
+        setFollowerCount(result.data.updatedFollowerCount)
+        setFollowingCount(result.data.updatedFollowingCount)
+        setIsFollowing(result.data.isFollowing)
       }
-      if(response.status===500){
-        alert("internal server error")
-        console.log(json.message)
+      else if(result.logout){
+        navigate("/login")
+        setGlobalAlertOpen({state:true,message:result.message})
       }
-      if(response.status===400){
-        alert(json.message)
+      else{
+        setGlobalAlertOpen({state:true,message:result.message})
       }
+      
     } catch (error) {
-      alert(error)
+      console.log(error)
+      setGlobalAlertOpen({state:true,message:SERVER_DOWN_MESSAGE})
     }
     finally{
       setFollowUnfollowButtonLoader(false)
     }
   }
-
+// 401 handled✅
   const handleShowFollowers=async()=>{
     setFollowerLoading(true)
     setOpen(true)
@@ -136,32 +162,34 @@ export const Profile = () => {
         headers:{
           'Content-Type':"application/json"
         },
+        credentials:"include",
         body:JSON.stringify({
           'userid':profile._id.$oid
         })
       })
 
-      const json=await response.json()
-
-      if(response.ok){
-        setFollowersData(json)
+      const result=await handleApiResponse(response)
+      if(result.success){
+        setFollowersData(result.data)
       }
-      if(response.status===400){
-        alert("status 400")
+      else if(result.logout){
+        navigate("/login")
+        setGlobalAlertOpen({state:true,message:result.message})
       }
-      if(response.status===500){
-        alert("internval sever error")
+      else{
+        setGlobalAlertOpen({state:true,message:result.message})
       }
-
 
     } catch (error) {
-      alert("frontend error")
+      console.log(error)
+      setGlobalAlertOpen({state:true,message:SERVER_DOWN_MESSAGE})
     }
     finally{
       setFollowerLoading(false)
     }
   }
 
+  // 401 handled✅
   const handleShowFollowing=async()=>{
     setFollowingLoading(true)
     setFollowingModalState(true)
@@ -171,25 +199,27 @@ export const Profile = () => {
         headers:{
           'Content-Type':"application/json"
         },
+        credentials:"include",
         body:JSON.stringify({
           'userid':profile._id.$oid
         })
       })
 
-      const json=await response.json()
-
-      if(response.ok){
-        setFollowingsData(json)
+      const result=await handleApiResponse(response)
+      if(result.success){
+        setFollowingsData(result.data)
       }
-      if(response.status===400){
-        alert("status 400")
+      else if(result.logout){
+        navigate("/login")
+        setGlobalAlertOpen({state:true,message:result.message})
       }
-      if(response.status===500){
-        alert("internval sever error")
+      else{
+        setGlobalAlertOpen({state:true,message:result.message})
       }
 
     } catch (error) {
-      alert("frontend error")
+      console.log(error)
+      setGlobalAlertOpen({state:true,message:SERVER_DOWN_MESSAGE})
     }
     finally{
       setFollowingLoading(false)
@@ -204,11 +234,19 @@ export const Profile = () => {
   <>
       <Navbar/>
       <Leftbar/>
-        
-          
-                <Stack flex={"1"} spacing={5} justifyContent={'center'} alignItems={"center"} mt={5}>
+        {
+          wrongUser?(
+            <Stack flex={"1"} spacing={5} justifyContent={'center'} alignItems={"center"} mt={5}>
+              <Lottie animationData={userdoesnotexist}/>
+              <Typography variant='h5' fontWeight={300}>{`${username}`} does not exist on planet Stang✨</Typography>
+            </Stack>
 
+
+          ):(
+                            <Stack flex={"1"} spacing={5} justifyContent={'center'} alignItems={"center"} mt={5}>
                   {
+
+
                   editState?(
                   <Editprofile 
                     userid={loggedInUser.userid} 
@@ -220,10 +258,8 @@ export const Profile = () => {
                     location={loggedInUser.location} 
                     profilePath={`${BASE_URL}/${loggedInUser.profilePicture}`}
                     />
-                  )
-
-                  :(
-                <Stack padding={is480?(.4):(4)}  borderRadius={'.6rem'} width={`${LG?"100%":"60%"}`} justifyContent={`${is480?("center"):("flex-start")}`} alignItems={`${is480?("center"):("flex-start")}`}>
+                  ):(
+                  <Stack padding={is480?(.4):(4)}  borderRadius={'.6rem'} width={`${LG?"100%":"60%"}`} justifyContent={`${is480?("center"):("flex-start")}`} alignItems={`${is480?("center"):("flex-start")}`}>
 
                       {/* avatar */}
                       <Stack>
@@ -293,106 +329,107 @@ export const Profile = () => {
 
                     )
                   }
-                </Stack>
+                  </Stack>
                   )}
                 
-                {/* profile parent */}
 
-      {/* likes modal */}
+
                 <Likesmodal postid={likeModalOpen.postid} open={likeModalOpen.state} handleClose={()=>setLikeModalOpen({state:false,postid:""})}/>
-      {/* followers modal */}
-      <Modal open={open} onClose={()=>setOpen(false)}>
-        <Box sx={style} >
-          <Stack spacing={4} height={`${is480?("25rem"):("25rem")}`} sx={{overflowY:"scroll"}}>
-            <Typography variant='h6' fontWeight={300}>Followers of {username}</Typography>
-            { 
-              followerLoading?(<CircularProgress sx={{"alignSelf":"center",justifySelf:"center"}}/>):(
-                followersData.length===0?(
-                  <>
-                  <Stack justifyContent={'center'} alignItems={'center'} justifySelf={'center'} alignSelf={'center'}>
-                    <Box width={'18rem'} alignSelf={'center'} justifySelf={'center'}>
-                      <Lottie animationData={ghostanimation}></Lottie>
-                    </Box>
-                      <Typography variant='body1' fontWeight={300} fontSize={'1.1rem'}>Awkward! nobody follows them🤭</Typography>
-                  </Stack>
-                  
-                  </>
-                ):(
-                                followersData.map((data)=>{
-                return  <Stack direction={'row'} justifyContent={'space-between'}>
-                      <Stack direction={'row'} spacing={2} justifyContent={'center'} alignItems={'center'}>
 
-                            <Avatar sx={{"width":"3rem",height:"3rem"}} alt={data.username} src={`${BASE_URL}/${data.profile_picture}`} component={Link} to={`/profile/${data.username}`}/>
-
-                            <Stack>
-                                <Typography component={Link} sx={{ textDecoration: "none", color: "black" }} to={`/profile/${data.username}`} variant='h6' fontWeight={300}>{data.username}</Typography>
-                                <Typography fontWeight={300} fontSize={'.9rem'} variant='body2'>{data.location}</Typography>
+                <Modal open={open} onClose={()=>setOpen(false)}>
+                  <Box sx={style} >
+                    <Stack spacing={4} height={`${is480?("25rem"):("25rem")}`} sx={{overflowY:"scroll"}}>
+                      <Typography variant='h6' fontWeight={300}>Followers of {username}</Typography>
+                      { 
+                        followerLoading?(<CircularProgress sx={{"alignSelf":"center",justifySelf:"center"}}/>):(
+                          followersData.length===0?(
+                            <>
+                            <Stack justifyContent={'center'} alignItems={'center'} justifySelf={'center'} alignSelf={'center'}>
+                              <Box width={'18rem'} alignSelf={'center'} justifySelf={'center'}>
+                                <Lottie animationData={ghostanimation}></Lottie>
+                              </Box>
+                                <Typography variant='body1' fontWeight={300} fontSize={'1.1rem'}>Awkward! nobody follows them🤭</Typography>
                             </Stack>
+                            
+                            </>
+                          ):(
+                                          followersData.map((data)=>{
+                          return  <Stack direction={'row'} justifyContent={'space-between'}>
+                                <Stack direction={'row'} spacing={2} justifyContent={'center'} alignItems={'center'}>
 
-                      </Stack>
-                      {/* <Stack justifyContent={'center'} alignItems={"center"}>
-                          <Button size='small' variant='outlined'>follow</Button>
-                      </Stack> */}
-                </Stack>
-              })
-                )
-              )
+                                      <Avatar sx={{"width":"3rem",height:"3rem"}} alt={data.username} src={`${BASE_URL}/${data.profile_picture}`} component={Link} to={`/profile/${data.username}`}/>
 
-            }
+                                      <Stack>
+                                          <Typography component={Link} sx={{ textDecoration: "none", color: "black" }} to={`/profile/${data.username}`} variant='h6' fontWeight={300}>{data.username}</Typography>
+                                          <Typography fontWeight={300} fontSize={'.9rem'} variant='body2'>{data.location}</Typography>
+                                      </Stack>
 
-          </Stack>
-        </Box>
-      </Modal>
-      
-      {/* following modal */}
-      <Modal open={followingModalState} onClose={()=>setFollowingModalState(false)}>
-        <Box sx={style}>
-        <Stack spacing={4} height={`${is480?("25rem"):("25rem")}`} sx={{overflowY:"scroll"}}>
-            <Typography variant='h6' fontWeight={300}>Followings of {username}</Typography>
-            { 
-              followingLoading?(<CircularProgress sx={{"alignSelf":"center",justifySelf:"center"}}/>):(
-                followingsData.length===0?(
-                  <>
-                  <Stack justifyContent={'center'} alignItems={'center'} justifySelf={'center'} alignSelf={'center'}>
-                    <Box width={'18rem'} alignSelf={'center'} justifySelf={'center'}>
-                      <Lottie animationData={sleepingcat}></Lottie>
-                    </Box>
-                      <Typography variant='body1' fontWeight={300} fontSize={'1.1rem'}>{username} follows no-one except god!</Typography>
-                  </Stack>
-                  
-                  </>
-                ):(
-                                followingsData.map((data)=>{
-                return  <Stack direction={'row'} justifyContent={'space-between'}>
-                      <Stack direction={'row'} spacing={2} justifyContent={'center'} alignItems={'center'}>
+                                </Stack>
+                                {/* <Stack justifyContent={'center'} alignItems={"center"}>
+                                    <Button size='small' variant='outlined'>follow</Button>
+                                </Stack> */}
+                          </Stack>
+                        })
+                          )
+                        )
 
-                            <Avatar sx={{"width":"3rem",height:"3rem"}} alt={data.username} src={`${BASE_URL}/${data.profile_picture}`} component={Link} to={`/profile/${data.username}`}/>
+                      }
 
-                            <Stack>
-                                <Typography component={Link} sx={{ textDecoration: "none", color: "black" }} to={`/profile/${data.username}`} variant='h6' fontWeight={300}>{data.username}</Typography>
-                                <Typography fontWeight={300} fontSize={'.9rem'} variant='body2'>{data.location}</Typography>
+                    </Stack>
+                  </Box>
+                </Modal>
+                
+                <Modal open={followingModalState} onClose={()=>setFollowingModalState(false)}>
+                  <Box sx={style}>
+                  <Stack spacing={4} height={`${is480?("25rem"):("25rem")}`} sx={{overflowY:"scroll"}}>
+                      <Typography variant='h6' fontWeight={300}>Followings of {username}</Typography>
+                      { 
+                        followingLoading?(<CircularProgress sx={{"alignSelf":"center",justifySelf:"center"}}/>):(
+                          followingsData.length===0?(
+                            <>
+                            <Stack justifyContent={'center'} alignItems={'center'} justifySelf={'center'} alignSelf={'center'}>
+                              <Box width={'18rem'} alignSelf={'center'} justifySelf={'center'}>
+                                <Lottie animationData={sleepingcat}></Lottie>
+                              </Box>
+                                <Typography variant='body1' fontWeight={300} fontSize={'1.1rem'}>{username} follows no-one except god!</Typography>
                             </Stack>
+                            
+                            </>
+                          ):(
+                                          followingsData.map((data)=>{
+                          return  <Stack direction={'row'} justifyContent={'space-between'}>
+                                <Stack direction={'row'} spacing={2} justifyContent={'center'} alignItems={'center'}>
 
-                      </Stack>
-                      {/* <Stack justifyContent={'center'} alignItems={"center"} p={1}>
-                          <Button size='small' variant='outlined'>follow</Button>
-                      </Stack> */}
-                </Stack>
-              })
-                )
-              )
+                                      <Avatar sx={{"width":"3rem",height:"3rem"}} alt={data.username} src={`${BASE_URL}/${data.profile_picture}`} component={Link} to={`/profile/${data.username}`}/>
 
-            }
+                                      <Stack>
+                                          <Typography component={Link} sx={{ textDecoration: "none", color: "black" }} to={`/profile/${data.username}`} variant='h6' fontWeight={300}>{data.username}</Typography>
+                                          <Typography fontWeight={300} fontSize={'.9rem'} variant='body2'>{data.location}</Typography>
+                                      </Stack>
 
-          </Stack>
+                                </Stack>
+                                {/* <Stack justifyContent={'center'} alignItems={"center"} p={1}>
+                                    <Button size='small' variant='outlined'>follow</Button>
+                                </Stack> */}
+                          </Stack>
+                        })
+                          )
+                        )
+
+                      }
+
+                    </Stack>
 
 
 
-        </Box>
-      </Modal>
-
+                  </Box>
+                </Modal>
 
             </Stack>  
+          )
+        }
+          
+
           
           </>
 

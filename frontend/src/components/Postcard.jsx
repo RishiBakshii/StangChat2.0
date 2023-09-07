@@ -3,14 +3,18 @@ import {Avatar,Box,Card,CardActions,CardContent,CardHeader,CardMedia,IconButton,
 import {MoreVert,Favorite,FavoriteBorder,Comment,Send,Delete} from "@mui/icons-material";
 import { BASE_URL} from "../screens/Home";
 import CircularProgress from "@mui/material/CircularProgress";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { loggedInUserContext } from "../context/user/Usercontext";
 import LoadingButton from "@mui/lab/LoadingButton/LoadingButton";
 import { postContext } from "../context/posts/PostContext";
+import { GlobalAlertContext } from "../context/globalAlert/GlobalAlertContext";
+import { INTERNAL_SERVER_ERROR_MESSAGE, SERVER_DOWN_MESSAGE } from "../envVariables";
+import { LogoutUser } from "../api/auth";
 
 export const Postcard = ({username,caption,likesCount,imageUrl,unique_id,postedAt,profilePath,isLiked,setLikeModalOpen,userid,commentCount}) => {
   const [isLikedstate, setIsLikedState] = useState(isLiked);
   const theme=useTheme()
+  const {setGlobalAlertOpen}=useContext(GlobalAlertContext)
   const [likeCountState,setLikeCountState]=useState(likesCount)
   const {feed,setFeed}=useContext(postContext)
   const is480=useMediaQuery(theme.breakpoints.down("480"))
@@ -18,10 +22,10 @@ export const Postcard = ({username,caption,likesCount,imageUrl,unique_id,postedA
   const [showComment, setShowComment] = useState({show: false,cardHeight: is480?(550):(700)});
   const [postingComment,setPostingComment]=useState(false)
   const [fetchedComment, setFetchedComment] = useState([]);
-  const [isLikedCommentstate,setIsLikedCommentState]=useState(null)
   const [comment, setComment] = useState([]);
   const [commentLikes, setCommentLikes] = useState({});
   const MD=useMediaQuery(theme.breakpoints.down("md"))
+  const navigate=useNavigate()
 
 
   const toggleComments = () => {
@@ -30,6 +34,8 @@ export const Postcard = ({username,caption,likesCount,imageUrl,unique_id,postedA
       cardHeight: is480? (showComment.show ? 550 : 1105):(showComment.show ? 700 : 1255)
     });
   };
+  const [anchorEl, setAnchorEl] = React.useState(null);
+  const open = Boolean(anchorEl);
   const [isLoadingComments, setIsLoadingComments] = useState(false);
 
   useEffect(() => {
@@ -51,7 +57,6 @@ export const Postcard = ({username,caption,likesCount,imageUrl,unique_id,postedA
   }, [fetchedComment, loggedInUser]);
 
 
-
   const loadComment = async () => {
     setIsLoadingComments(true);
     try {
@@ -66,9 +71,22 @@ export const Postcard = ({username,caption,likesCount,imageUrl,unique_id,postedA
       });
 
       const json = await response.json();
+
       if (response.ok) {
         setFetchedComment(json);
-        console.log(json);
+
+        const initialCommentLikes={}
+        
+        json.forEach((comment) => {
+          const commentIdAsString=String(comment._id.$oid)
+          initialCommentLikes[commentIdAsString] = {
+            "liked": comment.likes.includes(loggedInUser.loggedInUser.userid),
+            "likeCount":comment.likeCount
+          };
+        });
+
+        setCommentLikes(initialCommentLikes)
+        console.log(commentLikes)
       }
       if (response.status == 500) {
         alert("interal server error");
@@ -115,6 +133,8 @@ export const Postcard = ({username,caption,likesCount,imageUrl,unique_id,postedA
       alert(error);
     }
   };
+
+  // 401 handled✅
   const handlePostLike = async () => {
     try {
       const response = await fetch(`${BASE_URL}/likepost`, {
@@ -122,6 +142,7 @@ export const Postcard = ({username,caption,likesCount,imageUrl,unique_id,postedA
         headers: {
           "Content-Type": "application/json",
         },
+        credentials:"include",
         body: JSON.stringify({
           userid: loggedInUser.loggedInUser.userid,
           postid: unique_id,
@@ -131,17 +152,25 @@ export const Postcard = ({username,caption,likesCount,imageUrl,unique_id,postedA
       const json = await response.json();
 
       if (response.ok) {
-        console.log(json);
         setIsLikedState(json.message);
         setLikeCountState(json.updated_like_count)
-        console.log(`state is updated to ${isLikedstate}`);
       }
-      if (response.status == 500) {
-        alert("internal server Error");
-        console.log(response.json);
+      if(response.status===401){
+        LogoutUser()
+        navigate("/login")
+        setGlobalAlertOpen({state:true,message:json.message})
+      }
+      if(response.status===400){
+        setGlobalAlertOpen({state:true,message:json.message})
+      }
+
+      if (response.status === 500) {
+        console.log(json.message);
+        setGlobalAlertOpen({state:true,message:INTERNAL_SERVER_ERROR_MESSAGE})
       }
     } catch (error) {
-      alert(error);
+      console.log(error)
+      setGlobalAlertOpen({state:true,message:SERVER_DOWN_MESSAGE})
     }
   };
   const handleCommentLike = async (commentid) => {
@@ -160,11 +189,21 @@ export const Postcard = ({username,caption,likesCount,imageUrl,unique_id,postedA
       const json = await response.json();
 
       if (response.ok) {
-        console.log(json)
-        setCommentLikes((prevLikes) => ({
-          ...prevLikes,
-          [commentid]: json.message,
-        }));
+
+        console.log("before updating the state",commentLikes)
+
+        setCommentLikes((prevCommentLikes) => {
+          const newCommentLikes = { ...prevCommentLikes };
+        
+          newCommentLikes[commentid] = {
+            "liked": json.message,
+            "likeCount": json.updated_like_count
+          };
+        
+          console.log("After updating state:", newCommentLikes);
+          return newCommentLikes;
+        });
+        
       }
       if (response.status == 500) {
         alert("interal server error");
@@ -176,6 +215,8 @@ export const Postcard = ({username,caption,likesCount,imageUrl,unique_id,postedA
       alert(error);
     }
   };
+
+  // 401 handled✅
   const handleDelete=async()=>{
     try {
       const response=await fetch(`${BASE_URL}/deletepost`,{
@@ -194,33 +235,38 @@ export const Postcard = ({username,caption,likesCount,imageUrl,unique_id,postedA
 
       if(response.ok){
         setFeed(prevFeed => prevFeed.filter(post => post._id.$oid !== json.deletedPostId))
+        setGlobalAlertOpen({state:true,message:'Post Deleted'})
       }
 
-      if(response.status==400){
-        alert(json.message)
+      if(response.status===400){
+        setGlobalAlertOpen({state:true,message:json.message})
+      }
+      if(response.status===401){
+        navigate("/login")
+        setGlobalAlertOpen({state:true,message:json.message})
+      }
+      if(response.status===403){
+        setGlobalAlertOpen({state:true,message:json.message})
       }
 
-      if(response.status==500){
+      if(response.status===500){
         console.log(json.message)
-        alert("internal server error")
+        setGlobalAlertOpen({state:true,message:INTERNAL_SERVER_ERROR_MESSAGE})
       }
 
 
     } catch (error) {
       console.log(error)
-      alert('frontend error')
+      setGlobalAlertOpen({state:true,message:SERVER_DOWN_MESSAGE})
     }
   }
 
-  const [anchorEl, setAnchorEl] = React.useState(null);
-  const open = Boolean(anchorEl);
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
   };
   const handleClose = () => {
     setAnchorEl(null);
   };
-
 
   return (
     <Card sx={{margin:`${MD?("3rem"):"5rem"} 0rem`,height: showComment.cardHeight,width:`${is480?"95%":"80%"}`}}>
@@ -319,14 +365,16 @@ export const Postcard = ({username,caption,likesCount,imageUrl,unique_id,postedA
                         <Typography variant="body2" color="text.primary">{comment.comment}</Typography>
 
                         <Stack direction={"row"} alignItems={"center"}>
-                                <Checkbox checked={commentLikes[comment._id.$oid]} onClick={() => handleCommentLike(comment._id.$oid)} icon={<FavoriteBorder fontSize="small"/>} checkedIcon={<Favorite fontSize="small" sx={{ color: "red" }} />}/>
-                                <Typography variant="body2">{commentLikes[comment._id.$oid] ? comment.likeCount + 1 : comment.likeCount}</Typography>        
+                                <Checkbox checked={commentLikes[comment._id.$oid].liked} onClick={() => handleCommentLike(comment._id.$oid)} icon={<FavoriteBorder fontSize="small"/>} checkedIcon={<Favorite fontSize="small" sx={{ color: "red" }} />}/>
+                                <Typography variant="body2">{commentLikes[comment._id.$oid]?commentLikes[comment._id.$oid].liked:comment.likes.includes(loggedInUser.loggedInUser.userid)}</Typography>
+                                {commentLikes[comment._id.$oid].liked}        
                         </Stack>
                     </Stack>
 
                   </Stack>
                 );
               })
+
             )}
           </Box>
 

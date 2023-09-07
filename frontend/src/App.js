@@ -13,14 +13,17 @@ import { Poststate } from "./context/posts/Poststate";
 import { Search } from "./screens/Search";
 import {Explore } from './screens/Explore'
 import { RightBarState } from "./context/rigthbar/RightbarState";
+import { LeaderBoard } from "./screens/LeaderBoard";
+import { NotFound } from "./screens/NotFound";
+import { GlobalAlertState } from "./context/globalAlert/GlobalAlertState";
 
 function App() {
   return (
-    <>
+    <Router>
+    <GlobalAlertState>
     <RightBarState>
     <Poststate>
     <Userstate>
-    <Router>
       <Routes>
         <Route exact path="/" element={<Home/>}/>
         <Route exact path="/aboutfaculty" element={<Aboutfaculty/>}/>
@@ -33,12 +36,15 @@ function App() {
         <Route exact path="/leftbarmobile" element={<LeftbarMobile/>}/>
         <Route exact path="/search" element={<Search/>}/>
         <Route exact path="/explore" element={<Explore/>}/>
+        <Route exact path="/leaderboard" element={<LeaderBoard/>}/>
+        <Route exact path="*" element={<NotFound/>}/>
       </Routes>
-    </Router>
     </Userstate>
     </Poststate>
     </RightBarState>
-    </>
+    </GlobalAlertState>
+    </Router>
+
   );
 }
 

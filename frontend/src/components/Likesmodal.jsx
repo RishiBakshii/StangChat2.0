@@ -2,16 +2,20 @@ import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import Modal from '@mui/material/Modal';
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { Avatar, CircularProgress, Stack, useMediaQuery, useTheme } from '@mui/material';
 import { BASE_URL } from '../screens/Home';
 import { getPostLikes } from '../api/post';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { GlobalAlertContext } from '../context/globalAlert/GlobalAlertContext';
+
+
 
 
 
 export const Likesmodal=({open,handleClose,postid})=> {
-
+  const navigate=useNavigate()
+  const {setGlobalAlertOpen}=useContext(GlobalAlertContext)
   const [likesData,setLikesData]=useState([])
   const [loading,setLoading]=useState(false)
 
@@ -37,8 +41,17 @@ export const Likesmodal=({open,handleClose,postid})=> {
   const fetchPostLike=async()=>{
     setLoading(true)
     try {
-      const data=await getPostLikes(postid)
-      setLikesData(data)
+      const result=await getPostLikes(postid)
+      if(result.success){
+        setLikesData(result.data)
+      }
+      else if(result.logout){
+        alert('alerteddddddd')
+        navigate("/login")
+      }
+      else{
+        setGlobalAlertOpen({state:true,message:result.message})
+      }
     } catch (error) {
       console.log(error)
     }

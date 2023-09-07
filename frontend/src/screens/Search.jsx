@@ -4,20 +4,26 @@ import { Leftbar } from '../components/Leftbar'
 import { Avatar, Box, Button, CircularProgress, Stack, TextField, Typography, useMediaQuery, useTheme } from '@mui/material'
 import { Rightbar } from '../components/Rightbar'
 import { LocationCityRounded } from '@mui/icons-material'
-import { Link, useHref } from 'react-router-dom'
-import { BASE_URL } from '../envVariables'
+import { Link, useHref, useNavigate } from 'react-router-dom'
+import { BASE_URL, SERVER_DOWN_MESSAGE } from '../envVariables'
 import { loggedInUserContext } from '../context/user/Usercontext'
+import { handleApiResponse } from '../utils/common'
+import { LogoutUser } from '../api/auth'
+import { GlobalAlertContext } from '../context/globalAlert/GlobalAlertContext'
+
 
 
 export const Search = () => {
   const {loggedInUser}=useContext(loggedInUserContext)
+  const {setGlobalAlertOpen}=useContext(GlobalAlertContext)
   const [query,setQuery]=useState('')
   const [results,setResults]=useState([])
   const [loading,setLoading]=useState(false)
   const theme=useTheme()
   const is480=useMediaQuery(theme.breakpoints.down("480"))
+  const navigate=useNavigate()
 
-
+  // 401 handled✅
   const handleSearchUser=async()=>{
     setLoading(true)
     try {
@@ -26,18 +32,27 @@ export const Search = () => {
         headers:{
           "Content-Type":"application/json"
         },
+        credentials:"include",
         body:JSON.stringify({
           "userid":loggedInUser.userid,
           'query':query
         })
       })
-      
-      const json=await response.json()
-      if(response.ok){setResults(json)}
-      if(response.status===500){alert("internal server error")}
-      if(response.status===400){alert("status 400")}
+      const result=await handleApiResponse(response)
+      if(result.success){
+        setResults(result.data)
+      }
+      else if(result.logout){
+        setGlobalAlertOpen({state:true,message:result.message})
+        LogoutUser()
+        navigate("/login")
+      }
+      else{
+        setGlobalAlertOpen({state:true,message:result.message})
+      }
     } catch (error) {
-      alert("frontend error")
+      console.log(error)
+      setGlobalAlertOpen({state:true,message:SERVER_DOWN_MESSAGE})
     }
     finally{
       setLoading(false)
@@ -95,7 +110,13 @@ export const Search = () => {
 
               </Stack>
               </Stack>
-              </Stack>
+        </Stack>
+
+
+
+        <Rightbar/>
+
+
         </>
 
   

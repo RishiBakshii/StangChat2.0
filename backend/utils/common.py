@@ -49,16 +49,14 @@ def upload_profile_picture(file,target_folder):
         profile_picture_path=os.path.join(target_folder,'defaultProfile.png').replace("\\","/")
     return profile_picture_path
 
-def update_profile_data(mongo,userid,username,bio,profile_picture_path,location):
+def update_profile_data(mongo,userid,bio,profile_picture_path):
     try:
         mongo.db.users.update_one({"_id":ObjectId(userid)},
                                   {"$set": {"bio": bio,
                                             'profilePicture':profile_picture_path,
-                                            'username':username,
-                                            'location':location}})
+                                            }})
         return True
     except Exception as e:
-        print(e)
         return None
     
 def handle_follow(mongo,target_user_id,userid):

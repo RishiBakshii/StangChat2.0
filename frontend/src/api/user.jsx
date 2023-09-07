@@ -1,6 +1,9 @@
 import { BASE_URL } from "../screens/Home"
 import { INTERNAL_SERVER_ERROR_MESSAGE, SERVER_DOWN_MESSAGE } from "../envVariables"
+import { LogoutUser } from "./auth"
+import { handleApiResponse } from "../utils/common"
 
+// ✅ 401 handled
 export const fetchLoggedInUser=async()=>{
     try {
         const response=await fetch(`${BASE_URL}/decode_token`,{
@@ -10,37 +13,98 @@ export const fetchLoggedInUser=async()=>{
         },
         credentials: 'include'
       })
-    
+
         const json=await response.json() 
 
         if(response.ok){
           const userinfo=await get_user_info(json.decoded_token.user_id)
-          return userinfo
-    }
+          return{
+            success:true,
+            data:userinfo
+          }
+        }
+        if(response.status===401){
+          LogoutUser()
+          return{
+            success:false,
+            message:json.message,
+            logout:true
+          }
+        }
+
+        if(response.status===500){
+          console.log(json)
+          return{
+            success:false,
+            message:INTERNAL_SERVER_ERROR_MESSAGE
+          }
+        }
+
     } catch (error) {
-        alert('frontend error')
+        console.log(error)
+        return {
+          success:false,
+          message:SERVER_DOWN_MESSAGE
+        }
     }  
 }
-
+// 401 handled ✅
 export const get_user_info=async(userid)=>{
   try{
-    const response=await fetch(`${BASE_URL}/get_user_info`,{
+      const response=await fetch(`${BASE_URL}/get_user_info`,{
       method:"POST",
       headers:{
         "Content-Type":"application/json"
       },
+      credentials:"include",
       body:JSON.stringify({
         "userID":userid
       })
-      })
-      const json=await response.json()
-      return json.data
+    })
+
+    const json=await response.json()
+
+    if(response.ok){
+      return {
+        success:true,
+        data:json.data
+      }
+    }
+
+    if(response.status===404){
+      return{
+        success:false,
+        message:json.message
+      }
+    }
+
+    if(response.status===401){
+      LogoutUser()
+      return {
+          success:false,
+          message:json.message,
+          logout:true
+      }
+    }
+
+    if(response.status===500){
+      console.log(json.message)
+      return {
+        success:false,
+        message:INTERNAL_SERVER_ERROR_MESSAGE
+      }
+    }
     }
     catch(error){
-      alert(error)
+      console.log(error)
+      return {
+        success:false,
+        message:SERVER_DOWN_MESSAGE
+      }
     }
 }
 
+// 401 handled ✅
 export const fetchUserProfile=async(username,loggedInUserId)=>{
     try {
       const response=await fetch(`${BASE_URL}/profile/${username}`,{
@@ -53,25 +117,25 @@ export const fetchUserProfile=async(username,loggedInUserId)=>{
           'userid':loggedInUserId
         })
       })
-      const json=await response.json()
-      if (response.ok){
-        console.log(json)
-        const postData=await fetchUserPost(username=json._id.$oid)
+      const result=await handleApiResponse(response)
+      if (result.success){
+        const postData=await fetchUserPost(result.data._id.$oid)
         return {
-          'profileData':json,
+          'profileData':result.data,
           'postData':postData
         }
       }
-      if(response.status==400){
-        alert("status 400")
-      }
-      if (response.status==500){
-        alert("internal server error")
+      else{
+        return result
       }
     } catch (error) {
-      alert('frontend error')
+      console.log(error)
+      return {
+        success:false,
+        message:INTERNAL_SERVER_ERROR_MESSAGE
+      }
     }
-  }
+}
   
 export const updateProfile=async(credentials,selectedImage)=>{
     try {
@@ -79,8 +143,6 @@ export const updateProfile=async(credentials,selectedImage)=>{
         formData.append("userid", credentials.user_id);
         formData.append("bio", credentials.bio);
         formData.append("profilepicture", selectedImage); 
-        formData.append("location", credentials.location); 
-        formData.append("username", credentials.username); 
   
         const response=await fetch(`${BASE_URL}/updateprofile`,{
             method:"POST",
@@ -95,13 +157,13 @@ export const updateProfile=async(credentials,selectedImage)=>{
             message:json.message
           }
         }
-        if(response.status==404){
+        else if(response.status===404){
             return{
               success:false,
               message:json.message
             }
         }
-        if(response.status==500){
+        else if(response.status===500){
           console.log(json.message)
           return{
             success:false,
@@ -117,7 +179,8 @@ export const updateProfile=async(credentials,selectedImage)=>{
         }
     }
   }
- 
+
+// 401 handled✅
 const fetchUserPost=async(userid)=>{
   try {
     const response=await fetch(`${BASE_URL}/getuserpost`,{
@@ -129,19 +192,20 @@ const fetchUserPost=async(userid)=>{
         "userid":userid
       })
     })
-    const json=await response.json()
-    if(response.ok){
-      return json
+
+    const result=await handleApiResponse(response)
+    if(result.success){
+      return result.data
     }
-    if(response.status==500){
-      alert("internal server error")
-    }
-    if(response.status==400){
-      alert("user not found")
+    else{
+      return result
     }
   } catch (error) {
-    alert("frontend error")
     console.log(error)
+    return {
+      success:false,
+      message:SERVER_DOWN_MESSAGE
+    }
   }
 }
 

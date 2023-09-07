@@ -2,7 +2,7 @@ import Modal from '@mui/material/Modal';
 import { Button, Stack, Typography, useMediaQuery } from '@mui/material';
 import React, { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom';
-import { logoutUser } from '../api/auth';
+import { LogoutUser } from '../api/auth';
 import { useTheme } from '@emotion/react';
 
   
@@ -12,12 +12,11 @@ export const Logoutmodal = ({open,handleClose}) => {
     const is400=useMediaQuery(theme.breakpoints.down("400"))
 
     const initiateLogout=async()=>{
-        const islogoutTrue=await logoutUser()
+        const islogoutTrue=await LogoutUser()
         if(islogoutTrue){
             navigate("/login")
         }
     }
-
 
     const navigate=useNavigate()
 

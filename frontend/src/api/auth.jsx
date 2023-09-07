@@ -1,6 +1,7 @@
 import { INTERNAL_SERVER_ERROR_MESSAGE, SERVER_DOWN_MESSAGE } from "../envVariables"
 import { BASE_URL } from "../screens/Home"
 import { useNavigate } from "react-router-dom"
+import { handleApiResponse } from "../utils/common"
 
 
 export const signup=async(credentials)=>{
@@ -17,28 +18,28 @@ export const signup=async(credentials)=>{
             "location":credentials.location
         })
     })
-    const json=await response.json()
-    
-    if(response.ok){
-        return {
-            success:true,
-            message:json.message,
-            userid:json.userid
+        const json=await response.json()
+
+        if(response.ok){
+            return {
+                success:true,
+                data:json.data
+            }
         }
-    }
-    if(response.status==400){
-        return {
-            success: false,
-            message: json.message,
-        };
-    }
-    if(response.status==500){
-        console.log(json.message)
-        return {
-            success: false,
-            message: INTERNAL_SERVER_ERROR_MESSAGE,
-        };
-    }
+        if(response.status===400){
+            return {
+                success:false,
+                message:json.message
+            }
+        }
+        if(response.status===500){
+            console.log(json.message)
+            return {
+                success:false,
+                message:INTERNAL_SERVER_ERROR_MESSAGE
+            }
+        }
+        
     } catch (error) {
         console.log(error)
         return {
@@ -49,11 +50,13 @@ export const signup=async(credentials)=>{
     
 
 }
+
+// ✅ checked
 export const login=async(credentials)=>{
     try {
         const response=await fetch(`${BASE_URL}/login`,{
-        credentials:"include",
         method:"POST",
+        credentials:"include",
         headers:{
             "Content-Type":'application/json'
         },
@@ -70,18 +73,18 @@ export const login=async(credentials)=>{
             localStorage.setItem("loggedIn",true)
             return {
                 success:true,
-                message:json.message,
-                userdata:json.userdata,
+                data:json.data
             }
         }
-        if(response.status==400){
+
+        if(response.status===400){
             return {
                 success:false,
                 message:json.message
             }
         }
-        if(response.status==500){
-            console.log(json.message)
+
+        if(response.status===500){
             return {
                 success:false,
                 message:INTERNAL_SERVER_ERROR_MESSAGE
@@ -95,7 +98,8 @@ export const login=async(credentials)=>{
         }
     }
 }
-export const logoutUser=async()=>{
+
+export const LogoutUser=async()=>{
     try {
         const response=await fetch(`${BASE_URL}/logout`,{
             method:"POST",
@@ -110,12 +114,13 @@ export const logoutUser=async()=>{
         }
         if(response.status==500){
             console.log(json.message)
-            alert(INTERNAL_SERVER_ERROR_MESSAGE)
         }
-
+        if(response.status==401){
+            localStorage.clear()
+            return true
+        }
 
     } catch (error) {
         console.log("error")
-        alert(SERVER_DOWN_MESSAGE)
     }
 }

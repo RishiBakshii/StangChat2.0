@@ -3,6 +3,8 @@ import { useContext, useState } from 'react';
 import { loggedInUserContext } from '../context/user/Usercontext';
 import LoadingButton from '@mui/lab/LoadingButton';
 import { postContext } from '../context/posts/PostContext';
+import { handleApiResponse } from '../utils/common';
+import { GlobalAlertContext } from '../context/globalAlert/GlobalAlertContext';
 
 
 
@@ -19,6 +21,7 @@ const BASE_URL=process.env.REACT_APP_API_BASE_URL;
 
 export const PostModal=({ isOpen, onClose})=> {
     const loggedInUser=useContext(loggedInUserContext)
+    const {setGlobalAlertOpen}=useContext(GlobalAlertContext)
     const {setFeed}=useContext(postContext)
 
     const theme=useTheme()
@@ -62,8 +65,8 @@ export const PostModal=({ isOpen, onClose})=> {
       }
     };
     
-
-      const handlePostUpload=async()=>{
+    
+    const handlePostUpload=async()=>{
         try {
           setLoading(true)
           const formData=new FormData();
@@ -82,22 +85,20 @@ export const PostModal=({ isOpen, onClose})=> {
           const response=await fetch(`${BASE_URL}/uploadpost`,{
             method:"POST",
             body:formData,
+            credentials:"include"
           })
-          const json=await response.json()
+          const result=await handleApiResponse(response)
 
-          if(response.ok){
-            setFeed((prevFeed) => [json, ...prevFeed,])
+          if(result.success){
+            setGlobalAlertOpen({state:true,message:'Post Uploaded 🚀'})
+            setFeed((prevFeed) => [result.data, ...prevFeed,])
             setCaption('')
             setDisplayImage(null)
             setLoading(false)
             handleOnClose()
           }
-          if(response.status==400){
-            alert("some bad request")
-          }
-          if(response.status==500){
-            console.log(response)
-            alert("internal server error")
+          else{
+            setGlobalAlertOpen({state:true,message:result.message})
           }
 
         } catch (error) {
