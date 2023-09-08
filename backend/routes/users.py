@@ -98,7 +98,6 @@ def handleFollowUnfollow():
         except Exception as e:
             return jsonify({"message":str(e)}),500
 
-
 # ✅
 @users.route("/getfollowers",methods=['POST'])
 def getFollowers():
