@@ -10,6 +10,7 @@ import { postContext } from "../context/posts/PostContext";
 import { GlobalAlertContext } from "../context/globalAlert/GlobalAlertContext";
 import { INTERNAL_SERVER_ERROR_MESSAGE, SERVER_DOWN_MESSAGE } from "../envVariables";
 import { LogoutUser } from "../api/auth";
+import { handleApiResponse } from "../utils/common";
 
 export const Postcard = ({username,caption,likesCount,imageUrl,unique_id,postedAt,profilePath,isLiked,setLikeModalOpen,userid,commentCount}) => {
   const [isLikedstate, setIsLikedState] = useState(isLiked);
@@ -56,12 +57,13 @@ export const Postcard = ({username,caption,likesCount,imageUrl,unique_id,postedA
     setCommentLikes(initialLikes);
   }, [fetchedComment, loggedInUser]);
 
-
+  // 401 handled✅
   const loadComment = async () => {
     setIsLoadingComments(true);
     try {
       const response = await fetch(`${BASE_URL}/getcomments`, {
         method: "POST",
+        credentials:"include",
         headers: {
           "Content-Type": "application/json",
         },
@@ -70,39 +72,34 @@ export const Postcard = ({username,caption,likesCount,imageUrl,unique_id,postedA
         }),
       });
 
-      const json = await response.json();
+      const result=await handleApiResponse(response)
 
-      if (response.ok) {
-        setFetchedComment(json);
-
-        const initialCommentLikes={}
-        
-        json.forEach((comment) => {
-          const commentIdAsString=String(comment._id.$oid)
-          initialCommentLikes[commentIdAsString] = {
-            "liked": comment.likes.includes(loggedInUser.loggedInUser.userid),
-            "likeCount":comment.likeCount
-          };
-        });
-
-        setCommentLikes(initialCommentLikes)
-        console.log(commentLikes)
+      if (result.success){
+        setFetchedComment(result.data);
       }
-      if (response.status == 500) {
-        alert("interal server error");
-        console.log(json.message);
+      else if(result.logout){
+        navigate("/login")
+        setGlobalAlertOpen({state:true,message:result.message})
       }
-    } catch (error) {
-      alert(error);
+      else{
+        setGlobalAlertOpen({state:true,message:result.message})
+      }
+    } 
+    catch (error) {
+      console.log(error)
+      setGlobalAlertOpen({state:true,message:SERVER_DOWN_MESSAGE})
     } finally {
       setIsLoadingComments(false);
     }
   };
+
+  // 401 handled✅
   const handleSendComment = async () => {
     setPostingComment(true)
     try {
       const response = await fetch(`${BASE_URL}/postcomment`, {
         method: "POST",
+        credentials:'include',
         headers: {
           "Content-Type": "application/json",
         },
@@ -115,22 +112,26 @@ export const Postcard = ({username,caption,likesCount,imageUrl,unique_id,postedA
         }),
       });
 
-      const json = await response.json();
+      const result=await handleApiResponse(response)
 
-      if (response.ok) {
+      if(result.success){
         setPostingComment(false)
-        setFetchedComment((prevComments) => [...prevComments, json]);
+        setFetchedComment((prevComments) => [...prevComments, result.data]);
         setComment("");
       }
-      if (response.status == 500) {
-        alert("internal server error");
-        console.log(json.message);
+      else if(result.logout){
+        setGlobalAlertOpen({state:true,message:result.message})
+        navigate("/login")
       }
-      if (response.status == 400) {
-        alert(json.message);
+      else{
+        setGlobalAlertOpen({state:true,message:result.message})
       }
     } catch (error) {
-      alert(error);
+      console.log(error)
+      setGlobalAlertOpen({state:true,message:SERVER_DOWN_MESSAGE})
+    }
+    finally{
+      setPostingComment(false)
     }
   };
 
@@ -173,6 +174,8 @@ export const Postcard = ({username,caption,likesCount,imageUrl,unique_id,postedA
       setGlobalAlertOpen({state:true,message:SERVER_DOWN_MESSAGE})
     }
   };
+
+  // 401 handled✅
   const handleCommentLike = async (commentid) => {
     try {
       const response = await fetch(`${BASE_URL}/commentlike`, {
@@ -180,39 +183,48 @@ export const Postcard = ({username,caption,likesCount,imageUrl,unique_id,postedA
         headers: {
           "Content-Type": "application/json",
         },
+        credentials:"include",
         body: JSON.stringify({
           userid: loggedInUser.loggedInUser.userid,
           commentid: commentid,
         }),
       });
 
-      const json = await response.json();
+      const result=await handleApiResponse(response)
 
-      if (response.ok) {
-
-        console.log("before updating the state",commentLikes)
-
-        setCommentLikes((prevCommentLikes) => {
-          const newCommentLikes = { ...prevCommentLikes };
-        
-          newCommentLikes[commentid] = {
-            "liked": json.message,
-            "likeCount": json.updated_like_count
-          };
-        
-          console.log("After updating state:", newCommentLikes);
-          return newCommentLikes;
-        });
+      if (result.success) {
+        setFetchedComment((prevComments) =>
+          prevComments.map((comment) => {
+            if (comment._id.$oid === commentid) {
+              // Check if the user has already liked the comment
+              const userHasLiked = comment.likes.includes(loggedInUser.loggedInUser.userid);
+      
+              if (userHasLiked) {
+                // User has liked the comment, so unlike it
+                comment.likes.splice(comment.likes.indexOf(loggedInUser.loggedInUser.userid), 1);
+                comment.likeCount--;
+              } else {
+                // User hasn't liked the comment, so like it
+                comment.likes.push(loggedInUser.loggedInUser.userid);
+                comment.likeCount++;
+              }
+            }
+            return comment;
+          })
+        );
         
       }
-      if (response.status == 500) {
-        alert("interal server error");
+      
+      else if(result.logout){
+        navigate("/login")
+        setGlobalAlertOpen({state:true,message:result.message})
       }
-      if (response.status == 400) {
-        alert("someething went wront");
+      else{
+        setGlobalAlertOpen({state:true,message:result.message})
       }
     } catch (error) {
-      alert(error);
+      console.log(error)
+      setGlobalAlertOpen({state:true,message:SERVER_DOWN_MESSAGE})
     }
   };
 
@@ -365,9 +377,8 @@ export const Postcard = ({username,caption,likesCount,imageUrl,unique_id,postedA
                         <Typography variant="body2" color="text.primary">{comment.comment}</Typography>
 
                         <Stack direction={"row"} alignItems={"center"}>
-                                <Checkbox checked={commentLikes[comment._id.$oid].liked} onClick={() => handleCommentLike(comment._id.$oid)} icon={<FavoriteBorder fontSize="small"/>} checkedIcon={<Favorite fontSize="small" sx={{ color: "red" }} />}/>
-                                <Typography variant="body2">{commentLikes[comment._id.$oid]?commentLikes[comment._id.$oid].liked:comment.likes.includes(loggedInUser.loggedInUser.userid)}</Typography>
-                                {commentLikes[comment._id.$oid].liked}        
+                                <Checkbox checked={comment.likes.includes(loggedInUser.loggedInUser.userid)} onClick={()=>handleCommentLike(comment._id.$oid)} icon={<FavoriteBorder fontSize="small"/>} checkedIcon={<Favorite fontSize="small" sx={{ color: "red" }} />}/>
+                                <Typography variant="body2">{comment.likeCount}</Typography>        
                         </Stack>
                     </Stack>
 

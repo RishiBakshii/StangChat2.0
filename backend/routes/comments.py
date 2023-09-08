@@ -2,12 +2,12 @@ from flask import Blueprint,request,jsonify
 from bson import ObjectId
 from flask import Flask,jsonify,request
 from bson.json_util import dumps
-from utils.validation import is_existing_userid,is_existing_commentid
+from utils.validation import is_existing_userid,is_existing_commentid,is_existing_postid
 from utils.common import handle_comment_like
 
 comments=Blueprint('comments',__name__)
 
-
+# ✅
 @comments.route("/postcomment",methods=['POST'])
 def postcomment():
     if request.method=='POST':
@@ -20,14 +20,14 @@ def postcomment():
             profilepath=data.get("profilepath")
             mongo=comments.mongo
 
-            user = mongo.db.users.find_one({'_id': ObjectId(user_id)})
+            user = is_existing_userid(mongo,user_id)
 
             if not user:
-                return jsonify({'message': 'User not found'}), 400
+                return jsonify({'message': 'User not found'}), 404
             
-            post = mongo.db.post.find_one({'_id': ObjectId(post_id)})
+            post = is_existing_postid(mongo,post_id)
             if not post:
-                return jsonify({'message': 'Post not found'}), 400
+                return jsonify({'message': 'Post not found'}), 404
 
             new_comment = {
                 'user_id': user_id,
@@ -41,12 +41,13 @@ def postcomment():
 
             new_comment_id=mongo.db.comments.insert_one(new_comment).inserted_id
             new_comment_doc = mongo.db.comments.find_one({"_id": new_comment_id})
-            return dumps(new_comment_doc), 200
+            return dumps(new_comment_doc), 201
 
             
         except Exception as e:
             return jsonify({"message":str(e)}),500
 
+# ✅
 @comments.route('/getcomments',methods=['POST'])
 def getComments():
     if request.method=='POST':
@@ -62,9 +63,9 @@ def getComments():
             return comment_list, 200
         
         except Exception as e:
-            print(e)
             return jsonify({'message': str(e)}), 500
 
+# ✅
 @comments.route('/commentlike',methods=['POST'])
 def commentLike():
     if request.method=='POST':
@@ -76,11 +77,11 @@ def commentLike():
 
             user=is_existing_userid(mongo,userid)
             if not user:
-                return jsonify({'message':"user not found"}),400
+                return jsonify({'message':"user not found"}),404
             
             comment=is_existing_commentid(mongo,commentid)
             if not comment:
-                return jsonify({"message":"comment not found"}),400
+                return jsonify({"message":"comment not found"}),404
             
 
             response=handle_comment_like(mongo,userid,comment)
@@ -100,11 +101,11 @@ def deleteComment():
             postid = data.get("postid")
             commentid = data.get("commentid")
 
-            user = mongo.db.users.find_one({"_id": ObjectId(userid)})
+            user =is_existing_userid(mongo,userid)
             if not user:
                 return jsonify({"message": 'User does not exist'}), 400
             
-            post = mongo.db.post.find_one({"_id": ObjectId(postid)})
+            post =is_existing_postid(mongo,postid)
             if not post:
                 return jsonify({"message": "Post does not exist"}), 400
             

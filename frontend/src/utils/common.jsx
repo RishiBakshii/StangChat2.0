@@ -2,7 +2,6 @@ import { LogoutUser } from "../api/auth";
 import { INTERNAL_SERVER_ERROR_MESSAGE } from "../envVariables";
 
 export const ImageSelector = (event) => {
-  alert("hello sirrrr")
     const imageFile = event.target.files[0];
     if (imageFile) {
         

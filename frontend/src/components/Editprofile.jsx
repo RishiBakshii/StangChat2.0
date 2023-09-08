@@ -39,13 +39,6 @@ export const Editprofile = ({userid,username,email,bio,location,heading,editProf
     const [editProfileDisplayImage,setEditProfileDisplayImage]=useState(profilePath)
 
     const [editProfileCredentialsFilled,setEditProfileCredentialsFilled]=useState(null)
-
-    const CustomPhotoinput=styled('input')({
-        height:"100%",
-        width:"100%",
-        cursor:"pointer"
-    })
-
     const theme=useTheme()
     const MD=useMediaQuery(theme.breakpoints.down("md"))
 
@@ -186,15 +179,16 @@ export const Editprofile = ({userid,username,email,bio,location,heading,editProf
                 <Stack spacing={2} justifyContent={'center'} alignItems={'center'}>
 
                     <Box zIndex={1} sx={{opacity:0}} position={'absolute'} width={150} height={150} >
-                        <CustomPhotoinput  accept="image/*" type="file" onChange={handleAvatarChange} id="profile-image-input"/>
+
+                        <input style={{cursor:"pointer",height:"100%",width:'100%'}} accept="image/*" type="file" onChange={handleAvatarChange} id="profile-image-input"/>
                     </Box>
                     
                     {
                       editProfile?(
-                        <Avatar alt="profile-picture" src={editProfileDisplayImage} sx={{ width: 180, height: 180 }}/>
+                        <Avatar key={editProfileDisplayImage} alt="profile-picture" src={editProfileDisplayImage} sx={{ width: 180, height: 180 }}/>
                       ):(
 
-                        <Avatar alt="profile-picture" src={displayImage} sx={{ width: 180, height: 180 }}/>
+                        <Avatar key={displayImage} alt="profile-picture" src={displayImage} sx={{ width: 180, height: 180 }}/>
                       )
                     }
 

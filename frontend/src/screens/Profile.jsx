@@ -251,7 +251,7 @@ export const Profile = () => {
                   <Editprofile 
                     userid={loggedInUser.userid} 
                     heading={'Edit your profile'} 
-                    editProfile={true} 
+                    editProfile={true}
                     username={loggedInUser.username} 
                     email={loggedInUser.email} 
                     bio={loggedInUser.bio} 

@@ -2,12 +2,9 @@ import jwt
 import os
 import bcrypt
 from werkzeug.utils import secure_filename
-from flask import current_app
-from bson.json_util import dumps
 from bson import ObjectId
 import datetime
 from utils.validation import is_existing_userid,is_existing_commentid
-from flask import jsonify
 import uuid
 
 def generate_jwt_token(payload,expire_days=30):
