@@ -43,12 +43,14 @@ export const Editprofile = ({userid,username,email,bio,location,heading,editProf
     const MD=useMediaQuery(theme.breakpoints.down("md"))
 
     const isAnythingChanged =
-  loggedInUser.loggedInUser.username !== editProfileCredentials.username ||
-  loggedInUser.loggedInUser.email !== editProfileCredentials.email ||
+  (editProfileCredentials.username.trim() !== loggedInUser.loggedInUser.username.trim() ||
+  editProfileCredentials.email.trim() !== loggedInUser.loggedInUser.email.trim() ||
   editProfileDisplayImage !== profilePath ||
-  loggedInUser.loggedInUser.location !== editProfileCredentials.location ||
-  loggedInUser.loggedInUser.bio !== editProfileCredentials.bio;
-
+  editProfileCredentials.location.trim() !== loggedInUser.loggedInUser.location.trim() ||
+  editProfileCredentials.bio.trim() !== loggedInUser.loggedInUser.bio.trim()) &&
+  editProfileCredentials.username.trim() !== "" &&
+  editProfileCredentials.email.trim() !== "" &&
+  editProfileCredentials.location.trim() !== "";
     const handleAvatarChange=(event)=>{
         const result=ImageSelector(event)
         console.log(result)
@@ -108,11 +110,11 @@ export const Editprofile = ({userid,username,email,bio,location,heading,editProf
         const formData=new FormData();
         formData.append("userid",editProfileCredentials.userid);
 
-        if(loggedInUser.loggedInUser.username!==editProfileCredentials.username){
+        if(loggedInUser.loggedInUser.username!==editProfileCredentials.username && editProfileCredentials.username!==''){
           formData.append('username',editProfileCredentials.username)
         }
 
-        if(loggedInUser.loggedInUser.email!==editProfileCredentials.email){
+        if(loggedInUser.loggedInUser.email!==editProfileCredentials.email && editProfileCredentials.email!==''){
           formData.append("email",editProfileCredentials.email); 
         }
 
@@ -120,7 +122,7 @@ export const Editprofile = ({userid,username,email,bio,location,heading,editProf
           formData.append("profilePicture",editProfileSelectedImage); 
         }
 
-        if(loggedInUser.loggedInUser.location!==editProfileCredentials.location){
+        if(loggedInUser.loggedInUser.location!==editProfileCredentials.location && editProfileCredentials.location!==''){
           formData.append("location",editProfileCredentials.location); 
         }
         if(loggedInUser.loggedInUser.bio!==editProfileCredentials.bio){
@@ -202,9 +204,9 @@ export const Editprofile = ({userid,username,email,bio,location,heading,editProf
                     {
                       editProfile?(
                         <>
-                    <TextField name='username' label="Username" variant="outlined" onChange={handleEditProfileOnChange} value={editProfileCredentials.username}/>
+                    <TextField inputProps={{maxLength:20}} name='username' label="Username" variant="outlined" onChange={handleEditProfileOnChange} value={editProfileCredentials.username}/>
                     <TextField name='email' label="Email" value={editProfileCredentials.email} onChange={handleEditProfileOnChange}/>
-                    <TextField name='bio' label="Bio" multiline rows={4} defaultValue={bio} value={editProfileCredentials.bio} onChange={handleEditProfileOnChange}/>
+                    <TextField name='bio' inputProps={{maxLength:1000}} label="Bio" multiline rows={4} defaultValue={bio} value={editProfileCredentials.bio} onChange={handleEditProfileOnChange}/>
                     <TextField name='location' label="Location" variant="outlined"  defaultValue={location} value={editProfileCredentials.location} onChange={handleEditProfileOnChange}/>
                         </>
                       ):(

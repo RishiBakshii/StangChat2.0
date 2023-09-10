@@ -10,6 +10,9 @@ from bson.json_util import dumps
 from utils.validation import is_existing_userid,is_existing_postid
 from utils.common import upload_post,delete_post_and_related_comments,handle_like_post,handle_unlike_post
 from schema.post import post_schema
+from io import BytesIO
+from botocore.exceptions import NoCredentialsError
+import uuid
 load_dotenv()
 import json
 
@@ -22,34 +25,52 @@ def createPost():
     if request.method=='POST':
         try:
             mongo=posts.mongo
+            s3_bucket_name=posts.s3_bucket_name
+
             userid=request.form.get("userid")
             caption=request.form.get('caption')
             user_post=request.files.get("post")
 
             user=is_existing_userid(mongo,userid)
+            if not user:
+                return jsonify({"message":"user does not exist"}),404
+            
+            secureFilename=secure_filename(user_post.filename)
+            unique_id=uuid.uuid4()
+            filename, file_extension = os.path.splitext(secureFilename)
+            unique_filename = f"{filename}_{unique_id}{file_extension}"
 
-            if user:
-                user_post_path=upload_post(user_post,app.config['POST_FOLDER'])
+            s3=posts.s3
+            object_key = f'{userid}/posts/{unique_filename}'
+
+            try:
+                user_post_data = BytesIO(user_post.read())
+                s3.upload_fileobj(user_post_data,s3_bucket_name,object_key)
+
                 new_post=post_schema.copy()
 
                 new_post.update({
                     "user_id":user["_id"],
                     "username":user['username'],
                     "caption":caption,
-                    "postPath":user_post_path,
-                    "profilePath":user['profilePicture'],
-                })
+                    "postPath":object_key,
+                    "profilePath":user['profilePicture']
+                    })
 
                 uploaded_post_id=mongo.db.post.insert_one(new_post).inserted_id
+
                 mongo.db.users.update_one(
-                    {"_id": user['_id']},
-                    {"$inc": {"postCount": 1}}
-                )
+                {"_id": user['_id']},
+                {"$inc": {"postCount": 1}})
 
                 newly_uploaded_post=mongo.db.post.find_one({"_id":uploaded_post_id})
                 return dumps(newly_uploaded_post),201
- 
-            return jsonify({"message":"user does not exist"}),404
+            
+
+            except Exception as e:
+                return jsonify({"message": str(e)}), 500
+
+               
         except Exception as e:
             print(e)
             return jsonify({"message":str(e)}),500
@@ -118,7 +139,28 @@ def getfeed():
             if not user:
                 return jsonify({"message":'user does not exists'}),404
             
-            feed = mongo.db.post.find({'user_id': {'$in': [ObjectId(id) for id in user['following']]}}).sort([("exactTime", -1)]).skip(skip).limit(per_page)
+            # feed = mongo.db.post.find({'user_id': {'$in': [ObjectId(id) for id in user['following']]}}).sort([("exactTime", -1)]).skip(skip).limit(per_page)
+            
+            feed = mongo.db.post.aggregate([
+                {
+                    '$match': {
+                        '$or': [
+                            {'user_id': ObjectId(userid)},
+                            {'user_id': {'$in': [ObjectId(id) for id in user['following']]}}
+                        ]
+                    }
+                },
+                {
+                    '$sample': {'size': per_page}
+                },
+                {
+                    '$sort': {'exactTime': -1}
+                },
+                {
+                    '$skip': skip
+                }
+            ])
+
             feed_list = list(feed)
             feed_json = dumps(feed_list)
             return feed_json,200
@@ -177,6 +219,9 @@ def deletePost():
         try:
             data=request.json
             mongo=posts.mongo
+            s3_bucket_name=posts.s3_bucket_name
+            s3=posts.s3
+
             userid=data.get("userid")
             postid=data.get("postid")
 
@@ -189,13 +234,12 @@ def deletePost():
                 return jsonify({"message":"post does not exist"}),400
             
             if post['user_id'] != ObjectId(userid):
-                return jsonify({"message": "You do not have permission to delete this post"}), 403
+                return jsonify({"message": "You do not have permission to delete this post"}),403
             
             post_path=post['postPath']
-            if post_path and os.path.exists(post_path):
-                os.remove(post_path)
-            else:
-                return jsonify({"message":"error deleting the post"}),400
+
+            if post_path:
+                s3.delete_object(Bucket=s3_bucket_name, Key=post_path)
 
             delete_post_and_related_comments(mongo,postid)
 

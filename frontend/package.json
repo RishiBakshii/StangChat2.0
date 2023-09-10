@@ -2,6 +2,7 @@
   "name": "frontend",
   "version": "0.1.0",
   "private": true,
+  "homepage": "https://www.stangchat.com/",
   "dependencies": {
     "@mui/lab": "^5.0.0-alpha.140",
     "@mui/material": "^5.14.5",

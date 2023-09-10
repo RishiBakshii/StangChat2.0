@@ -5,7 +5,7 @@ import { Avatar, Box, Button, CircularProgress, Stack, TextField, Typography, us
 import { Rightbar } from '../components/Rightbar'
 import { LocationCityRounded } from '@mui/icons-material'
 import { Link, useHref, useNavigate } from 'react-router-dom'
-import { BASE_URL, SERVER_DOWN_MESSAGE } from '../envVariables'
+import { BASE_URL, BUCKET_URL, SERVER_DOWN_MESSAGE } from '../envVariables'
 import { loggedInUserContext } from '../context/user/Usercontext'
 import { handleApiResponse } from '../utils/common'
 import { LogoutUser } from '../api/auth'
@@ -96,7 +96,7 @@ export const Search = () => {
                   results.map((data)=>{
                     return <Stack key={data._id.$oid} direction={'row'} justifyContent={'space-between'}>
                     <Stack direction={'row'} alignItems={'center'} spacing={2}>
-                        <Avatar component={Link} src={`${BASE_URL}/${data.profilePicture}`} to={`/profile/${data.username}`} sx={{"width":`${is480?"5rem":"10rem"}`,'height':`${is480?"5rem":"10rem"}`}}></Avatar>
+                        <Avatar component={Link} src={`${BUCKET_URL}/${data.profilePicture}`} to={`/profile/${data.username}`} sx={{"width":`${is480?"5rem":"10rem"}`,'height':`${is480?"5rem":"10rem"}`}}></Avatar>
                     <Stack>
                     <Typography component={Link} to={`/profile/${data.username}`} sx={{"textDecoration":"none",color:"black"}} variant='h6' fontWeight={300}>{data.username}</Typography>
                     <Typography variant='body1' fontWeight={300}>{data.location}</Typography>

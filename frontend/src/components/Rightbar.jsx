@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import {Avatar,Box,ImageList,ImageListItem,Typography,List,ListItem,ListItemAvatar,ListItemText,Divider, Stack, IconButton, CircularProgress, useMediaQuery, CardMedia} from "@mui/material";
 import RefreshIcon from '@mui/icons-material/Refresh';
-import { BASE_URL, SERVER_DOWN_MESSAGE } from "../envVariables";
+import { BASE_URL, BUCKET_URL, SERVER_DOWN_MESSAGE } from "../envVariables";
 import { Link, useNavigate } from "react-router-dom";
 import {useTheme} from "@mui/material";
 import { rightBarContext } from "../context/rigthbar/RightbarContext";
@@ -79,11 +79,11 @@ export const Rightbar = () => {
       }
 
       if(response.status===500){
-        alert("internal server error")
+        console.log(json.message)
       }
 
     } catch (error) {
-      alert(error)
+      console.log(error)
     }
     finally{
       setPostLoader(false)
@@ -115,9 +115,9 @@ export const Rightbar = () => {
                       return <ImageListItem component={Link} to={`/profile/${data.username}`}>
                         {
                         data.postPath.toLowerCase().endsWith('.mp4')?(
-                          <video src={`${BASE_URL}/${data.postPath}`} controls width={'200px'}></video>
+                          <video src={`${BUCKET_URL}/${data.postPath}`} controls width={'200px'}></video>
                         ):(
-                          <img src={`${BASE_URL}/${data.postPath}`} alt={data.username}/>
+                          <img src={`${BUCKET_URL}/${data.postPath}`} alt={data.username}/>
                         )
                         }
                         </ImageListItem>
@@ -142,7 +142,7 @@ export const Rightbar = () => {
                     suggestions.map((data)=>{
                       return  <ListItem alignItems="flex-start">
             <ListItemAvatar>
-              <Avatar alt={data.username} component={Link} to={`/profile/${data.username}`} src={`${BASE_URL}/${data.profilePicture}`} />
+              <Avatar alt={data.username} component={Link} to={`/profile/${data.username}`} src={`${BUCKET_URL}/${data.profilePicture}`}/>
             </ListItemAvatar>
             <ListItemText component={Link} to={`/profile/${data.username}`} primary={data.username}
               secondary={

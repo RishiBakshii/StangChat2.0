@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from 'react'
 import { Navbar } from '../components/Navbar'
 import {Stack,Box, Typography, Avatar, useMediaQuery, useTheme, CircularProgress, Button} from '@mui/material'
 import { Leftbar } from '../components/Leftbar'
-import { BASE_URL, SERVER_DOWN_MESSAGE } from '../envVariables'
+import { BASE_URL, BUCKET_URL, SERVER_DOWN_MESSAGE } from '../envVariables'
 import { loggedInUserContext } from '../context/user/Usercontext'
 import { Link, useNavigate } from 'react-router-dom'
 import Lottie from 'lottie-react';
@@ -79,7 +79,7 @@ export const Friends = () => {
               friends.map((data)=>{
                 return <Stack key={data.userid} direction={'row'} justifyContent={'space-between'}>
                           <Stack direction={'row'} alignItems={'center'} spacing={2}>
-                                <Avatar component={Link} src={`${BASE_URL}/${data.profilePicture}`} to={`/profile/${data.username}`} sx={{"width":`${is480?"5rem":"10rem"}`,'height':`${is480?"5rem":"10rem"}`}}></Avatar>
+                                <Avatar component={Link} src={`${BUCKET_URL}/${data.profilePicture}`} to={`/profile/${data.username}`} sx={{"width":`${is480?"5rem":"10rem"}`,'height':`${is480?"5rem":"10rem"}`}}></Avatar>
                           <Stack>
                                 <Typography component={Link} to={`/profile/${data.username}`} sx={{"textDecoration":"none",color:"black"}} variant='h6' fontWeight={300}>{data.username}</Typography>
                                 <Typography variant='body1' fontWeight={300}>{data.location}</Typography>

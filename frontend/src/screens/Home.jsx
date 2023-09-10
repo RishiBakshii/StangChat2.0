@@ -15,7 +15,8 @@ import { Newuserdisplay } from '../components/Newuserdisplay'
 import { CaughtUpDisplay } from '../components/CaughtUpDisplay'
 import {SnackAlert} from '../components/SnackAlert'
 import { GlobalAlertContext } from '../context/globalAlert/GlobalAlertContext'
-import { SERVER_DOWN_MESSAGE } from '../envVariables'
+import { BUCKET_URL, SERVER_DOWN_MESSAGE } from '../envVariables'
+import { useNavigate } from 'react-router-dom'
 
 
 export const BASE_URL=process.env.REACT_APP_API_BASE_URL;
@@ -44,12 +45,14 @@ export const Home =() => {
         if(hasMore){
             getFeed()
         }
-    },[page,loggedInUser.loggedInUser])
+    },[page,loggedInUser])
 
     useEffect(()=>{
         window.addEventListener("scroll", handelInfiniteScroll);
         return () => window.removeEventListener("scroll", handelInfiniteScroll);
     },[])
+
+    const navigate=useNavigate()
 
     const handelInfiniteScroll = async() => {
         try{
@@ -68,9 +71,13 @@ export const Home =() => {
             const result=await loadPost(page,loggedInUser.loggedInUser.userid)
             if(result.success){
                 if(result.data.length!==0){
-                    setFeed((prev) => [...prev,...result.data]);
+                    const newPosts = result.data.filter((post) => {
+                        return !feed.some((existingPost) => existingPost._id.$oid === post._id.$oid);
+                    });
+                    setFeed((prev) => [...prev, ...newPosts]);
                 }
                 if(result.logout){
+                    navigate("/login")
                     setGlobalAlertOpen({state:true,message:result.message})
                 }
                 else{
@@ -103,7 +110,7 @@ export const Home =() => {
                         username={post.username} 
                         caption={post.caption} 
                         likesCount={post.likesCount}
-                        imageUrl={`${BASE_URL}/${post.postPath}`} 
+                        imageUrl={`${BUCKET_URL}/${post.postPath}`} 
                         unique_id={post._id.$oid}
                         postedAt={post.postedAt}
                         profilePath={post.profilePath}

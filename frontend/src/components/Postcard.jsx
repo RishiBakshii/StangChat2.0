@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
-import {Avatar,Box,Card,CardActions,CardContent,CardHeader,CardMedia,IconButton,Typography,Checkbox,Stack,TextField,InputAdornment,Menu,MenuItem, useTheme, useMediaQuery,} from "@mui/material";
+import {Avatar,Box,Card,CardActions,CardContent,CardHeader,CardMedia,IconButton,Typography,Checkbox,Stack,TextField,InputAdornment,Menu,MenuItem, useTheme, useMediaQuery, TextareaAutosize,} from "@mui/material";
 import {MoreVert,Favorite,FavoriteBorder,Comment,Send,Delete} from "@mui/icons-material";
 import { BASE_URL} from "../screens/Home";
 import CircularProgress from "@mui/material/CircularProgress";
@@ -8,9 +8,10 @@ import { loggedInUserContext } from "../context/user/Usercontext";
 import LoadingButton from "@mui/lab/LoadingButton/LoadingButton";
 import { postContext } from "../context/posts/PostContext";
 import { GlobalAlertContext } from "../context/globalAlert/GlobalAlertContext";
-import { INTERNAL_SERVER_ERROR_MESSAGE, SERVER_DOWN_MESSAGE } from "../envVariables";
+import { BUCKET_URL, INTERNAL_SERVER_ERROR_MESSAGE, SERVER_DOWN_MESSAGE } from "../envVariables";
 import { LogoutUser } from "../api/auth";
 import { handleApiResponse } from "../utils/common";
+
 
 export const Postcard = ({username,caption,likesCount,imageUrl,unique_id,postedAt,profilePath,isLiked,setLikeModalOpen,userid,commentCount}) => {
   const [isLikedstate, setIsLikedState] = useState(isLiked);
@@ -24,6 +25,7 @@ export const Postcard = ({username,caption,likesCount,imageUrl,unique_id,postedA
   const [postingComment,setPostingComment]=useState(false)
   const [fetchedComment, setFetchedComment] = useState([]);
   const [comment, setComment] = useState([]);
+  const [commentCountState,setCommentCountState]=useState(commentCount)
   const [commentLikes, setCommentLikes] = useState({});
   const MD=useMediaQuery(theme.breakpoints.down("md"))
   const navigate=useNavigate()
@@ -116,8 +118,9 @@ export const Postcard = ({username,caption,likesCount,imageUrl,unique_id,postedA
 
       if(result.success){
         setPostingComment(false)
-        setFetchedComment((prevComments) => [...prevComments, result.data]);
+        setFetchedComment((prevComments) => [...prevComments, result.data.comment]);
         setComment("");
+        setCommentCountState(result.data.updated_comment_count)
       }
       else if(result.logout){
         setGlobalAlertOpen({state:true,message:result.message})
@@ -280,9 +283,47 @@ export const Postcard = ({username,caption,likesCount,imageUrl,unique_id,postedA
     setAnchorEl(null);
   };
 
+  const handleDeleteComment=async(commentId)=>{
+    try {
+      const response=await fetch(`${BASE_URL}/deletecomment`,{
+        method:"POST",
+        headers:{
+          'Content-Type':'application/json'
+        },
+        credentials:"include",
+        body:JSON.stringify({
+          userid: loggedInUser.loggedInUser.userid,
+          postid: unique_id,
+          commentid:commentId
+        })
+      })
+
+      const result=await handleApiResponse(response)
+
+      if(result.success){
+        setFetchedComment((comments) => comments.filter(comment => comment._id.$oid !== result.data.deleted_comment_id));
+        setCommentCountState(result.data.updated_comment_count)
+        setGlobalAlertOpen({state:true,message:'Comment Deleted'})
+      }
+
+      else if(result.logout){
+        navigate("/login")
+        setGlobalAlertOpen({state:true,message:result.message})
+      }
+
+      else{
+        setGlobalAlertOpen({state:true,message:result.message})
+      }
+
+    } catch (error) {
+      console.log(error)
+      setGlobalAlertOpen({state:true,message:SERVER_DOWN_MESSAGE})
+    }
+  }
+
   return (
     <Card sx={{margin:`${MD?("3rem"):"5rem"} 0rem`,height: showComment.cardHeight,width:`${is480?"95%":"80%"}`}}>
-      <CardHeader avatar={ <Avatar sx={{ bgcolor: "blue" }} aria-label="recipe" component={Link} to={`/profile/${username}`} src={`${BASE_URL}/${profilePath}`}></Avatar>}
+      <CardHeader avatar={ <Avatar sx={{ bgcolor: "blue" }} aria-label="recipe" component={Link} to={`/profile/${username}`} src={`${BUCKET_URL}/${profilePath}`}></Avatar>}
         action={
           <Box> 
             <IconButton id="basic-button" aria-controls={open ? 'basic-menu' : undefined} aria-haspopup="true" aria-expanded={open ? 'true' : undefined} onClick={handleClick}>
@@ -328,7 +369,7 @@ export const Postcard = ({username,caption,likesCount,imageUrl,unique_id,postedA
       <CardMedia component={imageUrl.toLowerCase().endsWith('.mp4')?("video"):("img")} image={imageUrl} controls alt={`Unable to load ${username}s post`} style={{ height:`${is480?("350px"):("500px")}`,objectFit: "contain" }}/>
 
       <CardContent>
-        <Typography variant="body2" color="text.secondary">
+        <Typography variant="body1" sx={{"overflowY":"scroll"}} color="text.primary">
           {caption}
         </Typography>
       </CardContent>
@@ -343,7 +384,8 @@ export const Postcard = ({username,caption,likesCount,imageUrl,unique_id,postedA
             <IconButton onClick={toggleComments} aria-label="share">
               <Comment />
               </IconButton>
-              <Typography>{commentCount}</Typography>
+              <Typography>{commentCountState}</Typography>
+              
 
       </CardActions>
 
@@ -368,11 +410,16 @@ export const Postcard = ({username,caption,likesCount,imageUrl,unique_id,postedA
                     <Stack key={comment._id.$oid} mt={4} bgcolor={"white"} spacing={1} p={'0 1rem'}>
 
                         <Stack direction={"row"} alignItems={"center"} spacing={1}>
-                              <Avatar alt={comment.username} src={`${BASE_URL}/${comment.profilepath}`} component={Link} to={`/profile/${comment.username}`}/>
-                              <Typography sx={{"textDecoration":"none",color:"black"}} component={Link} to={`/profile/${comment.username}`}>{comment.username}</Typography>
+                              <Avatar alt={comment.username} src={`${BUCKET_URL}/${comment.profilepath}`} component={Link} to={`/profile/${comment.username}`}/>
+                              <Typography sx={{"textDecoration":"none",color:"black"}} component={Link} to={`/profile/${comment.username}`}>{comment.user_id===loggedInUser.loggedInUser.userid?'You':comment.username}</Typography>
+                              {
+                                comment.user_id===loggedInUser.loggedInUser.userid?(
+                                      <IconButton onClick={()=>handleDeleteComment(comment._id.$oid)}><Delete fontSize="small"/></IconButton>
+                                ):("")
+                              } 
                         </Stack>
 
-                        <Stack bgcolor={""} direction={"row"} alignItems={"center"} justifyContent={"space-between"}>
+                        <Stack direction={"row"} alignItems={"center"} justifyContent={"space-between"}>
 
                         <Typography variant="body2" color="text.primary">{comment.comment}</Typography>
 

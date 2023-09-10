@@ -18,7 +18,7 @@ import { Editprofile } from '../components/Editprofile'
 import userdoesnotexist from '../animations/userdoesnotexist.json'
 import { handleApiResponse } from '../utils/common'
 import { GlobalAlertContext } from '../context/globalAlert/GlobalAlertContext'
-import { SERVER_DOWN_MESSAGE } from '../envVariables'
+import { BUCKET_URL, SERVER_DOWN_MESSAGE } from '../envVariables'
 
 
 export const Profile = () => {
@@ -256,14 +256,14 @@ export const Profile = () => {
                     email={loggedInUser.email} 
                     bio={loggedInUser.bio} 
                     location={loggedInUser.location} 
-                    profilePath={`${BASE_URL}/${loggedInUser.profilePicture}`}
+                    profilePath={`${BUCKET_URL}/${loggedInUser.profilePicture}`}
                     />
                   ):(
                   <Stack padding={is480?(.4):(4)}  borderRadius={'.6rem'} width={`${LG?"100%":"60%"}`} justifyContent={`${is480?("center"):("flex-start")}`} alignItems={`${is480?("center"):("flex-start")}`}>
 
                       {/* avatar */}
                       <Stack>
-                          <Avatar sx={{width:is480?180:200,height:is480?180:200}} alt={`profile picture of ${profile.username}`} src={`${BASE_URL}/${profile.profilePicture}`} />
+                          <Avatar sx={{width:is480?180:200,height:is480?180:200}} alt={`profile picture of ${profile.username}`} src={`${BUCKET_URL}/${profile.profilePicture}`} />
                       </Stack>
                   {/* username*/}
                   <Stack direction={'row'} alignItems={'center'} spacing={2} mt={5}>
@@ -314,7 +314,7 @@ export const Profile = () => {
                         username={post.username} 
                         caption={post.caption} 
                         likesCount={post.likesCount}
-                        imageUrl={`${BASE_URL}/${post.postPath}`} 
+                        imageUrl={`${BUCKET_URL}/${post.postPath}`}
                         unique_id={post._id.$oid}
                         postedAt={post.postedAt}
                         profilePath={post.profilePath}
@@ -357,7 +357,7 @@ export const Profile = () => {
                           return  <Stack direction={'row'} justifyContent={'space-between'}>
                                 <Stack direction={'row'} spacing={2} justifyContent={'center'} alignItems={'center'}>
 
-                                      <Avatar sx={{"width":"3rem",height:"3rem"}} alt={data.username} src={`${BASE_URL}/${data.profile_picture}`} component={Link} to={`/profile/${data.username}`}/>
+                                      <Avatar sx={{"width":"3rem",height:"3rem"}} alt={data.username} src={`${BUCKET_URL}/${data.profile_picture}`} component={Link} to={`/profile/${data.username}`}/>
 
                                       <Stack>
                                           <Typography component={Link} sx={{ textDecoration: "none", color: "black" }} to={`/profile/${data.username}`} variant='h6' fontWeight={300}>{data.username}</Typography>
@@ -400,7 +400,7 @@ export const Profile = () => {
                           return  <Stack direction={'row'} justifyContent={'space-between'}>
                                 <Stack direction={'row'} spacing={2} justifyContent={'center'} alignItems={'center'}>
 
-                                      <Avatar sx={{"width":"3rem",height:"3rem"}} alt={data.username} src={`${BASE_URL}/${data.profile_picture}`} component={Link} to={`/profile/${data.username}`}/>
+                                      <Avatar sx={{"width":"3rem",height:"3rem"}} alt={data.username} src={`${BUCKET_URL}/${data.profile_picture}`} component={Link} to={`/profile/${data.username}`}/>
 
                                       <Stack>
                                           <Typography component={Link} sx={{ textDecoration: "none", color: "black" }} to={`/profile/${data.username}`} variant='h6' fontWeight={300}>{data.username}</Typography>

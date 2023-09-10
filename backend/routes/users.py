@@ -5,6 +5,9 @@ import os
 from bson.json_util import dumps
 from utils.common import upload_profile_picture,update_profile_data,format_user_data,handle_follow,handle_unfollow
 from utils.validation import is_existing_username,is_existing_userid,is_existing_email
+from botocore.exceptions import NoCredentialsError
+import uuid
+from io import BytesIO
 
 users=Blueprint('users',__name__)
 
@@ -51,6 +54,10 @@ def updateProfile():
     if request.method=='POST':
         try:
             mongo=users.mongo
+            s3=users.s3
+            s3_bucket_name=users.s3_bucket_name
+
+
             userid = request.form.get('userid')
             bio = request.form.get('bio')
             profile_picture = request.files.get("profilepicture")
@@ -58,11 +65,28 @@ def updateProfile():
             user=is_existing_userid(mongo,userid)
             if not user:
                 return jsonify({'message':"User Does Not Exist"}),404
+            
+            if profile_picture is not None:
+                secureFilename=secure_filename(profile_picture.filename)
+                unique_id=uuid.uuid4()
+                filename, file_extension = os.path.splitext(secureFilename)
+                unique_filename = f"{filename}_{unique_id}{file_extension}"
+                object_key = f'{userid}/profile/{unique_filename}'
 
-            profile_picture_path=upload_profile_picture(profile_picture,current_app.config['PROFILE_FOLDER'])
 
-            if update_profile_data(mongo,userid,bio,profile_picture_path):
-                return jsonify({'message':"Profile Updated"}),200
+                try:
+                    user_profile_data = BytesIO(profile_picture.read())
+                    s3.upload_fileobj(user_profile_data,s3_bucket_name,object_key)
+
+                    mongo.db.users.update_one({"_id":ObjectId(userid)},{"$set": {"bio": bio,'profilePicture':object_key}})
+                    return jsonify({'message':"Profile Updated"}),200
+
+                except Exception as e:
+                    return jsonify({"message": str(e)}), 500
+                
+            mongo.db.users.update_one({"_id":ObjectId(userid)},{"$set": {"bio": bio,'profilePicture':'default-profile-picture/defaultProfile.png'}})
+            return jsonify({'message':"Profile Updated"}),200
+
         except Exception as e:
             return jsonify({"message":str(e)}),500
 
@@ -127,7 +151,6 @@ def getFollowers():
             print(e)
             return jsonify({"message":str(e)}),500
 
-
 # ✅
 @users.route("/getfollowing", methods=['POST'])
 def getFollowing():
@@ -185,7 +208,6 @@ def usersearch():
         print(e)
         return jsonify({"message": str(e)}), 500
 
-
 # ✅
 @users.route('/randomusers', methods=['POST'])
 def get_random_users():
@@ -205,13 +227,16 @@ def get_random_users():
     except Exception as e:
         return jsonify({"message":str(e)}),500
 
-
 # ✅
 @users.route("/editprofile",methods=['POST'])
 def edit_profile():
     try:
         mongo=users.mongo
         userid=request.form.get("userid")
+
+        s3=users.s3
+        s3_bucket_name=users.s3_bucket_name
+
 
         username=request.form.get("username")
         email=request.form.get("email")
@@ -243,16 +268,33 @@ def edit_profile():
             updated_feilds['location'] = location
         
         if profilePicture is not None:
-            prev_profile_picture_path = user["profilePicture"]
-            if os.path.normpath(prev_profile_picture_path)!= os.path.normpath(current_app.config['DEFAULT_PROFILE_PICTURE']):
-                try:
-                    os.remove(prev_profile_picture_path)
-                except Exception as e:
-                    return jsonify({"message",str(e)}),500
-                
-            updated_profile_picture_path=upload_profile_picture(profilePicture,current_app.config['PROFILE_FOLDER'])
-            updated_feilds['profilePicture']=updated_profile_picture_path
+            prev_profile_picture_key = user["profilePicture"]
+            if prev_profile_picture_key!=current_app.config['DEFAULT_PROFILE_PICTURE']:
 
+                try:
+                    s3.delete_object(Bucket=s3_bucket_name, Key=prev_profile_picture_key)
+
+                except NoCredentialsError:
+                        return jsonify({"message": "AWS credentials not found"}),500
+                except Exception as e:
+                        return jsonify({"message": str(e)}), 500
+                
+            secureFilename=secure_filename(profilePicture.filename)
+            unique_id=uuid.uuid4()
+            filename, file_extension = os.path.splitext(secureFilename)
+            unique_filename = f"{filename}_{unique_id}{file_extension}"
+            object_key = f'{userid}/profile/{unique_filename}'
+
+            try:
+                profile_picture_data = BytesIO(profilePicture.read())
+                s3.upload_fileobj(profile_picture_data,s3_bucket_name,object_key)
+                updated_feilds['profilePicture'] = object_key
+
+            except NoCredentialsError:
+                return jsonify({"message": "AWS credentials not found"}), 500
+            except Exception as e:
+                return jsonify({"message": str(e)}), 500
+                            
         if updated_feilds:
             mongo.db.users.update_one({"_id":ObjectId(userid)},{'$set':updated_feilds})
 
@@ -265,7 +307,6 @@ def edit_profile():
     except Exception as e:
         print(e)
         return jsonify({"message":str(e)}),500
-
 
 # ✅
 @users.route("/getfriends",methods=['POST'])

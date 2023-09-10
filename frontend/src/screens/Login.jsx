@@ -53,7 +53,8 @@ export const Login = () => {
     <>
     <Stack direction={'row'} padding={'0 4vw'} width={'100vw'} justifyContent={"center"} alignItems={"center"} height={"100vh"}> 
         <Stack width={"30rem"}  justifyContent={'center'} alignItems={"center"}>
-            <Typography variant='h3' color={"#191919"} fontWeight={700}>Stang<span style={{color:"#6c2ad7"}}>Chat</span></Typography>
+            <Typography gutterBottom variant='h3' color={"#191919"} fontWeight={700}>Stang<span style={{color:"#6c2ad7"}}>Chat</span></Typography>
+            <Typography variant='h5' color={"#191919"} style={{color:"#6c2ad7"}} fontWeight={700}>Launching this tuesday🎉</Typography>
             <Stack mt={5} spacing={2} width={'100%'}>
                 <TextField  name='email' label="Email" variant="outlined"  value={credentials.email}  onChange={handleOnChange}/>
                 <TextField  type='password' name='password' label="Password" variant="outlined" value={credentials.password} onChange={handleOnChange}/>

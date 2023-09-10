@@ -4,7 +4,7 @@ import { Navbar } from '../components/Navbar';
 import { Leftbar } from '../components/Leftbar';
 import { Stack } from '@mui/material';
 import { useEffect, useState } from 'react';
-import { BASE_URL } from '../envVariables';
+import { BASE_URL, BUCKET_URL } from '../envVariables';
 import { Link } from 'react-router-dom';
 
 function srcset(image, size, rows = 1, cols = 1) {
@@ -65,9 +65,9 @@ export const Explore=()=> {
                         <ImageListItem component={Link} to={`/profile/${data.username}`} key={data._id} cols={data.cols || 1} rows={data.rows || 1}>
                           {
                             data.postPath.toLowerCase().endsWith('.mp4')?(
-                              <video control width={"300px"} {...srcset(`${BASE_URL}/${data.postPath}`, 121, data.rows, data.cols)}></video>
+                              <video control width={"300px"} {...srcset(`${BUCKET_URL}/${data.postPath}`, 121, data.rows, data.cols)}></video>
                             ):(
-                            <img {...srcset(`${BASE_URL}/${data.postPath}`, 121, data.rows, data.cols)}alt={data.username} loading="lazy"/>
+                            <img {...srcset(`${BUCKET_URL}/${data.postPath}`, 121, data.rows, data.cols)}alt={data.username} loading="lazy"/>
                             )
                           }
 

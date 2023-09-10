@@ -4,6 +4,7 @@ from flask import Flask,jsonify,request
 from bson.json_util import dumps
 from utils.validation import is_existing_userid,is_existing_commentid,is_existing_postid
 from utils.common import handle_comment_like
+from schema.comments import comment_schema
 
 comments=Blueprint('comments',__name__)
 
@@ -28,20 +29,35 @@ def postcomment():
             post = is_existing_postid(mongo,post_id)
             if not post:
                 return jsonify({'message': 'Post not found'}), 404
+            
+            new_comment=comment_schema.copy()
 
-            new_comment = {
+            new_comment.update({
                 'user_id': user_id,
                 'post_id': post_id,
                 'comment': comment_content,
                 'username':username,
                 'profilepath':profilepath,
-                'likes':[],
-                'likeCount':0
-            }
+            })
 
             new_comment_id=mongo.db.comments.insert_one(new_comment).inserted_id
+
+            mongo.db.post.update_one(
+                {"_id": post["_id"]},
+                {"$inc": {"commentsCount": 1}}
+            )
+
+            updated_post=is_existing_postid(mongo,post_id)
+            updated_comment_count = updated_post["commentsCount"]
+
             new_comment_doc = mongo.db.comments.find_one({"_id": new_comment_id})
-            return dumps(new_comment_doc), 201
+
+            response={
+                "comment":new_comment_doc,
+                'updated_comment_count':updated_comment_count
+            }
+
+            return dumps(response), 201
 
             
         except Exception as e:
@@ -101,22 +117,30 @@ def deleteComment():
             postid = data.get("postid")
             commentid = data.get("commentid")
 
-            user =is_existing_userid(mongo,userid)
+            user=is_existing_userid(mongo,userid)
             if not user:
-                return jsonify({"message": 'User does not exist'}), 400
+                return jsonify({"message": 'User does not exist'}), 404
             
-            post =is_existing_postid(mongo,postid)
+            post=is_existing_postid(mongo,postid)
             if not post:
-                return jsonify({"message": "Post does not exist"}), 400
+                return jsonify({"message": "Post does not exist"}), 404
             
             comment = mongo.db.comments.find_one({"_id": ObjectId(commentid), "post_id": postid})
             if not comment:
-                return jsonify({"message": "Comment does not exist or is not associated with the post"}), 400
+                return jsonify({"message": "Comment does not exist or is not associated with the post"}), 404
 
-            mongo.db.comments.delete_one({"_id": ObjectId(commentid)})
-            mongo.db.post.update_one({"_id": ObjectId(postid)}, {"$inc": {"commentsCount": -1}})
+            result = mongo.db.comments.delete_one({"_id": ObjectId(commentid), "post_id": postid})
+            if result.deleted_count == 1:
+                mongo.db.post.update_one({"_id": ObjectId(postid)}, {"$inc": {"commentsCount": -1}})
+                updated_post=is_existing_postid(mongo,postid)
 
-            return jsonify({"message": "Comment deleted"}), 200
+                response={
+                    'deleted_comment_id':commentid,
+                    'updated_comment_count':updated_post['commentsCount']
+                }
+                return response,200
+            else:
+                return jsonify({"message": "Failed to delete the comment"}), 500
 
         except Exception as e:
             return jsonify({"message":str(e)}),500

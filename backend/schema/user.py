@@ -1,3 +1,5 @@
+from datetime import datetime
+
 user_schema = {
     'username': '',
     'email': '',
@@ -9,5 +11,7 @@ user_schema = {
     'following': [],
     'postCount': 0,
     'followerCount': 0,
-    'followingCount': 0
+    'followingCount': 0,
+    'createdAt':datetime.now().strftime("%B %d, %Y"),
+    'exactTime':datetime.now(),
 }

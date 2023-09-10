@@ -8,6 +8,7 @@ import { BASE_URL } from '../screens/Home';
 import { getPostLikes } from '../api/post';
 import { Link, useNavigate } from 'react-router-dom';
 import { GlobalAlertContext } from '../context/globalAlert/GlobalAlertContext';
+import { BUCKET_URL } from '../envVariables';
 
 
 
@@ -87,7 +88,7 @@ export const Likesmodal=({open,handleClose,postid})=> {
     likesData.map((data) => (
       <Stack direction={'row'} justifyContent={'space-between'} key={data.id}>
         <Stack direction={'row'} spacing={2}>
-          <Avatar alt="Cindy Baker" src={`${BASE_URL}/${data.profilePicture}`} component={Link} to={`/profile/${data.username}`}/>
+          <Avatar alt="Cindy Baker" src={`${BUCKET_URL}/${data.profilePicture}`} component={Link} to={`/profile/${data.username}`}/>
           <Typography component={Link} sx={{ textDecoration: "none", color: "black" }} to={`/profile/${data.username}`} variant='h6' fontWeight={300}>{data.username}</Typography>
         </Stack>
       </Stack>

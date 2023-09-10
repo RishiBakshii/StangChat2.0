@@ -5,37 +5,24 @@ import Drawer from '@mui/material/Drawer';
 import CssBaseline from '@mui/material/CssBaseline';
 import MuiAppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
-import List from '@mui/material/List';
 import Typography from '@mui/material/Typography';
 import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import ListItem from '@mui/material/ListItem';
-import ListItemButton from '@mui/material/ListItemButton';
-import ListItemIcon from '@mui/material/ListItemIcon';
-import ListItemText from '@mui/material/ListItemText';
-import PersonIcon from '@mui/icons-material/Person';
-import Diversity3Icon from '@mui/icons-material/Diversity3';
-import SettingsIcon from '@mui/icons-material/Settings';
-import HomeIcon from '@mui/icons-material/Home';
 import { Link} from 'react-router-dom';
-import PostAddIcon from '@mui/icons-material/PostAdd';
 import {useState } from 'react';
 import {PostModal} from '../components/PostModal'
 import { useContext } from 'react';
 import { loggedInUserContext } from '../context/user/Usercontext';
-import { ArrowBackTwoTone, BugReport, Search } from '@mui/icons-material';
 import { Logoutmodal } from './Logoutmodal';
-import { BASE_URL } from '../envVariables';
+import { BASE_URL, BUCKET_URL } from '../envVariables';
 import { Avatar, Stack, useMediaQuery } from '@mui/material';
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 import { rightBarContext } from '../context/rigthbar/RightbarContext';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
-import {Explore} from '../screens/Explore'
 import { LeftBarItems } from './LeftBarItems';
-// import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 
 const drawerWidth = 240;
 
@@ -114,7 +101,7 @@ export default function PersistentDrawerLeft() {
           </Typography>
 
           <Stack direction={'row'} spacing={2} alignItems={'center'} justifySelf={'flex-end'}>
-              <Avatar alt={loggedInUser.loggedInUser.username} src={`${BASE_URL}/${loggedInUser.loggedInUser.profilePicture}`} />
+              <Avatar alt={loggedInUser.loggedInUser.username} src={`${BUCKET_URL}/${loggedInUser.loggedInUser.profilePicture}`} />
               <Typography variant='h5'>{`${loggedInUser.loggedInUser.username}`}</Typography>
           </Stack>
 

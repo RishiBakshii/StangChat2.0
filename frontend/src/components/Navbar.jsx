@@ -8,6 +8,7 @@ import { loggedInUserContext } from '../context/user/Usercontext';
 import { Link } from 'react-router-dom';
 import PersistentDrawerLeft from './LeftbarMobile';
 import {useTheme} from '@mui/material/styles';
+import { BUCKET_URL } from '../envVariables';
 
 
 const BASE_URL=process.env.REACT_APP_API_BASE_URL;
@@ -82,7 +83,7 @@ export const Navbar = () => {
             />
           </Search>
           <Stack direction={'row'} spacing={2} alignItems={'center'}>
-              <Avatar alt={loggedInUser.loggedInUser.username} src={`${BASE_URL}/${loggedInUser.loggedInUser.profilePicture}`} />
+              <Avatar alt={loggedInUser.loggedInUser.username} src={`${BUCKET_URL}/${loggedInUser.loggedInUser.profilePicture}`} />
               <Typography variant='h5'>{`${loggedInUser.loggedInUser.username}`}</Typography>
           </Stack>
 

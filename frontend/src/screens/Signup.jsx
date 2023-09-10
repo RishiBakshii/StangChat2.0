@@ -67,7 +67,8 @@ export const Signup = () => {
             <Stack  width={"30rem"} justifyContent={'center'} alignItems={"center"}>
             
                     <Stack direction={'column'} justifyContent={'center'} alignItems={'center'}>
-                            <Typography variant='h3' color={"#191919"} fontWeight={700}>Stang<span style={{color:"#6c2ad7"}}>Chat</span></Typography>
+                            <Typography variant='h3' gutterBottom color={"#191919"} fontWeight={700}>Stang<span style={{color:"#6c2ad7"}}>Chat</span></Typography>
+                            <Typography variant='h5' color={"#191919"} style={{color:"#6c2ad7"}} fontWeight={700}>Launching this tuesday🎉</Typography>
                     </Stack>
 
                     <Stack mt={5} width={'100%'} spacing={2}>
