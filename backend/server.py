@@ -1,6 +1,7 @@
 from flask import Flask,jsonify,request,make_response
 from flask_pymongo import PyMongo
 from flask_cors import CORS
+from flask_socketio import SocketIO,emit
 from dotenv import load_dotenv
 import os
 import jwt
@@ -12,14 +13,17 @@ from routes.posts import posts
 from routes.users import users
 from routes.comments import comments
 
-
 import boto3
-from botocore.exceptions import NoCredentialsError
 
 
 load_dotenv()
 
 app=Flask(__name__)
+app.config['SECRET_KEY']='secret!'
+
+# CORS AND SOCKET
+# CORS(app,resources={r"/*":{"origins":"http://localhost:3000"}},supports_credentials=True)
+socketio=SocketIO(app,cors_allowed_origins='http://localhost:3000')
 
 # S3 BUCKET CONFIG
 S3_BUCKET_NAME=os.environ.get("S3_BUCKET_NAME")
@@ -27,15 +31,6 @@ s3 = boto3.client('s3', aws_access_key_id=os.environ.get("AWS_ACCESS_KEY"), aws_
 
 app.config['MONGO_URI']=os.environ.get('DATABASE_URI')
 app.config['DEFAULT_PROFILE_PICTURE']='default-profile-picture/defaultProfile.png'
-# UPLOAD_FOLDER=os.path.join('static','uploads')
-# POST_FOLDER='post'
-# PROFILE_FOLDER='profile'
-# app.config['UPLOAD_FOLDER']=UPLOAD_FOLDER
-# app.config['POST_FOLDER']=os.path.join(app.config['UPLOAD_FOLDER'],POST_FOLDER)
-# app.config['PROFILE_FOLDER']=os.path.join(app.config['UPLOAD_FOLDER'],PROFILE_FOLDER)
-# app.config['DEFAULT_PROFILE_PICTURE']=os.path.join(app.config['PROFILE_FOLDER'],'defaultProfile.png')
-# profile_photos=os.path.join(app.config['UPLOAD_FOLDER'],'profile')
-# post_photos = os.path.join(app.config['UPLOAD_FOLDER'], 'postphotos')
 
 mongo=PyMongo(app)
 
@@ -74,6 +69,28 @@ def check_token_and_user():
             return response
 
 
+connected_users={}
+
+@socketio.on('connect')
+def handle_connect():
+    print("✅✅✅✅✅")
+
+@socketio.on('disconnect')
+def handle_disconnect():
+    print('Client disconnected')
+
+@socketio.on("join-room")
+def handle_join_room(data):
+    username=data['username']
+    connected_users[username]=request.sid
+    # emit("data",f'{username} has joined',broadcast=True)
+
+@socketio.on('chat-message')
+def handle_chat_message(data):
+    emit("data",data,broadcast=True)
+
+
+
 # BLUEPRINT VARIABLES
 auth.mongo=mongo
 
@@ -101,4 +118,5 @@ def default():
 
 if __name__=='__main__':
     # app.run(host="192.168.1.3",debug=True)
-    app.run(debug=True)
+    # app.run(debug=True)
+    socketio.run(app,debug=True,port=5000)

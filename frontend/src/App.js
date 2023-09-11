@@ -16,6 +16,7 @@ import { RightBarState } from "./context/rigthbar/RightbarState";
 import { LeaderBoard } from "./screens/LeaderBoard";
 import { NotFound } from "./screens/NotFound";
 import { GlobalAlertState } from "./context/globalAlert/GlobalAlertState";
+import { GlobalChat } from "./screens/GlobalChat";
 
 function App() {
   return (
@@ -37,6 +38,7 @@ function App() {
         <Route exact path="/search" element={<Search/>}/>
         <Route exact path="/explore" element={<Explore/>}/>
         <Route exact path="/leaderboard" element={<LeaderBoard/>}/>
+        <Route exact path="/globalchat" element={<GlobalChat/>}/>
         <Route exact path="*" element={<NotFound/>}/>
       </Routes>
     </Userstate>

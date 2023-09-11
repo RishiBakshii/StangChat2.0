@@ -150,7 +150,7 @@ export const Rightbar = () => {
                   <Typography sx={{ display: "inline" }} component="span"variant="body2" color="text.primary">
                     {data.location}
                   </Typography>
-                  {`- ${data.bio}`}
+                  {`- ${data.bio.split(" ").splice(0,7).join(" ")}`}
                 </React.Fragment>
               }
             />

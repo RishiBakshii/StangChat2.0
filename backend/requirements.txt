@@ -8,3 +8,5 @@ PyJWT
 Flask-reuploaded
 gunicorn
 boto3
+flask-socketio
+eventlet

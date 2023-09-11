@@ -92,9 +92,9 @@ export const LeftBarItems = () => {
       </ListItemButton>
     </ListItem>
     <ListItem disablePadding>
-      <ListItemButton>
+      <ListItemButton component={Link} to={"/globalchat"}>
         <ListItemIcon><ForumIcon/></ListItemIcon>
-        <ListItemText primary="Community" />
+        <ListItemText primary="Global Chat✨"/>
       </ListItemButton>
     </ListItem>
 <Divider />

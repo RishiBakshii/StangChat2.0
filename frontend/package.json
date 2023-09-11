@@ -4,6 +4,7 @@
   "private": true,
   "homepage": "https://www.stangchat.com/",
   "dependencies": {
+    "@giphy/react-native-sdk": "^3.0.0",
     "@mui/lab": "^5.0.0-alpha.140",
     "@mui/material": "^5.14.5",
     "@testing-library/jest-dom": "^5.17.0",
@@ -14,6 +15,7 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-scripts": "5.0.1",
+    "socket.io-client": "^4.7.2",
     "web-vitals": "^2.1.4"
   },
   "scripts": {
