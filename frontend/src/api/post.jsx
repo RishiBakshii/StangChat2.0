@@ -1,5 +1,5 @@
 import { BASE_URL } from "../screens/Home";
-import { INTERNAL_SERVER_ERROR_MESSAGE, SERVER_DOWN_MESSAGE } from "../envVariables"
+import { SERVER_DOWN_MESSAGE } from "../envVariables"
 import { handleApiResponse } from "../utils/common";
 
 
@@ -21,6 +21,10 @@ export const getPostLikes=async(postid)=>{
 
     } catch (error) {
       console.log(error)
+      return {
+        success:false,
+        message:SERVER_DOWN_MESSAGE
+      }
     }
   }
 

@@ -1,10 +1,9 @@
 import React, { useContext, useEffect, useState } from 'react'
 import { Navbar } from '../components/Navbar'
 import { Leftbar } from '../components/Leftbar'
-import { Avatar, Box, Button, CircularProgress, Stack, TextField, Typography, useMediaQuery, useTheme } from '@mui/material'
+import { Avatar, Box,CircularProgress, Stack, TextField, Typography, useMediaQuery, useTheme } from '@mui/material'
 import { Rightbar } from '../components/Rightbar'
-import { LocationCityRounded } from '@mui/icons-material'
-import { Link, useHref, useNavigate } from 'react-router-dom'
+import { Link,useNavigate } from 'react-router-dom'
 import { BASE_URL, BUCKET_URL, SERVER_DOWN_MESSAGE } from '../envVariables'
 import { loggedInUserContext } from '../context/user/Usercontext'
 import { handleApiResponse } from '../utils/common'
@@ -63,7 +62,7 @@ export const Search = () => {
     if(query!==''){
       handleSearchUser()
     }
-  },[query])
+  },[query]) 
 
   return (
     <>

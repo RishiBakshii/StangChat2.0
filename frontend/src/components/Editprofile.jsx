@@ -7,7 +7,8 @@ import { ImageSelector, handleApiResponse } from '../utils/common';
 import { updateProfile } from '../api/user';
 import { loggedInUserContext } from '../context/user/Usercontext';
 import { GlobalAlertContext } from '../context/globalAlert/GlobalAlertContext';
-import { SERVER_DOWN_MESSAGE } from '../envVariables';
+import { BUCKET_URL, DEFAULT_PROFILE_PATH, S3_BUCKET_NAME, SERVER_DOWN_MESSAGE } from '../envVariables';
+import AWS from 'aws-sdk'
 
 
 export const Editprofile = ({userid,username,email,bio,location,heading,editProfile,profilePath}) => {
@@ -32,32 +33,41 @@ export const Editprofile = ({userid,username,email,bio,location,heading,editProf
 
     const [loading,setLoading]=useState(false)
 
-    const [selectedImage,setSelectedImage]=useState(null)
+    const [selectedImage,setSelectedImage]=useState('not')
     const [displayImage,setDisplayImage]=useState(null)
 
+    const [originalFilename,setOriginalFilename]=useState("")
+
     const [editProfileSelectedImage,setEditProfileSelectedImage]=useState(null)
-    const [editProfileDisplayImage,setEditProfileDisplayImage]=useState(profilePath)
+    const [editProfileDisplayImage,setEditProfileDisplayImage]=useState(`${BUCKET_URL}/${profilePath}`)
 
     const [editProfileCredentialsFilled,setEditProfileCredentialsFilled]=useState(null)
     const theme=useTheme()
     const MD=useMediaQuery(theme.breakpoints.down("md"))
 
-    const isAnythingChanged =
-  (editProfileCredentials.username.trim() !== loggedInUser.loggedInUser.username.trim() ||
-  editProfileCredentials.email.trim() !== loggedInUser.loggedInUser.email.trim() ||
-  editProfileDisplayImage !== profilePath ||
-  editProfileCredentials.location.trim() !== loggedInUser.loggedInUser.location.trim() ||
-  editProfileCredentials.bio.trim() !== loggedInUser.loggedInUser.bio.trim()) &&
-  editProfileCredentials.username.trim() !== "" &&
-  editProfileCredentials.email.trim() !== "" &&
-  editProfileCredentials.location.trim() !== "";
+    let isAnythingChanged=false
+    if (
+      editProfileCredentials.username.trim() !== loggedInUser.loggedInUser.username.trim() ||
+      editProfileCredentials.email.trim() !== loggedInUser.loggedInUser.email.trim() ||
+      editProfileDisplayImage !== `${BUCKET_URL}/${profilePath}` ||
+      editProfileCredentials.location.trim() !== loggedInUser.loggedInUser.location.trim() ||
+      editProfileCredentials.bio.trim() !== loggedInUser.loggedInUser.bio.trim()
+    ) {
+      isAnythingChanged=true
+    }
+    
+
+
     const handleAvatarChange=(event)=>{
         const result=ImageSelector(event)
-        console.log(result)
+
         setEditProfileDisplayImage(result.displayImage)
         setEditProfileSelectedImage(result.selectedImage)
+
         setDisplayImage(result.displayImage)
         setSelectedImage(result.selectedImage)  
+
+        setOriginalFilename(result.filename)
     }
 
       const handleClose = () => {
@@ -84,29 +94,28 @@ export const Editprofile = ({userid,username,email,bio,location,heading,editProf
     const handleSaveAndContinueClick=async()=>{
       setLoading(true)
       try {
-        const result=await updateProfile(credentials,selectedImage)
+        const result=await updateProfile(credentials,selectedImage,originalFilename)
         if(result.success){
             setState({open:true,message:result.message,Transition:SlideTransition})
             setTimeout(() => {
               navigate("/login")
-            }, 1200);
+            }, 1000);
         }
         else{
             setState({open:true,message:result.message,Transition:SlideTransition})
         }
       } catch (error) {
+        setState({open:true,message:'Some Error Occured😭',Transition:SlideTransition})
         console.log(error)
       }
       finally{
         setLoading(false)
       }
-        
     }
-    
+
     // 401 handled✅
     const handleProfileUpdateClick=async()=>{
       try {
-
         const formData=new FormData();
         formData.append("userid",editProfileCredentials.userid);
 
@@ -118,8 +127,36 @@ export const Editprofile = ({userid,username,email,bio,location,heading,editProf
           formData.append("email",editProfileCredentials.email); 
         }
 
-        if(editProfileDisplayImage!==profilePath){
-          formData.append("profilePicture",editProfileSelectedImage); 
+        console.log('displayimage',editProfileDisplayImage)
+        console.log("profilePath",`${BUCKET_URL}/${profilePath}`)
+        console.log("do they match ?",editProfileDisplayImage===`${BUCKET_URL}/${profilePath}`)
+
+        if(editProfileDisplayImage!==`${BUCKET_URL}/${profilePath}`){
+          const s3=new AWS.S3();
+          const PROFILE_PATH=`${loggedInUser.loggedInUser.userid}/profile/${originalFilename}`
+          const params={
+            Bucket:S3_BUCKET_NAME,
+            Key:PROFILE_PATH,
+            Body:editProfileSelectedImage
+          }
+          const uploadResult = await s3.upload(params).promise();
+
+          const paramsToDelete={
+            Bucket: S3_BUCKET_NAME,
+            Key: profilePath
+          }
+          
+          if(loggedInUser.loggedInUser.profilePicture!=='default-profile-picture/defaultProfile.png'){
+            try{
+              await s3.deleteObject(paramsToDelete).promise()
+            }
+            catch (error){
+              console.log(error)
+            }
+          }
+          
+
+          formData.append("profilePath",PROFILE_PATH)
         }
 
         if(loggedInUser.loggedInUser.location!==editProfileCredentials.location && editProfileCredentials.location!==''){

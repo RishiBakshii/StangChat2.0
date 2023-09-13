@@ -1,7 +1,8 @@
 import { BASE_URL } from "../screens/Home"
-import { INTERNAL_SERVER_ERROR_MESSAGE, SERVER_DOWN_MESSAGE } from "../envVariables"
+import { DEFAULT_PROFILE_PATH, INTERNAL_SERVER_ERROR_MESSAGE, S3_BUCKET_NAME, SERVER_DOWN_MESSAGE } from "../envVariables"
 import { LogoutUser } from "./auth"
 import { handleApiResponse } from "../utils/common"
+import AWS from 'aws-sdk'
 
 // ✅ 401 handled
 export const fetchLoggedInUser=async()=>{
@@ -137,16 +138,40 @@ export const fetchUserProfile=async(username,loggedInUserId)=>{
     }
 }
   
-export const updateProfile=async(credentials,selectedImage)=>{
-    try {
-        const formData=new FormData();
-        formData.append("userid", credentials.user_id);
-        formData.append("bio", credentials.bio);
-        formData.append("profilepicture", selectedImage); 
-  
+export const updateProfile=async(credentials,selectedImage,originalFilename)=>{
+    try {        
+        const s3=new AWS.S3();
+        console.log(credentials)
+        console.log('selected image',selectedImage)
+
+        let PROFILE_PATH=null
+
+        if(selectedImage!=='not'){
+
+          PROFILE_PATH=`${credentials.user_id}/profile/${originalFilename}`
+          const params={
+              Bucket:S3_BUCKET_NAME,
+              Key:PROFILE_PATH,
+              Body:selectedImage
+            }
+          const uploadResult = await s3.upload(params).promise()
+          alert(uploadResult.Location)
+        }
+        else{
+          PROFILE_PATH='default-profile-picture/defaultProfile.png'
+          console.log(PROFILE_PATH)
+        }
+        
         const response=await fetch(`${BASE_URL}/updateprofile`,{
             method:"POST",
-            body:formData,
+            headers:{
+              'Content-Type':"application/json"
+            },
+            body:JSON.stringify({
+              'userid':credentials.user_id,
+              'bio':credentials.bio,
+              'profilePath':PROFILE_PATH
+            })
         })  
   
         const json=await response.json()

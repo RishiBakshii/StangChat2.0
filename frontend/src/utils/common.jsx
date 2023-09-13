@@ -4,10 +4,11 @@ import { INTERNAL_SERVER_ERROR_MESSAGE } from "../envVariables";
 export const ImageSelector = (event) => {
     const imageFile = event.target.files[0];
     if (imageFile) {
-        
+        const filename=imageFile.name
         return {
             'selectedImage':imageFile,
-            'displayImage':URL.createObjectURL(imageFile)
+            'displayImage':URL.createObjectURL(imageFile),
+            'filename':filename
         }
     }
   };

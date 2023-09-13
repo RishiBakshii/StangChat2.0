@@ -10,9 +10,6 @@ import PersistentDrawerLeft from './LeftbarMobile';
 import {useTheme} from '@mui/material/styles';
 import { BUCKET_URL } from '../envVariables';
 
-
-const BASE_URL=process.env.REACT_APP_API_BASE_URL;
-
 const Customtoolbar=styled(Toolbar)({
   display:"flex",
   justifyContent:"space-evenly",
@@ -47,7 +44,6 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
   color: 'inherit',
   '& .MuiInputBase-input': {
     padding: theme.spacing(1, 1, 1, 0),
-    // vertical padding + font size from searchIcon
     paddingLeft: `calc(1em + ${theme.spacing(4)})`,
     transition: theme.transitions.create('width'),
     width: '100%',
@@ -63,7 +59,6 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 export const Navbar = () => {
   const theme=useTheme()
   const MD=useMediaQuery(theme.breakpoints.up("lg"))
-  const SM=useMediaQuery(theme.breakpoints.down("sm"))
   const loggedInUser=useContext(loggedInUserContext)
   return (
     <>

@@ -1,12 +1,12 @@
 import React, { useContext, useEffect, useRef, useState } from 'react'
 import { Navbar } from '../components/Navbar'
 import { Leftbar } from '../components/Leftbar'
-import { Avatar, Button, IconButton, InputAdornment, Stack, TextField, Typography } from '@mui/material'
+import { Avatar, Button,InputAdornment, Stack, TextField, Typography } from '@mui/material'
 import { Send } from '@mui/icons-material'
 import io from 'socket.io-client'
 import { loggedInUserContext } from '../context/user/Usercontext'
 import { GlobalAlertContext } from '../context/globalAlert/GlobalAlertContext'
-import { BUCKET_URL } from '../envVariables'
+import { BASE_URL, BUCKET_URL } from '../envVariables'
 
 export const GlobalChat = () => {
 
@@ -36,7 +36,7 @@ export const GlobalChat = () => {
     
     useEffect(() => {
         
-        socketRef.current = io('http://localhost:5000');
+        socketRef.current = io(`${BASE_URL}`);
         
         // on connection
         socketRef.current.on("connect",()=>{
@@ -72,10 +72,6 @@ export const GlobalChat = () => {
             <Stack flex={4} p={1}>
 
                 <Stack width={'100%'} height={'82vh'} sx={{overflowY:"scroll"}} ref={chatContainerRef}>
-
-                    <Stack flex={1}>
-
-                    </Stack>
                     
                     {
                         messages.map((message)=>{

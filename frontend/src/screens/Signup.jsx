@@ -1,4 +1,4 @@
-import { Box, Stack, TextField, Typography ,Button, Alert} from '@mui/material'
+import {Stack, TextField, Typography ,Button, Alert} from '@mui/material'
 import React, { useContext, useEffect, useState } from 'react'
 import { Link} from 'react-router-dom'
 import { signup } from '../api/auth';
@@ -42,7 +42,7 @@ export const Signup = () => {
                 if(result.success){
                     console.log(result)
                     setGlobalAlertOpen({state:true,message:`Welcome on board ${credentials.username}`})
-                    setCredentials({...credentials,["user_id"]:result.data})
+                    setCredentials({...credentials,"user_id":result.data})
                     setshowProfileSetup(true)
             }
                 else{

@@ -24,7 +24,7 @@ def login():
                 payload={'user_id':str(user['_id']),'email':str(user['email'])}
                 token=generate_jwt_token(payload)
                 response=make_response(jsonify({"message":"Login Successful",'data':format_user_data(user)}))
-                response.set_cookie("authToken", token, samesite="None", secure=True,httponly=True)
+                response.set_cookie("authToken", token, samesite="None",secure=True,httponly=True)
                 return response
             else:
                 return jsonify({'message':"Invalid username or password"}),400

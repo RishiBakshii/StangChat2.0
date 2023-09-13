@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
-import {Avatar,Box,ImageList,ImageListItem,Typography,List,ListItem,ListItemAvatar,ListItemText,Divider, Stack, IconButton, CircularProgress, useMediaQuery, CardMedia} from "@mui/material";
+import {Avatar,Box,ImageList,ImageListItem,Typography,List,ListItem,ListItemAvatar,ListItemText,Divider,IconButton, CircularProgress, useMediaQuery} from "@mui/material";
 import RefreshIcon from '@mui/icons-material/Refresh';
 import { BASE_URL, BUCKET_URL, SERVER_DOWN_MESSAGE } from "../envVariables";
 import { Link, useNavigate } from "react-router-dom";
@@ -14,12 +14,11 @@ import { GlobalAlertContext } from "../context/globalAlert/GlobalAlertContext";
 export const Rightbar = () => {
   const {loggedInUser}=useContext(loggedInUserContext)
   const {setGlobalAlertOpen}=useContext(GlobalAlertContext)
-  const {rightBarOpen,setRightBarOpen}=useContext(rightBarContext)
+  const {rightBarOpen}=useContext(rightBarContext)
   const theme=useTheme()
   const MD=useMediaQuery(theme.breakpoints.down("md"))
   const LG=useMediaQuery(theme.breakpoints.down("lg"))
   const SM=useMediaQuery(theme.breakpoints.down("sm"))
-  const is345=useMediaQuery(theme.breakpoints.down('345'))
 
   const [loading,setLoading]=useState(false)
   const [suggestions,setSuggestions]=useState([])

@@ -54,41 +54,24 @@ def updateProfile():
     if request.method=='POST':
         try:
             mongo=users.mongo
-            s3=users.s3
-            s3_bucket_name=users.s3_bucket_name
+            data=request.json
 
-
-            userid = request.form.get('userid')
-            bio = request.form.get('bio')
-            profile_picture = request.files.get("profilepicture")
+            userid = data.get('userid')
+            bio = data.get('bio')
+            profilePath=data.get('profilePath')
 
             user=is_existing_userid(mongo,userid)
             if not user:
                 return jsonify({'message':"User Does Not Exist"}),404
             
-            if profile_picture is not None:
-                secureFilename=secure_filename(profile_picture.filename)
-                unique_id=uuid.uuid4()
-                filename, file_extension = os.path.splitext(secureFilename)
-                unique_filename = f"{filename}_{unique_id}{file_extension}"
-                object_key = f'{userid}/profile/{unique_filename}'
-
-
-                try:
-                    user_profile_data = BytesIO(profile_picture.read())
-                    s3.upload_fileobj(user_profile_data,s3_bucket_name,object_key)
-
-                    mongo.db.users.update_one({"_id":ObjectId(userid)},{"$set": {"bio": bio,'profilePicture':object_key}})
-                    return jsonify({'message':"Profile Updated"}),200
-
-                except Exception as e:
-                    return jsonify({"message": str(e)}), 500
-                
-            mongo.db.users.update_one({"_id":ObjectId(userid)},{"$set": {"bio": bio,'profilePicture':'default-profile-picture/defaultProfile.png'}})
+            mongo.db.users.update_one({"_id":ObjectId(userid)},{"$set": {"bio": bio,'profilePicture':profilePath}})
             return jsonify({'message':"Profile Updated"}),200
 
         except Exception as e:
-            return jsonify({"message":str(e)}),500
+            return jsonify({"message": str(e)}), 500
+                
+            # mongo.db.users.update_one({"_id":ObjectId(userid)},{"$set": {"bio": bio,'profilePicture':'default-profile-picture/defaultProfile.png'}})
+            # return jsonify({'message':"Profile Updated"}),200
 
 # ✅
 @users.route("/followunfollow",methods=['POST'])
@@ -234,15 +217,12 @@ def edit_profile():
         mongo=users.mongo
         userid=request.form.get("userid")
 
-        s3=users.s3
-        s3_bucket_name=users.s3_bucket_name
-
-
         username=request.form.get("username")
         email=request.form.get("email")
         bio=request.form.get("bio")
         location=request.form.get("location")
-        profilePicture=request.files.get("profilePicture")
+        profilePicture=request.form.get("profilePath")
+        print(f"profile picture data from frontend : {profilePicture}")
 
         updated_feilds={}
         
@@ -269,43 +249,20 @@ def edit_profile():
         
         if profilePicture is not None:
             prev_profile_picture_key = user["profilePicture"]
-            if prev_profile_picture_key!=current_app.config['DEFAULT_PROFILE_PICTURE']:
 
-                try:
-                    s3.delete_object(Bucket=s3_bucket_name, Key=prev_profile_picture_key)
+            if prev_profile_picture_key is not current_app.config['DEFAULT_PROFILE_PICTURE']:
 
-                except NoCredentialsError:
-                        return jsonify({"message": "AWS credentials not found"}),500
-                except Exception as e:
-                        return jsonify({"message": str(e)}), 500
-                
-            secureFilename=secure_filename(profilePicture.filename)
-            unique_id=uuid.uuid4()
-            filename, file_extension = os.path.splitext(secureFilename)
-            unique_filename = f"{filename}_{unique_id}{file_extension}"
-            object_key = f'{userid}/profile/{unique_filename}'
-
-            try:
-                profile_picture_data = BytesIO(profilePicture.read())
-                s3.upload_fileobj(profile_picture_data,s3_bucket_name,object_key)
-                updated_feilds['profilePicture'] = object_key
-
-            except NoCredentialsError:
-                return jsonify({"message": "AWS credentials not found"}), 500
-            except Exception as e:
-                return jsonify({"message": str(e)}), 500
+                print(f'prev profile picture : {prev_profile_picture_key}\ndefault profile pictue : {current_app.config["DEFAULT_PROFILE_PICTURE"]}')
+                print(f'matches? : {prev_profile_picture_key==current_app.config["DEFAULT_PROFILE_PICTURE"]}')
+                updated_feilds['profilePicture']=profilePicture
                             
         if updated_feilds:
             mongo.db.users.update_one({"_id":ObjectId(userid)},{'$set':updated_feilds})
 
         updated_user=is_existing_userid(mongo,userid)
-        print(format_user_data(updated_user))
-
         return format_user_data(updated_user),200
 
-
     except Exception as e:
-        print(e)
         return jsonify({"message":str(e)}),500
 
 # ✅

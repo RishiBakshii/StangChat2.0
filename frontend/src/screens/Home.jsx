@@ -15,7 +15,7 @@ import { Newuserdisplay } from '../components/Newuserdisplay'
 import { CaughtUpDisplay } from '../components/CaughtUpDisplay'
 import {SnackAlert} from '../components/SnackAlert'
 import { GlobalAlertContext } from '../context/globalAlert/GlobalAlertContext'
-import { BUCKET_URL, SERVER_DOWN_MESSAGE } from '../envVariables'
+import { BUCKET_URL} from '../envVariables'
 import { useNavigate } from 'react-router-dom'
 
 

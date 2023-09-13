@@ -5,6 +5,8 @@ import LoadingButton from '@mui/lab/LoadingButton';
 import { postContext } from '../context/posts/PostContext';
 import { handleApiResponse } from '../utils/common';
 import { GlobalAlertContext } from '../context/globalAlert/GlobalAlertContext';
+import AWS from 'aws-sdk'
+import { BASE_URL, S3_BUCKET_NAME } from '../envVariables';
 
 
 
@@ -17,8 +19,6 @@ const CustomPhotoinput=styled('input')({
     position:"absolute"
 })
 
-const BASE_URL=process.env.REACT_APP_API_BASE_URL;
-
 export const PostModal=({ isOpen, onClose})=> {
     const loggedInUser=useContext(loggedInUserContext)
     const {setGlobalAlertOpen}=useContext(GlobalAlertContext)
@@ -29,6 +29,7 @@ export const PostModal=({ isOpen, onClose})=> {
 
     const [selectedImage, setSelectedImage] = useState(null);
     const [displayImage,setDisplayImage]=useState(null)
+    const [originalFilename, setOriginalFilename] = useState('')
 
     const [selectedVideo, setSelectedVideo] = useState(null);
     const [displayVideo, setDisplayVideo] = useState(null);
@@ -36,7 +37,6 @@ export const PostModal=({ isOpen, onClose})=> {
     const [caption,setCaption]=useState('')
     const [loading,setLoading]=useState(false)
 
-    const [post,setPost]=useState(null)
 
     const defaultImage="https://t4.ftcdn.net/jpg/04/99/93/31/240_F_499933117_ZAUBfv3P1HEOsZDrnkbNCt4jc3AodArl.jpg"
 
@@ -45,15 +45,17 @@ export const PostModal=({ isOpen, onClose})=> {
       setDisplayImage(null)
       setSelectedVideo(null)
       setDisplayVideo(null)
+      setOriginalFilename('')
       setCaption('')
       onClose()
     }
 
     const handleImageChange = (event) => {
       const file = event.target.files[0];
-    
+      
       if (file) {
         const mimeType = file.type;
+        setOriginalFilename(file.name);
     
         if (mimeType.startsWith("image/")) {
           setSelectedImage(file);
@@ -67,24 +69,28 @@ export const PostModal=({ isOpen, onClose})=> {
     
     
     const handlePostUpload=async()=>{
+      setLoading(true)
         try {
-          setLoading(true)
-          const formData=new FormData();
-          formData.append("userid",loggedInUser.loggedInUser.userid);
-          formData.append('caption',caption);
-          selectedImage?formData.append('post',selectedImage):(formData.append('post',selectedVideo))
+          const s3=new AWS.S3();
+          const POST_PATH=`${loggedInUser.loggedInUser.userid}/posts/${originalFilename}`
 
-          const fileType = selectedImage? selectedImage.type.split("/")[0]: selectedVideo.type.split("/")[0];
-
-          if (fileType !== "image" && fileType !== "video") {
-            alert("Please select a valid image or video file.");
-            setLoading(false);
-            return;
+          const params={
+            Bucket:S3_BUCKET_NAME,
+            Key:POST_PATH,
+            Body:selectedImage || selectedVideo
           }
+          const uploadResult = await s3.upload(params).promise();
 
           const response=await fetch(`${BASE_URL}/uploadpost`,{
             method:"POST",
-            body:formData,
+            headers:{
+              'Content-Type':"application/json"
+            },
+            body:JSON.stringify({
+              'userid':loggedInUser.loggedInUser.userid,
+              'postPath':POST_PATH,
+              'caption':caption,
+            }),
             credentials:"include"
           })
           const result=await handleApiResponse(response)
@@ -102,7 +108,8 @@ export const PostModal=({ isOpen, onClose})=> {
           }
 
         } catch (error) {
-            alert(error)
+          console.log(error)
+          setGlobalAlertOpen({state:true,message:"Some error occured🥲"})
         }
         finally{
           setLoading(false)

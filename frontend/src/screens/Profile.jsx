@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react'
 import { Navbar } from '../components/Navbar'
-import {Stack,Avatar, Typography, Button, Grid, Modal, Box, CircularProgress, useMediaQuery, useTheme, TextField} from '@mui/material'
+import {Stack,Avatar, Typography, Button, Grid, Modal, Box, CircularProgress, useMediaQuery, useTheme} from '@mui/material'
 import { Leftbar } from '../components/Leftbar'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { BASE_URL} from './Home'
@@ -60,11 +60,6 @@ export const Profile = () => {
 
 
   const [editState,setEditState]=useState(false)
-
-  const [updatedData,setUpdatedData]=useState({
-    'bio':""
-  })
-
 
   const style = {
     position: 'absolute',
@@ -256,7 +251,7 @@ export const Profile = () => {
                     email={loggedInUser.email} 
                     bio={loggedInUser.bio} 
                     location={loggedInUser.location} 
-                    profilePath={`${BUCKET_URL}/${loggedInUser.profilePicture}`}
+                    profilePath={`${loggedInUser.profilePicture}`}
                     />
                   ):(
                   <Stack padding={is480?(.4):(4)}  borderRadius={'.6rem'} width={`${LG?"100%":"60%"}`} justifyContent={`${is480?("center"):("flex-start")}`} alignItems={`${is480?("center"):("flex-start")}`}>
@@ -268,7 +263,7 @@ export const Profile = () => {
                   {/* username*/}
                   <Stack direction={'row'} alignItems={'center'} spacing={2} mt={5}>
                       <Typography variant='h4' fontWeight={300}>{profile.username}</Typography>
-                      <Typography variant='h5' fontWeight={300}>He/Him</Typography>
+                      {/* <Typography variant='h5' fontWeight={300}>He/Him</Typography> */}
 
 
                       {loggedInUser.userid===profile?._id?.$oid?(

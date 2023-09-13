@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react'
 import { Navbar } from '../components/Navbar'
-import {Stack,Box, Typography, Avatar, useMediaQuery, useTheme, CircularProgress, Button} from '@mui/material'
+import {Stack,Box, Typography, Avatar, useMediaQuery, useTheme, CircularProgress} from '@mui/material'
 import { Leftbar } from '../components/Leftbar'
 import { BASE_URL, BUCKET_URL, SERVER_DOWN_MESSAGE } from '../envVariables'
 import { loggedInUserContext } from '../context/user/Usercontext'

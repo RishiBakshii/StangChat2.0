@@ -18,29 +18,25 @@ import boto3
 
 load_dotenv()
 
-app=Flask(__name__)
-app.config['SECRET_KEY']='secret!'
+application=Flask(__name__)
+application.config['SECRET_KEY']='secret!'
 
 # CORS AND SOCKET
-# CORS(app,resources={r"/*":{"origins":"http://localhost:3000"}},supports_credentials=True)
-socketio=SocketIO(app,cors_allowed_origins='http://localhost:3000')
+CORS(application, resources={r"/*": {"origins": "http://localhost:3000"}}, supports_credentials=True)
+socketio=SocketIO(application,cors_allowed_origins="*")
 
 # S3 BUCKET CONFIG
 S3_BUCKET_NAME=os.environ.get("S3_BUCKET_NAME")
-s3 = boto3.client('s3', aws_access_key_id=os.environ.get("AWS_ACCESS_KEY"), aws_secret_access_key=os.environ.get("AWS_SECRET_KEY"), region_name=os.environ.get("AWS_REGION"))
+s3 = boto3.client('s3', aws_access_key_id=os.environ.get("AWS_ACCESS_KEY"), aws_secret_access_key=os.environ.get("AWS_SECRET_KEY"), region_name=os.environ.get("AWS_REGIONS"))
 
-app.config['MONGO_URI']=os.environ.get('DATABASE_URI')
-app.config['DEFAULT_PROFILE_PICTURE']='default-profile-picture/defaultProfile.png'
+application.config['MONGO_URI']=os.environ.get('DATABASE_URI')
+application.config['DEFAULT_PROFILE_PICTURE']='default-profile-picture/defaultProfile.png'
 
-mongo=PyMongo(app)
-
-# CROSS -ORIGIN REQUESTS
-CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
-# CORS(app, resources={r"/*": {"origins": "http://192.168.1.3:3000"}}, supports_credentials=True)
+mongo=PyMongo(application)
 
 
 # MIDDLEWARE
-@app.before_request
+@application.before_request
 def check_token_and_user():
     if request.endpoint not in ['auth.login', 'auth.signup', 'users.updateProfile']:
         try:
@@ -83,7 +79,6 @@ def handle_disconnect():
 def handle_join_room(data):
     username=data['username']
     connected_users[username]=request.sid
-    # emit("data",f'{username} has joined',broadcast=True)
 
 @socketio.on('chat-message')
 def handle_chat_message(data):
@@ -107,16 +102,14 @@ comments.mongo = mongo
 
 
 # BLUEPRINT REGISTERED
-app.register_blueprint(auth)
-app.register_blueprint(posts)
-app.register_blueprint(users)
-app.register_blueprint(comments)
+application.register_blueprint(auth)
+application.register_blueprint(posts)
+application.register_blueprint(users)
+application.register_blueprint(comments)
 
-@app.route("/")
+@application.route("/")
 def default():
     return jsonify({"running":True}),200
 
 if __name__=='__main__':
-    # app.run(host="192.168.1.3",debug=True)
-    # app.run(debug=True)
-    socketio.run(app,debug=True,port=5000)
+    socketio.run(application,port=5000,debug=True)

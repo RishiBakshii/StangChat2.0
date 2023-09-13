@@ -1,7 +1,7 @@
 import React from 'react'
 import { Navbar } from '../components/Navbar'
 import { Leftbar } from '../components/Leftbar'
-import {Stack,Box} from '@mui/material'
+import {Stack} from '@mui/material'
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemIcon from '@mui/material/ListItemIcon';
@@ -9,7 +9,6 @@ import ListItemText from '@mui/material/ListItemText';
 import ListSubheader from '@mui/material/ListSubheader';
 import Switch from '@mui/material/Switch';
 import WifiIcon from '@mui/icons-material/Wifi';
-import BluetoothIcon from '@mui/icons-material/Bluetooth';
 
 export const Settings = () => {
   const [checked, setChecked] = React.useState(['wifi']);

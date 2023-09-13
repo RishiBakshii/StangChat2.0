@@ -1,0 +1,38 @@
+name: Deploy to Hostinger
+
+on:
+  push:
+    branches:
+      - main  # Change this to your main branch name
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+
+      - name: Set Up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16
+
+      - name: install dependency
+        run : npm i
+        
+      - name: Build React App
+        run: npm run build
+
+
+      - name: Deploy to Hostinger
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOSTINGER_HOST }}
+          username: ${{ secrets.HOSTINGER_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: 22
+          script: |
+            cd /home/${{ secrets.HOSTINGER_USERNAME }}/public_html  # Adjust the path to your Hostinger public_html folder
+            rm -rf *
+            scp -r $GITHUB_WORKSPACE/build/* .

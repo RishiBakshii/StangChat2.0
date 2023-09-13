@@ -25,35 +25,23 @@ def createPost():
     if request.method=='POST':
         try:
             mongo=posts.mongo
-            s3_bucket_name=posts.s3_bucket_name
+            data=request.json
 
-            userid=request.form.get("userid")
-            caption=request.form.get('caption')
-            user_post=request.files.get("post")
+            userid=data.get("userid")
+            caption=data.get('caption')
+            postpath=data.get("postPath")
 
             user=is_existing_userid(mongo,userid)
             if not user:
                 return jsonify({"message":"user does not exist"}),404
-            
-            secureFilename=secure_filename(user_post.filename)
-            unique_id=uuid.uuid4()
-            filename, file_extension = os.path.splitext(secureFilename)
-            unique_filename = f"{filename}_{unique_id}{file_extension}"
-
-            s3=posts.s3
-            object_key = f'{userid}/posts/{unique_filename}'
 
             try:
-                user_post_data = BytesIO(user_post.read())
-                s3.upload_fileobj(user_post_data,s3_bucket_name,object_key)
-
                 new_post=post_schema.copy()
-
                 new_post.update({
                     "user_id":user["_id"],
                     "username":user['username'],
                     "caption":caption,
-                    "postPath":object_key,
+                    "postPath":postpath,
                     "profilePath":user['profilePicture']
                     })
 
@@ -64,10 +52,12 @@ def createPost():
                 {"$inc": {"postCount": 1}})
 
                 newly_uploaded_post=mongo.db.post.find_one({"_id":uploaded_post_id})
+
                 return dumps(newly_uploaded_post),201
             
 
             except Exception as e:
+                print(e)
                 return jsonify({"message": str(e)}), 500
 
                
@@ -219,6 +209,7 @@ def deletePost():
         try:
             data=request.json
             mongo=posts.mongo
+            
             s3_bucket_name=posts.s3_bucket_name
             s3=posts.s3
 
