@@ -231,12 +231,11 @@ export const Profile = () => {
       <Leftbar/>
         {
           wrongUser?(
+            
             <Stack flex={"1"} spacing={5} justifyContent={'center'} alignItems={"center"} mt={5}>
               <Lottie animationData={userdoesnotexist}/>
               <Typography variant='h5' fontWeight={300}>{`${username}`} does not exist on planet Stang✨</Typography>
             </Stack>
-
-
           ):(
                             <Stack flex={"1"} spacing={5} justifyContent={'center'} alignItems={"center"} mt={5}>
                   {
@@ -263,7 +262,6 @@ export const Profile = () => {
                   {/* username*/}
                   <Stack direction={'row'} alignItems={'center'} spacing={2} mt={5}>
                       <Typography variant='h4' fontWeight={300}>{profile.username}</Typography>
-                      {/* <Typography variant='h5' fontWeight={300}>He/Him</Typography> */}
 
 
                       {loggedInUser.userid===profile?._id?.$oid?(
@@ -281,7 +279,7 @@ export const Profile = () => {
 
                       <Typography variant='body1'>{profile.bio}</Typography>
                       
-                      <Stack direction={'row'} justifyContent={'flex-start'} alignItems={"center"} p={0}>
+                      <Stack direction={'row'} justifyContent={'flex-start'}  alignItems={"flex-start"} p={0}>
                         <Typography variant='body1'>{profile.location}</Typography>
                         <LocationOnIcon sx={{color:'lightblue'}}/>
                       </Stack>

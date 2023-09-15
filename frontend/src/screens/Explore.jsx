@@ -55,10 +55,10 @@ export const Explore=()=> {
     <>
     <Navbar/>
 
-    <Stack direction={"row"} justifyContent={"space-between"} alignItems="flex-start">
+    <Stack direction={"row"} justifyContent={"space-between"} alignItems="flex-start" bgcolor={'red'}>
         <Leftbar />
         
-        <Stack mt={1} flex={'100%'} padding={'1 4vw'} justifyContent={'center'} alignItems={'center'}>
+        <Stack mt={1} flex={'4'} padding={'1 4vw'} justifyContent={'center'} alignItems={'center'} bgcolor={'orange'} >
                 <ImageList variant="quilted" cols={5} rowHeight={200}>
                 {
                   exploreFeed.map((data) => (

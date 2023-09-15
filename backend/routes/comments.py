@@ -81,6 +81,31 @@ def getComments():
         except Exception as e:
             return jsonify({'message': str(e)}), 500
 
+@comments.route("/getcommentlikes",methods=['POST'])
+def getCommentLikes():
+    if request.method=='POST':
+        try:
+            data=request.json
+            mongo=comments.mongo
+
+            commentid=data.get("commentid")
+
+            likes_data=[]
+            
+            comment=is_existing_commentid(mongo,commentid)
+            if not comment:
+                return jsonify({"message":"comment does not exists"}),404
+            
+
+            for user_ids in comment['likes']:
+                data=mongo.db.users.find_one({"_id":ObjectId(user_ids)})
+                if data:
+                    likes_data.append({"username":data['username'],'profilePicture':data['profilePicture'],"bio":data['bio']})
+            return dumps(likes_data),200
+
+        except Exception as e:
+            return jsonify({"message":str(e)}),500
+
 # ✅
 @comments.route('/commentlike',methods=['POST'])
 def commentLike():
@@ -106,7 +131,8 @@ def commentLike():
 
         except Exception as e:
             return jsonify({"message":str(e)}),500
-        
+
+# ✅   
 @comments.route("/deletecomment",methods=['POST'])
 def deleteComment():
     if request.method=='POST':

@@ -22,7 +22,7 @@ application=Flask(__name__)
 application.config['SECRET_KEY']='secret!'
 
 # CORS AND SOCKET
-CORS(application, resources={r"/*": {"origins": "http://localhost:3000"}}, supports_credentials=True)
+CORS(application, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
 socketio=SocketIO(application,cors_allowed_origins="*")
 
 # S3 BUCKET CONFIG
@@ -69,16 +69,27 @@ connected_users={}
 
 @socketio.on('connect')
 def handle_connect():
-    print("✅✅✅✅✅")
+    userid = request.sid
+    connected_users[userid] = True
+    print("✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅")
+    emit("user-count", {"count": len(connected_users)}, broadcast=True)
 
 @socketio.on('disconnect')
 def handle_disconnect():
-    print('Client disconnected')
+    if request.sid in connected_users:
+        del connected_users[request.sid]
+        emit("user-count", {"count": len(connected_users)}, broadcast=True)
+        print("disconnectedddddd❌❌❌❌❌❌❌")
 
 @socketio.on("join-room")
 def handle_join_room(data):
-    username=data['username']
-    connected_users[username]=request.sid
+    emit("data",data,broadcast=True)
+
+@socketio.on("user-left")
+def handle_leave_room(data):
+    with open("test.txt",'w') as f:
+        f.write(data)
+    emit("data",data,broadcast=True)
 
 @socketio.on('chat-message')
 def handle_chat_message(data):
@@ -112,4 +123,4 @@ def default():
     return jsonify({"running":True}),200
 
 if __name__=='__main__':
-    socketio.run(application,port=5000,debug=True)
+    socketio.run(application,port=5000,debug=True,host='192.168.1.3')

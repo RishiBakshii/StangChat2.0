@@ -17,6 +17,7 @@ import {SnackAlert} from '../components/SnackAlert'
 import { GlobalAlertContext } from '../context/globalAlert/GlobalAlertContext'
 import { BUCKET_URL} from '../envVariables'
 import { useNavigate } from 'react-router-dom'
+import { GifModal } from '../components/GifModal'
 
 
 export const BASE_URL=process.env.REACT_APP_API_BASE_URL;
@@ -31,7 +32,7 @@ export const Home =() => {
     const [newUser,setNewUser]=useState(null)
     const theme = useTheme();
     const matchesMD = useMediaQuery(theme.breakpoints.down('md'));
-    const [likeModalOpen,setLikeModalOpen]=useState({'state':false,'postid':''})
+    const [likeModalOpen,setLikeModalOpen]=useState({state:false,postid:false,commentid:false})
     const [usermessage,setUserMessage]=useState({
         state:false,
         message:''
@@ -123,7 +124,8 @@ export const Home =() => {
                     }
                     {
                     newUser?(
-                        <Newuserdisplay/>
+                        // <Newuserdisplay/>
+                        ''
                     ):(
                         hasMore?
                         (loading?(<CircularProgress />):("")):(
@@ -133,8 +135,8 @@ export const Home =() => {
                     }
                 </Stack>
                 <Rightbar/>
-        </Stack>  
-        <Likesmodal postid={likeModalOpen.postid} open={likeModalOpen.state} handleClose={()=>setLikeModalOpen({state:false,postid:""})}/>
+        </Stack>
+        <Likesmodal postid={likeModalOpen.postid} commentid={likeModalOpen.commentid} open={likeModalOpen.state} handleClose={()=>setLikeModalOpen({state:false,postid:""})}/>
         <SnackAlert open={usermessage.state} message={usermessage.message}/>
         </>
   )

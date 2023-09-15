@@ -5,7 +5,7 @@ import Modal from '@mui/material/Modal';
 import { useContext, useEffect, useState } from 'react';
 import { Avatar, CircularProgress, Stack, useMediaQuery, useTheme } from '@mui/material';
 import { BASE_URL } from '../screens/Home';
-import { getPostLikes } from '../api/post';
+import { getCommentLikes, getPostLikes } from '../api/post';
 import { Link, useNavigate } from 'react-router-dom';
 import { GlobalAlertContext } from '../context/globalAlert/GlobalAlertContext';
 import { BUCKET_URL } from '../envVariables';
@@ -14,14 +14,13 @@ import { BUCKET_URL } from '../envVariables';
 
 
 
-export const Likesmodal=({open,handleClose,postid})=> {
+export const Likesmodal=({open,handleClose,postid,commentid})=> {
   const navigate=useNavigate()
   const {setGlobalAlertOpen}=useContext(GlobalAlertContext)
   const [likesData,setLikesData]=useState([])
   const [loading,setLoading]=useState(false)
 
   const theme=useTheme()
-  const is480=useMediaQuery(theme.breakpoints.down("480"))
 
   const style = {
     position: 'absolute',
@@ -47,7 +46,6 @@ export const Likesmodal=({open,handleClose,postid})=> {
         setLikesData(result.data)
       }
       else if(result.logout){
-        alert('alerteddddddd')
         navigate("/login")
       }
       else{
@@ -62,9 +60,34 @@ export const Likesmodal=({open,handleClose,postid})=> {
 
   }
 
+
+  const fetchCommentLike=async()=>{
+    setLoading(true)
+    try {
+      const result=await getCommentLikes(commentid)
+      if(result.success){
+        setLikesData(result.data)
+      }
+      else if(result.logout){
+        navigate("/login")
+      }
+      else{
+        setGlobalAlertOpen({state:true,message:result.message})
+      }
+    } catch (error) {
+      console.log(error)
+    }
+    finally{
+      setLoading(false)
+    }
+  }
+
   useEffect(()=>{
-    if(open){
+    if(open && postid){
       fetchPostLike()
+    }
+    else if(open && commentid){
+      fetchCommentLike()
     }
     else{
       setLikesData([])
@@ -76,7 +99,7 @@ export const Likesmodal=({open,handleClose,postid})=> {
         <Stack sx={style} height={'27rem'} spacing={4}>
 
           <Typography id="modal-modal-title" variant="h6" fontWeight={300}>
-            See who liked the post
+            See who liked the {`${postid?"post":('comment')}`}
           </Typography>
 
           <Stack spacing={3}>

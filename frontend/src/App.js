@@ -16,9 +16,8 @@ import { NotFound } from "./screens/NotFound";
 import { GlobalAlertState } from "./context/globalAlert/GlobalAlertState";
 import { GlobalChat } from "./screens/GlobalChat";
 import AWS from 'aws-sdk';
-import { useContext, useEffect } from "react";
+import { useEffect } from "react";
 import { AWS_ACCESS_KEY, AWS_REGION, AWS_SECRET_KEY } from "./envVariables";
-import { GlobalAlertContext } from "./context/globalAlert/GlobalAlertContext";
 
 function App() {
 
@@ -31,10 +30,7 @@ function App() {
         secretAccessKey: AWS_SECRET_KEY,
         region: AWS_REGION
       })
-
-      // setGlobalAlertOpen({state:true,message:"🎉✅🎉✅"})
     } catch (error) {
-      // setGlobalAlertOpen({state:true,message:"Error establishing the connection with cloud servers😖"})
       console.log(error)
     }
   },[])

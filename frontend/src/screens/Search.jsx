@@ -9,7 +9,8 @@ import { loggedInUserContext } from '../context/user/Usercontext'
 import { handleApiResponse } from '../utils/common'
 import { LogoutUser } from '../api/auth'
 import { GlobalAlertContext } from '../context/globalAlert/GlobalAlertContext'
-
+import PlaceIcon from '@mui/icons-material/Place';
+import { handleSpace } from './Signup'
 
 
 export const Search = () => {
@@ -74,7 +75,7 @@ export const Search = () => {
 
               
                 <Stack>
-                      <TextField placeholder='Search Users' value={query} onChange={(e)=>setQuery(e.target.value)} variant='outlined'></TextField>
+                      <TextField placeholder='Search Users' onKeyDown={handleSpace} value={query} onChange={(e)=>setQuery(e.target.value)} variant='outlined'></TextField>
                 </Stack>
 
                 <Stack spacing={5} height={"42rem"} sx={{overflowY:"scroll"}} justifyContent={'flex-start'} alignItems={"flex-start"} mt={5}>
@@ -98,7 +99,10 @@ export const Search = () => {
                         <Avatar component={Link} src={`${BUCKET_URL}/${data.profilePicture}`} to={`/profile/${data.username}`} sx={{"width":`${is480?"5rem":"10rem"}`,'height':`${is480?"5rem":"10rem"}`}}></Avatar>
                     <Stack>
                     <Typography component={Link} to={`/profile/${data.username}`} sx={{"textDecoration":"none",color:"black"}} variant='h6' fontWeight={300}>{data.username}</Typography>
-                    <Typography variant='body1' fontWeight={300}>{data.location}</Typography>
+                    <Stack direction={'row'} spacing={.1}>
+                        <PlaceIcon sx={{color:"lightblue"}}/>
+                        <Typography variant='body1' fontWeight={300}>{data.location}</Typography>
+                    </Stack>
                     </Stack>
                   </Stack>
                 </Stack>

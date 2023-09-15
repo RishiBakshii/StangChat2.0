@@ -1,4 +1,4 @@
-import {Stack, TextField, Typography ,Button, Alert} from '@mui/material'
+import {Stack, TextField, Typography ,Button, Alert, InputAdornment, Box} from '@mui/material'
 import React, { useContext, useEffect, useState } from 'react'
 import { Link} from 'react-router-dom'
 import { signup } from '../api/auth';
@@ -6,6 +6,16 @@ import { LoadingButtons } from '../components/LoadingButtons';
 import { Editprofile } from '../components/Editprofile';
 import { GlobalAlertContext } from '../context/globalAlert/GlobalAlertContext';
 
+export const handleSpace = (event) => {
+    if (event.key === ' ' || event.keyCode === 32) {
+      event.preventDefault();
+    }
+  };
+
+  
+  
+  
+  
 
 export const Signup = () => {
     const {setGlobalAlertOpen}=useContext(GlobalAlertContext)
@@ -23,6 +33,25 @@ export const Signup = () => {
     })
     const [credentialsFilled,setCredentialsFilled]=useState(false)
     const [passwordMatch,setPasswordMatch]=useState(false)
+
+    function generateRandomName() {
+        const vowels = 'aeiou';
+        const consonants = 'bcdfghjklmnpqrstvwxyz';
+        const minLength = 5;
+        const maxLength = 20;
+        const nameLength = Math.floor(Math.random() * (maxLength - minLength + 1)) + minLength;
+        let name = '';
+      
+        for (let i = 0; i < nameLength; i++) {
+          const syllable =
+            consonants[Math.floor(Math.random() * consonants.length)] +
+            vowels[Math.floor(Math.random() * vowels.length)];
+      
+          name += syllable;
+        }
+      
+        setCredentials({...credentials,['username']:name})
+      }
 
     useEffect(()=>{
         setPasswordMatch(credentials.password===credentials.confirmPassword)
@@ -56,6 +85,8 @@ export const Signup = () => {
         }
         
     }
+
+    const emailRegex = /^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+[A-Za-z]{2,}$/;
   return (
     <>
     {
@@ -72,14 +103,14 @@ export const Signup = () => {
                     </Stack>
 
                     <Stack mt={5} width={'100%'} spacing={2}>
-                        <TextField fullWidth name='username' value={credentials.username} onChange={handleOnChange} label="Username" variant="outlined" />
-                        <TextField name="email" type='email' value={credentials.email} onChange={handleOnChange} label="Email" variant="outlined" />
-                        <TextField name="password" type='password' value={credentials.password} onChange={handleOnChange} label="Password" variant="outlined" />
-                        <TextField error={passwordMatch?(false):(true)} name="confirmPassword" type='password' value={credentials.confirmPassword} onChange={handleOnChange} label="Confirm Password" variant="outlined" />
-                        <TextField name="location" value={credentials.location} onChange={handleOnChange} label="Location" variant="outlined" />
+                        <TextField inputProps={{maxLength:20}} onKeyDown={handleSpace} InputProps={{endAdornment:(<InputAdornment position='end'>{credentials.username!==''?("✨"):""}</InputAdornment>)}} fullWidth name='username' value={credentials.username} onChange={handleOnChange} label="Username" variant="outlined" />
+                        <TextField inputProps={{maxLength:64}} name="email" helperText={!emailRegex.test(credentials.email) && credentials.email!=='' ? 'Invalid email address' : ''} error={!emailRegex.test(credentials.email) && credentials.email!==''} type='email'onKeyDown={handleSpace} value={credentials.email} onChange={handleOnChange} label="Email" variant="outlined" />
+                        <TextField name="password" onKeyDown={handleSpace} type='password' value={credentials.password} onChange={handleOnChange} label="Password" variant="outlined" />
+                        <TextField error={passwordMatch?(false):(true)} onKeyDown={handleSpace} name="confirmPassword" type='password' value={credentials.confirmPassword} onChange={handleOnChange} label="Confirm Password" variant="outlined" />
+                        <TextField inputProps={{maxLength:20}} name="location" value={credentials.location} onChange={handleOnChange} label="Location" variant="outlined" />
                         {
                             loading?(<LoadingButtons/>)
-                            :(<Button disabled={!credentialsFilled || !passwordMatch} onClick={handleSignupSubmit} sx={{height:"3rem"}} variant='contained'>Signup</Button>)
+                            :(<Button disabled={!credentialsFilled || !passwordMatch || !emailRegex.test(credentials.email)} onClick={handleSignupSubmit} sx={{height:"3rem"}} variant='contained'>Signup</Button>)
                         }
                         {
                             alert.message!==''?(

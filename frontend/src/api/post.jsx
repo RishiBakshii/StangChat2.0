@@ -28,6 +28,32 @@ export const getPostLikes=async(postid)=>{
     }
   }
 
+export const getCommentLikes=async(commentid)=>{
+  
+  try {
+    const response=await fetch(`${BASE_URL}/getcommentlikes`,{
+      method:"POST",
+      headers:{
+        'Content-Type':"application/json"
+      },
+      credentials:"include",
+      body:JSON.stringify({
+        commentid:commentid
+      })
+    })
+
+    return await handleApiResponse(response)
+    
+  } catch (error) {
+    console.log(error)
+    return {
+      success:false,
+      message:SERVER_DOWN_MESSAGE
+    }
+  }
+
+}
+
   // ✅ 401 handled
 export const loadPost=async(page,userid)=>{
     try {

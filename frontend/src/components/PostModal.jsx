@@ -3,10 +3,12 @@ import { useContext, useState } from 'react';
 import { loggedInUserContext } from '../context/user/Usercontext';
 import LoadingButton from '@mui/lab/LoadingButton';
 import { postContext } from '../context/posts/PostContext';
-import { handleApiResponse } from '../utils/common';
+import { generateSecureFilename, handleApiResponse } from '../utils/common';
 import { GlobalAlertContext } from '../context/globalAlert/GlobalAlertContext';
 import AWS from 'aws-sdk'
 import { BASE_URL, S3_BUCKET_NAME } from '../envVariables';
+import selectimageanimtion from '../animations/selectimageanimation.json'
+import Lottie from 'lottie-react';
 
 
 
@@ -72,8 +74,7 @@ export const PostModal=({ isOpen, onClose})=> {
       setLoading(true)
         try {
           const s3=new AWS.S3();
-          const POST_PATH=`${loggedInUser.loggedInUser.userid}/posts/${originalFilename}`
-
+          const POST_PATH=`${loggedInUser.loggedInUser.userid}/posts/${generateSecureFilename(originalFilename)}`
           const params={
             Bucket:S3_BUCKET_NAME,
             Key:POST_PATH,
@@ -136,14 +137,19 @@ export const PostModal=({ isOpen, onClose})=> {
           <Modal open={isOpen} onClose={handleOnClose} aria-labelledby="Create Post" aria-describedby="here a user can make a post, upload images and videos">
             <Stack sx={style} spacing={4}>
                 <Typography fontWeight={300} variant='h4'>Create Post</Typography>
-                <Stack position={'relative'}>
+                <Stack position={'relative'} height={'25rem'}>
                     <CustomPhotoinput  accept="image/png, image/jpeg, image/jpg, video/mp4" type="file" onChange={handleImageChange} id="profile-image-input"/>
                     {
                       selectedVideo?(
-                        <video style={{'zIndex':10}} controls src={displayVideo}></video>
+                        <video style={{'zIndex':10}}  height={'100%'} controls src={displayVideo}></video>
                       ):(
+                        
+                        displayImage?(
 
-                        <img style={{zIndex:0}}  alt="profile-picture" src={displayImage?(displayImage):(defaultImage)}/>
+                          <img style={{zIndex:0,aspectRatio:"auto",objectFit:"contain"}} height={'100%'} alt="profile-picture" src={displayImage?(displayImage):(defaultImage)}/>
+                        ):(
+                          <Lottie animationData={selectimageanimtion}></Lottie>
+                        )
                       )
                     }
                 </Stack>

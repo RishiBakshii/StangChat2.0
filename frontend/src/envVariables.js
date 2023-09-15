@@ -6,4 +6,5 @@ export const AWS_ACCESS_KEY=process.env.REACT_APP_AWS_ACCESS_KEY
 export const AWS_SECRET_KEY= process.env.REACT_APP_AWS_SECRET_KEY
 export const AWS_REGION=process.env.REACT_APP_AWS_REGIONS
 export const S3_BUCKET_NAME=process.env.REACT_APP_S3_BUCKET_NAME
-export const DEFAULT_PROFILE_PATH=process.env.DEFAULT_PROFILE_PATH
+export const DEFAULT_PROFILE_PATH=process.env.REACT_APP_DEFAULT_PROFILE_PATH
+export const GIPHY_API_KEY=process.env.REACT_APP_GIPHY_API_KEY

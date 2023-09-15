@@ -99,7 +99,7 @@ export const Rightbar = () => {
 
   return (
     <Box p={2} sx={{"transition":".2s cubic-bezier(0.25, 0.46, 0.45, 0.94)"}} flex={2} position={`${SM?("fixed"):("")}`} right={`${SM?(rightBarOpen?('97vw'):('-20rem')):("")}`}>
-        <Box p={2} position={'fixed'} display={"flex"} bgcolor={'white'} flexDirection={"column"} alignItems={"flex-start"}>
+        <Box p={2} position={'fixed'} display={"flex"} bgcolor={'lightgray'} flexDirection={"column"} alignItems={"flex-start"}>
        
           <Box>
             <Typography mt={LG?0:3} gutterBottom variant="h6" fontWeight={300}>

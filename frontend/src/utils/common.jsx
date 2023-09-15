@@ -37,3 +37,7 @@ export const handleApiResponse=async(response)=>{
       return { success: false, message: INTERNAL_SERVER_ERROR_MESSAGE };
     }
   }
+
+export const generateSecureFilename=(filename)=>{
+  return filename.replace(/[^a-zA-Z0-9-_\.]/g, '').toLowerCase()
+}

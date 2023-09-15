@@ -5,7 +5,7 @@ import { loggedInUserContext } from '../context/user/Usercontext';
 import { login } from '../api/auth';
 import { LoadingButtons } from '../components/LoadingButtons';
 import { GlobalAlertContext } from '../context/globalAlert/GlobalAlertContext';
-
+import { handleSpace } from './Signup';
 export const Login = () => {
     const navigate=useNavigate();
     const {setGlobalAlertOpen}=useContext(GlobalAlertContext)
@@ -54,8 +54,8 @@ export const Login = () => {
             <Typography gutterBottom variant='h3' color={"#191919"} fontWeight={700}>Stang<span style={{color:"#6c2ad7"}}>Chat</span></Typography>
             <Typography variant='h5' color={"#191919"} style={{color:"#6c2ad7"}} fontWeight={700}>Launching this tuesday🎉</Typography>
             <Stack mt={5} spacing={2} width={'100%'}>
-                <TextField  name='email' label="Email" variant="outlined"  value={credentials.email}  onChange={handleOnChange}/>
-                <TextField  type='password' name='password' label="Password" variant="outlined" value={credentials.password} onChange={handleOnChange}/>
+                <TextField onKeyDown={handleSpace} inputProps={{maxLength:64}}  name='email' label="Email" variant="outlined"  value={credentials.email}  onChange={handleOnChange}/>
+                <TextField onKeyDown={handleSpace}  type='password' name='password' label="Password" variant="outlined" value={credentials.password} onChange={handleOnChange}/>
                 {
                     loading?(<LoadingButtons/>)
                     :(<Button disabled={!isCredentialsFilled} onClick={handleLoginSubmit} sx={{height:"3rem"}} variant='contained'>Login</Button>)

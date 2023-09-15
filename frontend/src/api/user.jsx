@@ -147,7 +147,6 @@ export const updateProfile=async(credentials,selectedImage,originalFilename)=>{
         let PROFILE_PATH=null
 
         if(selectedImage!=='not'){
-
           PROFILE_PATH=`${credentials.user_id}/profile/${originalFilename}`
           const params={
               Bucket:S3_BUCKET_NAME,
@@ -155,7 +154,6 @@ export const updateProfile=async(credentials,selectedImage,originalFilename)=>{
               Body:selectedImage
             }
           const uploadResult = await s3.upload(params).promise()
-          alert(uploadResult.Location)
         }
         else{
           PROFILE_PATH='default-profile-picture/defaultProfile.png'

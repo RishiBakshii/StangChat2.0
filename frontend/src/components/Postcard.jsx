@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
-import {Avatar,Box,Card,CardActions,CardContent,CardHeader,CardMedia,IconButton,Typography,Checkbox,Stack,TextField,InputAdornment,Menu,MenuItem, useTheme, useMediaQuery, TextareaAutosize,} from "@mui/material";
+import {Avatar,Box,Card,CardActions,CardContent,CardHeader,CardMedia,IconButton,Typography,Checkbox,Stack,TextField,InputAdornment,Menu,MenuItem, useTheme, useMediaQuery,Button} from "@mui/material";
 import {MoreVert,Favorite,FavoriteBorder,Comment,Send,Delete} from "@mui/icons-material";
 import { BASE_URL} from "../screens/Home";
 import CircularProgress from "@mui/material/CircularProgress";
@@ -8,9 +8,13 @@ import { loggedInUserContext } from "../context/user/Usercontext";
 import LoadingButton from "@mui/lab/LoadingButton/LoadingButton";
 import { postContext } from "../context/posts/PostContext";
 import { GlobalAlertContext } from "../context/globalAlert/GlobalAlertContext";
-import { BUCKET_URL, INTERNAL_SERVER_ERROR_MESSAGE, SERVER_DOWN_MESSAGE } from "../envVariables";
+import { BUCKET_URL, GIPHY_API_KEY, INTERNAL_SERVER_ERROR_MESSAGE, SERVER_DOWN_MESSAGE } from "../envVariables";
 import { LogoutUser } from "../api/auth";
 import { handleApiResponse } from "../utils/common";
+import nocommentsanimation from '../animations/nocommentsanimation.json'
+import Lottie from "lottie-react";
+import GifBoxIcon from '@mui/icons-material/GifBox';
+import ReactGiphySearchbox from 'react-giphy-searchbox'
 
 
 export const Postcard = ({username,caption,likesCount,imageUrl,unique_id,postedAt,profilePath,isLiked,setLikeModalOpen,userid,commentCount}) => {
@@ -24,11 +28,18 @@ export const Postcard = ({username,caption,likesCount,imageUrl,unique_id,postedA
   const [showComment, setShowComment] = useState({show: false,cardHeight: is480?(550):(700)});
   const [postingComment,setPostingComment]=useState(false)
   const [fetchedComment, setFetchedComment] = useState([]);
-  const [comment, setComment] = useState([]);
+  const [comment, setComment] = useState('');
+  const [giphyModalOpen,setGiphyModalOpen]=useState(false)
+  const [selectedGif,setSelectedGif]=useState('')
   const [commentCountState,setCommentCountState]=useState(commentCount)
   const [commentLikes, setCommentLikes] = useState({});
   const MD=useMediaQuery(theme.breakpoints.down("md"))
+  const SM=useMediaQuery(theme.breakpoints.down("sm"))
+  const LG=useMediaQuery(theme.breakpoints.down("lg"))
+  const is380=useMediaQuery(theme.breakpoints.down("380"))
   const navigate=useNavigate()
+
+  const urlRegex = /(https?:\/\/[^\s]+)/;
 
 
   const toggleComments = () => {
@@ -96,7 +107,7 @@ export const Postcard = ({username,caption,likesCount,imageUrl,unique_id,postedA
   };
 
   // 401 handled✅
-  const handleSendComment = async () => {
+  const handleSendComment = async (gifurl) => {
     setPostingComment(true)
     try {
       const response = await fetch(`${BASE_URL}/postcomment`, {
@@ -108,11 +119,12 @@ export const Postcard = ({username,caption,likesCount,imageUrl,unique_id,postedA
         body: JSON.stringify({
           userid: loggedInUser.loggedInUser.userid,
           postid: unique_id,
-          comment: comment,
+          comment: gifurl?gifurl:comment,
           username: loggedInUser.loggedInUser.username,
           profilepath: loggedInUser.loggedInUser.profilePicture,
         }),
       });
+
 
       const result=await handleApiResponse(response)
 
@@ -135,6 +147,7 @@ export const Postcard = ({username,caption,likesCount,imageUrl,unique_id,postedA
     }
     finally{
       setPostingComment(false)
+      setSelectedGif('')
     }
   };
 
@@ -322,7 +335,7 @@ export const Postcard = ({username,caption,likesCount,imageUrl,unique_id,postedA
   }
 
   return (
-    <Card sx={{margin:`${MD?("3rem"):"5rem"} 0rem`,height: showComment.cardHeight,width:`${is480?"95%":"80%"}`}}>
+    <Card sx={{position:"relative",margin:`${MD?("3rem"):"5rem"} 0rem`,height: showComment.cardHeight,width:`${is480?"100%":"80%"}`}}>
       <CardHeader avatar={ <Avatar sx={{ bgcolor: "blue" }} aria-label="recipe" component={Link} to={`/profile/${username}`} src={`${BUCKET_URL}/${profilePath}`}></Avatar>}
         action={
           <Box> 
@@ -378,14 +391,30 @@ export const Postcard = ({username,caption,likesCount,imageUrl,unique_id,postedA
             
             <IconButton aria-label="add to favorites">
                 <Checkbox onClick={handlePostLike} icon={<FavoriteBorder />} checked={isLikedstate} checkedIcon={<Favorite sx={{ color: "red" }} />}></Checkbox>
-                <Typography sx={{"cursor":"pointer"}} onClick={()=>setLikeModalOpen({state:true,postid:unique_id})}>{likeCountState}</Typography>
+                <Typography sx={{"cursor":"pointer"}} onClick={()=>setLikeModalOpen({state:true,postid:unique_id,commentid:false})}>{likeCountState}</Typography>
             </IconButton>
 
             <IconButton onClick={toggleComments} aria-label="share">
               <Comment />
               </IconButton>
               <Typography>{commentCountState}</Typography>
-              
+
+              {
+                giphyModalOpen?(
+              <Box sx={{position:"absolute",bottom:50,right:0,zIndex:400}}>
+                  <ReactGiphySearchbox sx={{}} apiKey={GIPHY_API_KEY} 
+                                onSelect={(item)=>{
+                                  handleSendComment(item.images.original_mp4.mp4)
+                                  }} 
+                                  masonryConfig={[
+                                    { columns: LG?2:3, imageWidth: is380?160:is480?180:200, gutter: 1 },
+                                  ]}
+                                />
+              </Box>
+
+                ):("")
+              }
+
 
       </CardActions>
 
@@ -401,8 +430,14 @@ export const Postcard = ({username,caption,likesCount,imageUrl,unique_id,postedA
             ):
             fetchedComment.length == 0?
             (
-              <Stack mt={4} sx={{ alignSelf: "center", justifySelf: "center" }}>
-                There are no comments☹️
+              <Stack mt={4} sx={{ alignSelf: "center", justifySelf: "center" }} justifyContent={'center'} alignItems={'center'}>
+                <Box height={'10rem'} width={'10rem'}>
+                  <Lottie animationData={nocommentsanimation}></Lottie>
+                </Box>
+                <Typography>
+                  hi {loggedInUser.loggedInUser.username}✨ we were just practicing
+                </Typography>
+                <Typography>there are no comments</Typography>
               </Stack>
             ):(
               fetchedComment.map((comment) => {
@@ -420,12 +455,18 @@ export const Postcard = ({username,caption,likesCount,imageUrl,unique_id,postedA
                         </Stack>
 
                         <Stack direction={"row"} alignItems={"center"} justifyContent={"space-between"}>
+                        
+                        {
+                          urlRegex.test(comment.comment)?(
+                            <video height={is480?100:SM?150:LG?200:300} autoPlay loop src={comment.comment} alt={`${comment.username}s sent gif`} />
+                          ):(
+                            <Typography variant="body2" color="text.primary">{comment.comment}</Typography>
 
-                        <Typography variant="body2" color="text.primary">{comment.comment}</Typography>
-
+                          )
+                        }
                         <Stack direction={"row"} alignItems={"center"}>
                                 <Checkbox checked={comment.likes.includes(loggedInUser.loggedInUser.userid)} onClick={()=>handleCommentLike(comment._id.$oid)} icon={<FavoriteBorder fontSize="small"/>} checkedIcon={<Favorite fontSize="small" sx={{ color: "red" }} />}/>
-                                <Typography variant="body2">{comment.likeCount}</Typography>        
+                                <Typography sx={{"cursor":"pointer"}} onClick={()=>setLikeModalOpen({state:true,postid:false,commentid:comment._id.$oid})} variant="body2">{comment.likeCount}</Typography>        
                         </Stack>
                     </Stack>
 
@@ -437,11 +478,13 @@ export const Postcard = ({username,caption,likesCount,imageUrl,unique_id,postedA
           </Box>
 
           <Stack mt={4}>
-            <TextField value={comment} onChange={(e) => setComment(e.target.value)} label="Add a comment..." variant="standard"
-              InputProps={{
-                endAdornment: (
-                  <InputAdornment position="end">
-                    {comment !== "" ? (
+            <TextField value={comment} onKeyDown={(e) => {
+    if (e.key === 'Enter' && comment.trim() !== '') {
+      handleSendComment();
+    }
+  }} onChange={(e) => setComment(e.target.value)} label="Add a comment..." variant="standard" InputProps={{endAdornment: (<InputAdornment position="end">
+                    <IconButton onClick={()=>setGiphyModalOpen(!giphyModalOpen)}><GifBoxIcon/></IconButton>
+                    {comment.trim()!==''? (
                       postingComment?(
                         <LoadingButton
                           loadingPosition="center"
@@ -450,12 +493,10 @@ export const Postcard = ({username,caption,likesCount,imageUrl,unique_id,postedA
                           variant="text"
                         ></LoadingButton>
                       ):(
-                        <IconButton onClick={handleSendComment}>
+                        <Button variant="text" onClick={handleSendComment}>
                           <Send />
-                        </IconButton>
+                        </Button>
                       )
-                        
-                      
                     ) : (
                       ""
                     )}
