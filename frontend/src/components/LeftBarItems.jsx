@@ -17,90 +17,90 @@ import { useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import { ReportBugModal } from './ReportBugModal';
+import theme from '../theme';
+import { ThemeContext } from '../context/Theme/ThemeContext';
 
 export const LeftBarItems = () => {
     const loggedInUser=useContext(loggedInUserContext)
     const theme=useTheme()
-
-    const MD=useMediaQuery(theme.breakpoints.up("lg"))
-  
-    const [open, setOpen] = useState(false);
     const [logoutModalOpen,setLogoutModalOpen]=useState(false)
     const [postModalOpen, setPostModalOpen] = useState(false);
     const [bugReportOpen,setBugReportOpen]=useState(false)
+
+    const {isDarkTheme}=useContext(ThemeContext)
+    const color=isDarkTheme?theme.palette.common.white:''
     
   return (
     <>
     <List>
     <ListItem disablePadding>
       <ListItemButton component={Link} to='/'>
-        <ListItemIcon><HomeIcon/></ListItemIcon>
+        <ListItemIcon><HomeIcon sx={{color:color}}/></ListItemIcon>
         <ListItemText primary="Home"/>
       </ListItemButton>
     </ListItem>
     <ListItem disablePadding>
       <ListItemButton component={Link} to={`/search`}>
-        <ListItemIcon><Search/></ListItemIcon>
+        <ListItemIcon><Search sx={{color:color}}/></ListItemIcon>
         <ListItemText primary="Search"/>
       </ListItemButton>
     </ListItem>
     <ListItem disablePadding>
       <ListItemButton component={Link} to={`/profile/${loggedInUser.loggedInUser.username}`}>
-        <ListItemIcon><PersonIcon/></ListItemIcon>
+        <ListItemIcon><PersonIcon sx={{color:color}}/></ListItemIcon>
         <ListItemText primary="Profile"/>
       </ListItemButton>
     </ListItem>
     <ListItem disablePadding>
       <ListItemButton component={Link} to='/friends'>
-      <ListItemIcon><Diversity3Icon/></ListItemIcon>
+      <ListItemIcon><Diversity3Icon sx={{color:color}}/></ListItemIcon>
         <ListItemText primary="Friends" />
       </ListItemButton>
     </ListItem>
     <ListItem disablePadding>
       <ListItemButton component={Link} to='/settings'>
-      <ListItemIcon><SettingsIcon/></ListItemIcon>
+      <ListItemIcon><SettingsIcon sx={{color:color}}/></ListItemIcon>
         <ListItemText primary="Settings" />
       </ListItemButton>
     </ListItem>
-<Divider />
-<Divider />
+<Divider sx={{bgcolor:color,opacity:`${isDarkTheme?'.1':''}`}}/>
 <ListItem disablePadding>
       <ListItemButton onClick={()=>{setPostModalOpen(true)}}>
-      <ListItemIcon><PostAddIcon/></ListItemIcon>
+      <ListItemIcon><PostAddIcon sx={{color:color}}/></ListItemIcon>
         <ListItemText primary="New Post" />
       </ListItemButton>
   </ListItem>
 <ListItem disablePadding>
-      <ListItemButton component={Link} to={"/explore"}>
-      <ListItemIcon><Explore/></ListItemIcon>
+      <ListItemButton component={Link}  to={"/explore"}>
+      <ListItemIcon><Explore sx={{color:color}}/></ListItemIcon>
         <ListItemText primary="Explore" />
       </ListItemButton>
   </ListItem>
 <ListItem disablePadding>
       <ListItemButton component={Link} to={"/leaderboard"}>
-      <ListItemIcon><EmojiEventsIcon/></ListItemIcon>
+      <ListItemIcon><EmojiEventsIcon sx={{color:color}}/></ListItemIcon>
         <ListItemText primary="LeaderBoard" />
       </ListItemButton>
   </ListItem>
-<Divider />
+<Divider sx={{bgcolor:color,opacity:`${isDarkTheme?'.1':''}`}}/>
     <ListItem disablePadding>
       <ListItemButton onClick={()=>setBugReportOpen(true)}>
         <ListItemIcon>
-          <BugReport/>
+          <BugReport sx={{color:color}}/>
         </ListItemIcon>
         <ListItemText primary="Report a bug"/>
       </ListItemButton>
     </ListItem>
     <ListItem disablePadding>
       <ListItemButton component={Link} to={"/globalchat"}>
-        <ListItemIcon><ForumIcon/></ListItemIcon>
+        <ListItemIcon><ForumIcon sx={{color:color}}/></ListItemIcon>
         <ListItemText primary="Global Chat✨"/>
       </ListItemButton>
     </ListItem>
-<Divider />
+<Divider  sx={{bgcolor:color,opacity:`${isDarkTheme?'.1':''}`}}/>
 <ListItem disablePadding>
       <ListItemButton onClick={()=>{setLogoutModalOpen(true)}}>
-      <ListItemIcon><LogoutIcon/></ListItemIcon>
+      <ListItemIcon><LogoutIcon sx={{color:color}}/></ListItemIcon>
         <ListItemText primary="Logout" />
       </ListItemButton>
     </ListItem>

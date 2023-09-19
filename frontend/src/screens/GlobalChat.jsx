@@ -8,6 +8,9 @@ import { loggedInUserContext } from '../context/user/Usercontext'
 import { GlobalAlertContext } from '../context/globalAlert/GlobalAlertContext'
 import { BASE_URL, BUCKET_URL } from '../envVariables'
 import PersonIcon from '@mui/icons-material/Person';
+import theme from '../theme';
+import { ThemeContext } from '../context/Theme/ThemeContext';
+
 import { Link } from 'react-router-dom'
 
 export const GlobalChat = () => {
@@ -22,6 +25,9 @@ export const GlobalChat = () => {
     const socketRef = useRef(null);
 
     const chatContainerRef = useRef(null);
+    const {isDarkTheme}=useContext(ThemeContext)
+    const color=isDarkTheme?theme.palette.common.white:theme.palette.common.black
+    const bgcolor=isDarkTheme?theme.palette.common.black:theme.palette.background.paper
 
 
     const handleSendMessage=()=>{
@@ -41,7 +47,7 @@ export const GlobalChat = () => {
     
     useEffect(() => {
         
-        socketRef.current = io('http://127.0.0.1:5000');
+        socketRef.current = io(`${BASE_URL}`);
         
         // on connection
         socketRef.current.on("connect",()=>{
@@ -97,7 +103,7 @@ export const GlobalChat = () => {
                     
                     {
                         messages.map((message)=>{
-                            return  <Stack m={1} p={1} spacing={2} bgcolor={'white'} borderRadius={'.4rem'}>
+                            return  <Stack m={1} p={1} spacing={2} bgcolor={bgcolor} color={color} borderRadius={'.4rem'}>
                                         
                                         {message.type==='user-joined'?(
                                             <Stack direction={'row'} spacing={1} alignItems={'center'}>
@@ -113,10 +119,10 @@ export const GlobalChat = () => {
                                             <>
                                             <Stack direction={'row'} spacing={1} alignItems={'center'}>
                                                     <Avatar component={Link} to={`/profile/${message.username}`} src={`${BUCKET_URL}/${message.profilePicture}`}></Avatar>
-                                                    <Typography variant='body2' color='text.secondary'>{message.username}</Typography>
+                                                    <Typography variant='body2' color={`${isDarkTheme?theme.palette.common.white:'text.secondary'}`}>{message.username}</Typography>
                                             </Stack>
 
-                                            <Typography color={'text.primary'}>
+                                            <Typography sx={{color:color}}>
                                                 {message.message}
                                             </Typography>
                                         </>
@@ -136,9 +142,9 @@ export const GlobalChat = () => {
                             if (e.key === 'Enter' && !e.shiftKey && messageTextFeild.trim() !== '') {
                                 handleSendMessage();
                             }}}
-                        value={messageTextFeild} onChange={(e)=>setMessageTextFeild(e.target.value)} fullWidth placeholder='message...' 
+                        value={messageTextFeild} onChange={(e)=>setMessageTextFeild(e.target.value)} fullWidth placeholder='Type your Message...' 
                         
-                        InputProps={{
+                        InputProps={{style:{color},
                             endAdornment: <InputAdornment sx={{"fontSize":"small"}} position="start">{messageTextFeild.length}/1000</InputAdornment>,
                           }}
                         
@@ -150,7 +156,7 @@ export const GlobalChat = () => {
 
             </Stack>
 
-            <Stack p={1} flex={.1} spacing={1} direction={'row'} justifyContent={'center'} alignItems={'center'} mt={1}>
+            <Stack p={1} flex={.1} spacing={1} direction={'row'} justifyContent={'center'} alignItems={'center'} mt={1} position={'absolute'} right={0}>
                 <Box>
                     <PersonIcon sx={{color:"lightslategrey"}}/>
                 </Box>

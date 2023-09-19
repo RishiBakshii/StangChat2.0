@@ -7,6 +7,8 @@ import {useTheme} from "@mui/material";
 import { rightBarContext } from "../context/rigthbar/RightbarContext";
 import { loggedInUserContext } from "../context/user/Usercontext";
 import { handleApiResponse } from "../utils/common";
+import theme from '../theme';
+import { ThemeContext } from '../context/Theme/ThemeContext';
 import { GlobalAlertContext } from "../context/globalAlert/GlobalAlertContext";
 
 
@@ -19,12 +21,16 @@ export const Rightbar = () => {
   const MD=useMediaQuery(theme.breakpoints.down("md"))
   const LG=useMediaQuery(theme.breakpoints.down("lg"))
   const SM=useMediaQuery(theme.breakpoints.down("sm"))
+  const is480=useMediaQuery(theme.breakpoints.down("480"))
+  const is450=useMediaQuery(theme.breakpoints.down("450"))
 
   const [loading,setLoading]=useState(false)
   const [suggestions,setSuggestions]=useState([])
 
   const [latestPost,setLatestPost]=useState([])
   const [postLoader,setPostLoader]=useState(false)
+  const {isDarkTheme}=useContext(ThemeContext)
+
 
   const navigate=useNavigate()
 
@@ -97,16 +103,18 @@ export const Rightbar = () => {
     handleRefreshSuggestions()
   },[loggedInUser])
 
+  const color=isDarkTheme?theme.palette.common.white:theme.palette.common.black
+
   return (
-    <Box p={2} sx={{"transition":".2s cubic-bezier(0.25, 0.46, 0.45, 0.94)"}} flex={2} position={`${SM?("fixed"):("")}`} right={`${SM?(rightBarOpen?('97vw'):('-20rem')):("")}`}>
-        <Box p={2} position={'fixed'} display={"flex"} bgcolor={'lightgray'} flexDirection={"column"} alignItems={"flex-start"}>
-       
+    <Box p={2} sx={{"transition":".2s cubic-bezier(0.25, 0.46, 0.45, 0.94)"}} flex={2} color={color}  position={`${SM?("fixed"):("")}`} right={`${SM?(rightBarOpen?('97vw'):('-20rem')):("")}`}>
+        <Box p={2} position={'fixed'}  bgcolor={isDarkTheme?theme.palette.primary.customBlack:theme.palette.background.paper} display={"flex"} flexDirection={"column"} zIndex={1000} alignItems={"flex-start"}>
+
           <Box>
             <Typography mt={LG?0:3} gutterBottom variant="h6" fontWeight={300}>
                 LATEST POST
             </Typography>
 
-            <ImageList cols={LG?2:3} variant="woven" sx={{"height":'20rem'}}>
+            <ImageList cols={LG?2:3} variant="quilted" sx={{"height":'20rem'}}>
               {
                 postLoader?(<CircularProgress/>):(
                   latestPost.length!==0?(
@@ -114,9 +122,9 @@ export const Rightbar = () => {
                       return <ImageListItem component={Link} to={`/profile/${data.username}`}>
                         {
                         data.postPath.toLowerCase().endsWith('.mp4')?(
-                          <video src={`${BUCKET_URL}/${data.postPath}`} controls width={'200px'}></video>
+                          <video src={`${BUCKET_URL}/${data.postPath}`} controls width={200}></video>
                         ):(
-                          <img src={`${BUCKET_URL}/${data.postPath}`} alt={data.username}/>
+                          <img src={`${BUCKET_URL}/${data.postPath}`} alt={data.username} />
                         )
                         }
                         </ImageListItem>
@@ -132,9 +140,10 @@ export const Rightbar = () => {
 
           <Typography mt={3} gutterBottom variant="h6" fontWeight={300}>
             User Suggestions
-          <IconButton onClick={handleRefreshSuggestions}><RefreshIcon/></IconButton>
+          <IconButton onClick={handleRefreshSuggestions}><RefreshIcon sx={{color:isDarkTheme?theme.palette.common.white:""}}/></IconButton>
           </Typography>
-                  <List  sx={{width: "100%",height:`${MD?("75vh"):'20rem'}`,overflowY:"scroll"}}>
+
+                  <List  sx={{width: "100%",height:`${MD?("20rem"):'20rem'}`,overflowY:"scroll"}}>
               {
                 loading?(<CircularProgress/>):(
                   suggestions.length!==0?(
@@ -145,12 +154,12 @@ export const Rightbar = () => {
             </ListItemAvatar>
             <ListItemText component={Link} to={`/profile/${data.username}`} primary={data.username}
               secondary={
-                <React.Fragment>
-                  <Typography sx={{ display: "inline" }} component="span"variant="body2" color="text.primary">
+                <>
+                  <Typography sx={{ display: "inline",color:color}} component="span"variant="body2" >
                     {data.location}
-                  </Typography>
                   {`- ${data.bio.split(" ").splice(0,7).join(" ")}`}
-                </React.Fragment>
+                  </Typography>
+                </>
               }
             />
           </ListItem>

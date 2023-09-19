@@ -1,13 +1,18 @@
 import React from 'react'
 import Lottie from 'lottie-react';
 import welcomecat from '../animations/login/welcomecat.json'
-import { Box, Stack, Typography } from '@mui/material';
+import { Box, Stack, Typography, useMediaQuery } from '@mui/material';
+import theme from '../theme';
+
 
 export const Newuserdisplay = () => {
+
+  const is480=useMediaQuery(theme.breakpoints.down("480"))
+
   return (
     <Stack justifyContent={'center'} alignItems={"center"}>
                             
-        <Box width={'30rem'}>
+        <Box width={`${is480?'20rem':"30rem"}`}>
             <Lottie animationData={welcomecat} />
         </Box>
 

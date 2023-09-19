@@ -10,6 +10,8 @@ import { GlobalAlertContext } from '../context/globalAlert/GlobalAlertContext';
 import { BUCKET_URL, DEFAULT_PROFILE_PATH, S3_BUCKET_NAME, SERVER_DOWN_MESSAGE } from '../envVariables';
 import AWS from 'aws-sdk'
 import { handleSpace } from '../screens/Signup';
+import theme from '../theme';
+import { ThemeContext } from '../context/Theme/ThemeContext';
 
 
 export const Editprofile = ({userid,username,email,bio,location,heading,editProfile,profilePath}) => {
@@ -31,6 +33,8 @@ export const Editprofile = ({userid,username,email,bio,location,heading,editProf
       "bio":bio,
       "location":location,
     })
+
+    const {isDarkTheme}=useContext(ThemeContext)
 
     const [loading,setLoading]=useState(false)
 
@@ -204,12 +208,20 @@ export const Editprofile = ({userid,username,email,bio,location,heading,editProf
       }
     }
 
+    const color=isDarkTheme?theme.palette.background.paper:''
+
     useEffect(()=>{
       setEditProfileCredentialsFilled(editProfileCredentials.username && editProfileCredentials.email && editProfileCredentials.bio && editProfileCredentials.location)
     },[editProfileCredentials])
 
     const handleEditProfileOnChange=(e)=>{
-      setEditProfileCredentials({...editProfileCredentials,[e.target.name]:e.target.value})
+      if(e.target.name==='location' || e.target.name==='bio'){
+        setEditProfileCredentials({...editProfileCredentials,[e.target.name]:e.target.value})
+      }
+      else{
+        const sanitizedValue = e.target.value.replace(/\s/g, '')
+        setEditProfileCredentials({...editProfileCredentials,[e.target.name]:sanitizedValue})
+      }
     }
 
   return (
@@ -248,17 +260,17 @@ export const Editprofile = ({userid,username,email,bio,location,heading,editProf
                     {
                       editProfile?(
                         <>
-                    <TextField onKeyDown={handleSpace} inputProps={{maxLength:20}} name='username' label="Username" variant="outlined" onChange={handleEditProfileOnChange} value={editProfileCredentials.username}/>
-                    <TextField onKeyDown={handleSpace} inputProps={{maxLength:64}} helperText={!emailRegex.test(editProfileCredentials.email) && editProfileCredentials.email!=='' ? 'Invalid email address' : ''} name='email' label="Email" value={editProfileCredentials.email} onChange={handleEditProfileOnChange}/>
-                    <TextField InputProps={{endAdornment:(<InputAdornment position='end'><Typography color='text.secondary' variant='body2'>{`${editProfileCredentials.bio.length}/60`}</Typography></InputAdornment>)}} name='bio' inputProps={{maxLength:60}} label="Bio" multiline rows={4} defaultValue={bio} value={editProfileCredentials.bio} onChange={handleEditProfileOnChange}/>
-                    <TextField inputProps={{maxLength:20}} name='location' label="Location" variant="outlined"  defaultValue={location} value={editProfileCredentials.location} onChange={handleEditProfileOnChange}/>
+                    <TextField InputProps={{style:{color}}} InputLabelProps={{style:{color}}}  inputProps={{maxLength:20}} name='username' label="Username" variant="outlined" onChange={handleEditProfileOnChange} value={editProfileCredentials.username}/>
+                    <TextField InputProps={{style:{color}}} InputLabelProps={{style:{color}}} inputProps={{maxLength:64}} helperText={!emailRegex.test(editProfileCredentials.email) && editProfileCredentials.email!=='' ? 'Invalid email address' : ''} name='email' label="Email" value={editProfileCredentials.email} onChange={handleEditProfileOnChange}/>
+                    <TextField InputLabelProps={{style:{color}}} InputProps={{style:{color},endAdornment:(<InputAdornment position='end'><Typography color={color} variant='body2'>{`${editProfileCredentials.bio.length}/60`}</Typography></InputAdornment>)}} name='bio' inputProps={{maxLength:60}} label="Bio" multiline rows={4} defaultValue={bio} value={editProfileCredentials.bio} onChange={handleEditProfileOnChange}/>
+                    <TextField InputLabelProps={{style:{color}}} inputProps={{style:{color},maxLength:20}} name='location' label="Location" variant="outlined"  defaultValue={location} value={editProfileCredentials.location} onChange={handleEditProfileOnChange}/>
                         </>
                       ):(
                         <>
-                    <TextField label="Username" variant="outlined" defaultValue={credentials.username} InputProps={{readOnly: true,}}/>
-                    <TextField label="Email" defaultValue={credentials.email} InputProps={{readOnly: true,}}/>
-                    <TextField InputProps={{endAdornment:(<InputAdornment position='end'><Typography color='text.secondary' variant='body2'>{`${credentials.bio.length}/60`}</Typography></InputAdornment>)}} inputProps={{maxLength:60}} name='bio' label="Bio" multiline rows={4} value={credentials.bio} onChange={handleOnChange}/>
-                    <TextField label="Location" variant="outlined" defaultValue={credentials.location}  InputProps={{readOnly: true,}}/>
+                    <TextField label="Username" InputLabelProps={{style:{color}}} variant="outlined" defaultValue={credentials.username} InputProps={{style:{color},readOnly: true,}}/>
+                    <TextField InputLabelProps={{style:{color}}}   label="Email" defaultValue={credentials.email} InputProps={{style:{color},readOnly: true,}}/>
+                    <TextField InputLabelProps={{style:{color}}} InputProps={{endAdornment:(<InputAdornment position='end'><Typography color='text.secondary' variant='body2'>{`${credentials.bio.length}/60`}</Typography></InputAdornment>)}} inputProps={{maxLength:60}} name='bio' label="Bio" multiline rows={4} value={credentials.bio} onChange={handleOnChange}/>
+                    <TextField InputLabelProps={{style:{color}}} label="Location" variant="outlined" defaultValue={credentials.location} InputProps={{style:{color},readOnly: true,}}/>
                     </>
                       )
                     }
@@ -275,7 +287,7 @@ export const Editprofile = ({userid,username,email,bio,location,heading,editProf
                   ):(
                      <Box mt={5}>
                     {loading?(<LoadingButtons/>)
-                    :(<Button sx={{m:6}} onClick={handleSaveAndContinueClick} fullWidth disabled={!credentials.bio.length} variant='contained'>Save and continue</Button>)
+                    :(<Button sx={{m:1}} onClick={handleSaveAndContinueClick} fullWidth disabled={!credentials.bio.length} variant='contained'>Save and continue</Button>)
                     }
                 </Box>
                   )

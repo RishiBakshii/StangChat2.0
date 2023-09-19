@@ -7,14 +7,12 @@ import { useContext } from 'react';
 import { loggedInUserContext } from '../context/user/Usercontext';
 import { Link } from 'react-router-dom';
 import PersistentDrawerLeft from './LeftbarMobile';
-import {useTheme} from '@mui/material/styles';
 import { BUCKET_URL } from '../envVariables';
+import theme from '../theme';
+import { ThemeContext } from '../context/Theme/ThemeContext';
 
-const Customtoolbar=styled(Toolbar)({
-  display:"flex",
-  justifyContent:"space-evenly",
-  height:"4.5rem"
-})
+
+
 const Search = styled('div')(({ theme }) => ({
   position: 'relative',
   borderRadius: theme.shape.borderRadius,
@@ -57,16 +55,28 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 }));
 
 export const Navbar = () => {
-  const theme=useTheme()
+
+  const {isDarkTheme}=useContext(ThemeContext)
+  const color=isDarkTheme?theme.palette.background.paper:theme.palette.common.white
+
+  const Customtoolbar=styled(Toolbar)({
+    display:"flex",
+    justifyContent:"space-evenly",
+    height:"4.5rem",
+    backgroundColor:isDarkTheme?theme.palette.primary.customBlack:theme.palette.primary.main,
+    color:color
+  })
+
+
   const MD=useMediaQuery(theme.breakpoints.up("lg"))
   const loggedInUser=useContext(loggedInUserContext)
   return (
     <>
     {
-      MD?(<AppBar position='sticky' sx={{display:{xs:"none",sm:"none",md:"none",lg:"block",xl:"block"}}}>
+      MD?(<AppBar  position='sticky' sx={{display:{xs:"none",sm:"none",md:"none",lg:"block",xl:"block"}}}>
         <Customtoolbar >
 
-          <Typography variant='h5' component={Link} sx={{"textDecoration":"none","color":"white"}} fontWeight={"700"}>StangChat</Typography>
+          <Typography variant='h5' component={Link} sx={{"textDecoration":"none",color:color}} fontWeight={"700"}>StangChat</Typography>
 
           <Search>
             <SearchIconWrapper>
@@ -79,7 +89,7 @@ export const Navbar = () => {
           </Search>
           <Stack direction={'row'} spacing={2} alignItems={'center'}>
               <Avatar alt={loggedInUser.loggedInUser.username} src={`${BUCKET_URL}/${loggedInUser.loggedInUser.profilePicture}`} />
-              <Typography variant='h5'>{`${loggedInUser.loggedInUser.username}`}</Typography>
+              {/* <Typography variant='h5'>{`${loggedInUser.loggedInUser.username}`}</Typography> */}
           </Stack>
 
         </Customtoolbar>

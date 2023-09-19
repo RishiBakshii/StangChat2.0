@@ -28,7 +28,8 @@ def format_user_data(user):
         'post':[],
         'followerCount':user['followerCount'],
         'followingCount':user['followingCount'],
-        'postCount':user['postCount']
+        'postCount':user['postCount'],
+        'fcmToken':user['fcmToken']
     }
 
 def hash_password(password):
@@ -67,7 +68,9 @@ def handle_follow(mongo,target_user_id,userid):
         "updatedFollowingCount": target_user['followingCount'],
         "updatedFollowerCount": target_user['followerCount'],
         "isFollowing": True,
-        'updatedUserFollowingCount':user['followingCount']
+        'updatedUserFollowingCount':user['followingCount'],
+        'fcmToken':target_user['fcmToken'],
+        'follow':True,
     }
 
 def handle_unfollow(mongo,target_user_id,userid):
@@ -118,5 +121,4 @@ def handle_comment_like(mongo,userid,comment):
         mongo.db.comments.update_one({"_id": ObjectId(comment["_id"])},{"$addToSet": {"likes": userid},"$inc": {"likeCount": 1}})
         updated_comment=is_existing_commentid(mongo,comment["_id"])
         return {"message": True,'updated_like_count':updated_comment["likeCount"]}
-
 

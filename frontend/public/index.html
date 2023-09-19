@@ -57,21 +57,24 @@
         font-family: 'Roboto', sans-serif;
       }
 
-      /* Track */
-      ::-webkit-scrollbar {
-          width: 2px;
-          background-color: rgb(255, 255, 255);
-      }
+/* Hide vertical scrollbar */
+::-webkit-scrollbar {
+  width: 0.5rem; /* Adjust as needed to change the width of the scrollbar */
+}
 
-      /* Handle */
-      ::-webkit-scrollbar-thumb {
-          background: #555;
-      }
+::-webkit-scrollbar-thumb {
+  background-color: transparent; /* Hide the thumb */
+}
 
-      /* Handle on hover */
-      ::-webkit-scrollbar-thumb:hover {
-          background: #555;
-      }
+/* Hide horizontal scrollbar */
+::-webkit-scrollbar-horizontal {
+  height: 0.5rem; /* Adjust as needed to change the height of the scrollbar */
+}
+
+::-webkit-scrollbar-thumb:horizontal {
+  background-color: transparent; /* Hide the thumb */
+}
+
       body{
         overflow-x: hidden;
       }

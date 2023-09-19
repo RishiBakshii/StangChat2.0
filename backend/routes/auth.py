@@ -2,10 +2,11 @@ from flask import Blueprint, request, make_response, jsonify
 import jwt
 import os
 import bcrypt
+from bson import ObjectId
 from bson.json_util import dumps
 from utils.common import generate_jwt_token,format_user_data,hash_password,decode_jwt_token
 from schema.user import user_schema
-from utils.validation import is_existing_email,is_existing_username,is_valid_password
+from utils.validation import is_existing_email,is_existing_username,is_valid_password,is_existing_userid
 auth = Blueprint('auth', __name__)
 
 # ✅
@@ -65,6 +66,47 @@ def signup():
         except Exception as e:
             return jsonify({"message":str(e)}),500
 
+# ✅
+@auth.route("/storefcmtoken",methods=['POST'])
+def storeFcmToken():
+    if request.method=='POST':
+        try:
+            data=request.json
+            mongo=auth.mongo
+
+            userid=data.get("userid")
+            fcmToken=data.get("fcmToken")
+
+            print(f"received user id :::::::::::: {userid}")
+
+            user=is_existing_userid(mongo,userid)
+            if not user:
+                return jsonify({"message":"user does not exist"}),404
+            
+            if user and fcmToken:
+                mongo.db.users.update_one({"_id":ObjectId(user['_id'])},{'$set':{"fcmToken":fcmToken}})
+                return jsonify({"message":"Now you will receive notifications from stangchat"}),200
+        except Exception as e:
+            return jsonify({"message":str(e)}),500
+
+# ✅
+@auth.route("/deletefcmtoken",methods=['POST'])
+def deleteFcmToken():
+    if request.method=='POST':
+        try:
+            data=request.json
+            mongo=auth.mongo
+
+            userid=data.get("userid")
+            user=is_existing_userid(mongo,userid)
+            if not user:
+                return jsonify({'message':"user does not exists"}),404
+            
+            mongo.db.users.update_one({'_id': user['_id']}, {'$set': {'fcmToken': ''}})
+            return jsonify({'message':"You will not receive any notifications"}),200
+
+        except Exception as e:
+            return jsonify({'message':str(e)}),500
 # ✅
 @auth.route("/decode_token",methods=['POST'])
 def decode_token():

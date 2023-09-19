@@ -1,11 +1,14 @@
 import { Box, Stack, Typography } from '@mui/material'
-import React from 'react'
+import React, { useContext } from 'react'
 import catanimation from '../animations/login/catanimation.json'
 import Lottie from 'lottie-react';
+import theme from '../theme';
+import { ThemeContext } from '../context/Theme/ThemeContext';
 
 export const CaughtUpDisplay = () => {
+  const {isDarkTheme}=useContext(ThemeContext)
   return (
-    <Stack justifyContent={'center'} alignItems={"center"}>
+    <Stack justifyContent={'center'} alignItems={"center"} >
                             
     <Box width={'10rem'}>
         <Lottie animationData={catanimation} />

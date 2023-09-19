@@ -16,12 +16,16 @@ import { NotFound } from "./screens/NotFound";
 import { GlobalAlertState } from "./context/globalAlert/GlobalAlertState";
 import { GlobalChat } from "./screens/GlobalChat";
 import AWS from 'aws-sdk';
-import { useEffect } from "react";
-import { AWS_ACCESS_KEY, AWS_REGION, AWS_SECRET_KEY } from "./envVariables";
+import { useContext, useEffect } from "react";
+import { AWS_ACCESS_KEY, AWS_REGION, AWS_SECRET_KEY, BASE_URL } from "./envVariables";
+import { loggedInUserContext } from "./context/user/Usercontext";
+import { ThemeState } from "./context/Theme/ThemeState";
+
 
 function App() {
 
-  // const setGlobalAlertOpen=useContext(GlobalAlertContext)
+  // const {setGlobalAlertOpen}=useContext(GlobalAlertContext)
+  const loggedInUser=useContext(loggedInUserContext)
 
   useEffect(()=>{
     try {
@@ -37,6 +41,7 @@ function App() {
 
   return (
     <Router basename="/">
+    <ThemeState>
     <GlobalAlertState>
     <RightBarState>
     <Poststate>
@@ -59,6 +64,7 @@ function App() {
     </Poststate>
     </RightBarState>
     </GlobalAlertState>
+    </ThemeState>
     </Router>
 
   );

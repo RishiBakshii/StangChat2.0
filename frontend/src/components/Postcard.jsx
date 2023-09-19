@@ -15,6 +15,10 @@ import nocommentsanimation from '../animations/nocommentsanimation.json'
 import Lottie from "lottie-react";
 import GifBoxIcon from '@mui/icons-material/GifBox';
 import ReactGiphySearchbox from 'react-giphy-searchbox'
+import theme from '../theme';
+import { ThemeContext } from '../context/Theme/ThemeContext';
+
+
 
 
 export const Postcard = ({username,caption,likesCount,imageUrl,unique_id,postedAt,profilePath,isLiked,setLikeModalOpen,userid,commentCount}) => {
@@ -38,6 +42,7 @@ export const Postcard = ({username,caption,likesCount,imageUrl,unique_id,postedA
   const LG=useMediaQuery(theme.breakpoints.down("lg"))
   const is380=useMediaQuery(theme.breakpoints.down("380"))
   const navigate=useNavigate()
+  const {isDarkTheme}=useContext(ThemeContext)
 
   const urlRegex = /(https?:\/\/[^\s]+)/;
 
@@ -334,23 +339,25 @@ export const Postcard = ({username,caption,likesCount,imageUrl,unique_id,postedA
     }
   }
 
+  const color=isDarkTheme?theme.palette.common.white:''
+
   return (
-    <Card sx={{position:"relative",margin:`${MD?("3rem"):"5rem"} 0rem`,height: showComment.cardHeight,width:`${is480?"100%":"80%"}`}}>
+    <Card sx={{position:"relative",margin:`${MD?("3rem"):"5rem"} 0rem`,height: showComment.cardHeight,width:`${is480?"100%":"80%"}`,bgcolor:`${isDarkTheme?theme.palette.primary.customBlack:theme.palette.background.paper}`}}>
       <CardHeader avatar={ <Avatar sx={{ bgcolor: "blue" }} aria-label="recipe" component={Link} to={`/profile/${username}`} src={`${BUCKET_URL}/${profilePath}`}></Avatar>}
         action={
           <Box> 
             <IconButton id="basic-button" aria-controls={open ? 'basic-menu' : undefined} aria-haspopup="true" aria-expanded={open ? 'true' : undefined} onClick={handleClick}>
-          <MoreVert/>
+          <MoreVert sx={{color:color}}/>
       </IconButton>
-        {loggedInUser.loggedInUser.userid===userid?(
+            {loggedInUser.loggedInUser.userid===userid?(
                 <Menu
-        id="basic-menu"
-        anchorEl={anchorEl}
-        open={open}
-        onClose={handleClose}
-        MenuListProps={{
-          'aria-labelledby': 'basic-button',
-        }}
+                id="basic-menu"
+                anchorEl={anchorEl}
+                open={open}
+                onClose={handleClose}
+                MenuListProps={{
+                'aria-labelledby': 'basic-button',
+              }}
       >
         <MenuItem onClick={handleClose}>
           <Stack direction={'row'} justifyContent={'center'} alignItems={'center'} spacing={1}>
@@ -369,20 +376,21 @@ export const Postcard = ({username,caption,likesCount,imageUrl,unique_id,postedA
         title={
           <Typography
             component={Link}
-            sx={{ textDecoration: "none", color: "black" }}
+            sx={{ textDecoration: "none", color: isDarkTheme?theme.palette.common.white:'black'}}
             to={`/profile/${username}`}
             variant="body2"
+
           >
             {username}
           </Typography>
         }
-        subheader={postedAt}
+        subheader={<Typography variant="body2" color={isDarkTheme?theme.palette.common.white:theme.palette.text.secondary}>{postedAt}</Typography>}
       />
 
-      <CardMedia component={imageUrl.toLowerCase().endsWith('.mp4')?("video"):("img")} image={imageUrl} controls alt={`Unable to load ${username}s post`} style={{ height:`${is480?("350px"):("500px")}`,objectFit: "contain" }}/>
+      <CardMedia image={imageUrl} component={imageUrl.toLowerCase().endsWith('.mp4')?("video"):("img")}  controls alt={`Unable to load ${username}s post`} style={{ height:`${is480?("350px"):("500px")}`,backgroundPosition:"center",objectFit:"contain"}}/>
 
       <CardContent>
-        <Typography variant="body1" sx={{"overflowY":"scroll"}} color="text.primary">
+        <Typography variant="body1" sx={{"overflowY":"scroll"}} color={color}>
           {caption}
         </Typography>
       </CardContent>
@@ -390,14 +398,14 @@ export const Postcard = ({username,caption,likesCount,imageUrl,unique_id,postedA
       <CardActions disableSpacing>
             
             <IconButton aria-label="add to favorites">
-                <Checkbox onClick={handlePostLike} icon={<FavoriteBorder />} checked={isLikedstate} checkedIcon={<Favorite sx={{ color: "red" }} />}></Checkbox>
-                <Typography sx={{"cursor":"pointer"}} onClick={()=>setLikeModalOpen({state:true,postid:unique_id,commentid:false})}>{likeCountState}</Typography>
+                <Checkbox onClick={handlePostLike} icon={<FavoriteBorder sx={{color:color}}/>} checked={isLikedstate} checkedIcon={<Favorite sx={{ color: 'red'}} />}></Checkbox>
+                <Typography sx={{"cursor":"pointer",color:color}} onClick={()=>setLikeModalOpen({state:true,postid:unique_id,commentid:false})}>{likeCountState}</Typography>
             </IconButton>
 
             <IconButton onClick={toggleComments} aria-label="share">
-              <Comment />
+              <Comment sx={{color:color}} />
               </IconButton>
-              <Typography>{commentCountState}</Typography>
+              <Typography color={color}>{commentCountState}</Typography>
 
               {
                 giphyModalOpen?(
@@ -420,8 +428,8 @@ export const Postcard = ({username,caption,likesCount,imageUrl,unique_id,postedA
 
       {/* COMMENTS section */}
       {showComment.show ? (
-        <CardContent sx={{bgcolor: "",height: "100%",padding: ".5rem 1rem",overflowY: "scroll",}}>
-          <Box bgcolor={""} sx={{ overflowY: "scroll", height: "28rem", display: "flex",flexDirection: "column",}}>
+        <CardContent sx={{height: "100%",padding: ".5rem 1rem",overflowY: "scroll",}}>
+          <Box  sx={{ overflowY: "scroll", height: "28rem", display: "flex",flexDirection: "column",}}>
 
             {
             isLoadingComments?
@@ -434,22 +442,22 @@ export const Postcard = ({username,caption,likesCount,imageUrl,unique_id,postedA
                 <Box height={'10rem'} width={'10rem'}>
                   <Lottie animationData={nocommentsanimation}></Lottie>
                 </Box>
-                <Typography>
+                <Typography color={color}>
                   hi {loggedInUser.loggedInUser.username}✨ we were just practicing
                 </Typography>
-                <Typography>there are no comments</Typography>
+                <Typography color={color}>there are no comments</Typography>
               </Stack>
             ):(
               fetchedComment.map((comment) => {
                 return (
-                    <Stack key={comment._id.$oid} mt={4} bgcolor={"white"} spacing={1} p={'0 1rem'}>
+                    <Stack key={comment._id.$oid} mt={4} spacing={1} p={'0 1rem'}>
 
                         <Stack direction={"row"} alignItems={"center"} spacing={1}>
                               <Avatar alt={comment.username} src={`${BUCKET_URL}/${comment.profilepath}`} component={Link} to={`/profile/${comment.username}`}/>
-                              <Typography sx={{"textDecoration":"none",color:"black"}} component={Link} to={`/profile/${comment.username}`}>{comment.user_id===loggedInUser.loggedInUser.userid?'You':comment.username}</Typography>
+                              <Typography sx={{"textDecoration":"none",color:isDarkTheme?theme.palette.common.white:'black'}} component={Link} to={`/profile/${comment.username}`}>{comment.user_id===loggedInUser.loggedInUser.userid?'You':comment.username}</Typography>
                               {
                                 comment.user_id===loggedInUser.loggedInUser.userid?(
-                                      <IconButton onClick={()=>handleDeleteComment(comment._id.$oid)}><Delete fontSize="small"/></IconButton>
+                                      <IconButton onClick={()=>handleDeleteComment(comment._id.$oid)}><Delete sx={{color:color}} fontSize="small"/></IconButton>
                                 ):("")
                               } 
                         </Stack>
@@ -458,15 +466,15 @@ export const Postcard = ({username,caption,likesCount,imageUrl,unique_id,postedA
                         
                         {
                           urlRegex.test(comment.comment)?(
-                            <video height={is480?100:SM?150:LG?200:300} autoPlay loop src={comment.comment} alt={`${comment.username}s sent gif`} />
+                            <video height={is480?100:SM?150:LG?200:250} autoPlay loop src={comment.comment} alt={`${comment.username}s sent gif`} />
                           ):(
-                            <Typography variant="body2" color="text.primary">{comment.comment}</Typography>
+                            <Typography variant="body2" color={color}>{comment.comment}</Typography>
 
                           )
                         }
                         <Stack direction={"row"} alignItems={"center"}>
-                                <Checkbox checked={comment.likes.includes(loggedInUser.loggedInUser.userid)} onClick={()=>handleCommentLike(comment._id.$oid)} icon={<FavoriteBorder fontSize="small"/>} checkedIcon={<Favorite fontSize="small" sx={{ color: "red" }} />}/>
-                                <Typography sx={{"cursor":"pointer"}} onClick={()=>setLikeModalOpen({state:true,postid:false,commentid:comment._id.$oid})} variant="body2">{comment.likeCount}</Typography>        
+                                <Checkbox checked={comment.likes.includes(loggedInUser.loggedInUser.userid)} onClick={()=>handleCommentLike(comment._id.$oid)} icon={<FavoriteBorder sx={{color:color}} fontSize="small"/>} checkedIcon={<Favorite fontSize="small" sx={{ color: "red" }} />}/>
+                                <Typography sx={{"cursor":"pointer",color:color}} onClick={()=>setLikeModalOpen({state:true,postid:false,commentid:comment._id.$oid})} variant="body2">{comment.likeCount}</Typography>        
                         </Stack>
                     </Stack>
 
@@ -478,12 +486,16 @@ export const Postcard = ({username,caption,likesCount,imageUrl,unique_id,postedA
           </Box>
 
           <Stack mt={4}>
-            <TextField value={comment} onKeyDown={(e) => {
-    if (e.key === 'Enter' && comment.trim() !== '') {
-      handleSendComment();
-    }
-  }} onChange={(e) => setComment(e.target.value)} label="Add a comment..." variant="standard" InputProps={{endAdornment: (<InputAdornment position="end">
-                    <IconButton onClick={()=>setGiphyModalOpen(!giphyModalOpen)}><GifBoxIcon/></IconButton>
+            <TextField  value={comment} onKeyDown={(e) => {
+              if (e.key === 'Enter' && comment.trim() !== ''){
+              handleSendComment()
+            }}} 
+                      onChange={(e) => setComment(e.target.value)} sx={{
+                        '& label.Mui-focused': { color }, // Change the label color when focused
+                        '& .MuiOutlinedInput-root': {
+                          '&.Mui-focused fieldset': { borderColor: color }, // Change the outline color when focused
+                        },
+                      }} InputLabelProps={{style:{color}}} label="Add a comment..." variant="standard" InputProps={{style:{color},endAdornment: (<InputAdornment position="end"><IconButton onClick={()=>setGiphyModalOpen(!giphyModalOpen)}><GifBoxIcon sx={{color:'lightblue'}} fontSize="large"/></IconButton>
                     {comment.trim()!==''? (
                       postingComment?(
                         <LoadingButton
@@ -494,7 +506,7 @@ export const Postcard = ({username,caption,likesCount,imageUrl,unique_id,postedA
                         ></LoadingButton>
                       ):(
                         <Button variant="text" onClick={handleSendComment}>
-                          <Send />
+                          <Send sx={{color:color}}/>
                         </Button>
                       )
                     ) : (

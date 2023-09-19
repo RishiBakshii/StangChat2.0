@@ -9,6 +9,8 @@ import AWS from 'aws-sdk'
 import { BASE_URL, S3_BUCKET_NAME } from '../envVariables';
 import selectimageanimtion from '../animations/selectimageanimation.json'
 import Lottie from 'lottie-react';
+import theme from '../theme';
+import { ThemeContext } from '../context/Theme/ThemeContext';
 
 
 
@@ -26,7 +28,10 @@ export const PostModal=({ isOpen, onClose})=> {
     const {setGlobalAlertOpen}=useContext(GlobalAlertContext)
     const {setFeed}=useContext(postContext)
 
-    const theme=useTheme()
+    const {isDarkTheme}=useContext(ThemeContext)
+    const color=isDarkTheme?theme.palette.common.white:theme.palette.common.black
+    const bgcolor=isDarkTheme?theme.palette.common.black:theme.palette.background.paper
+
     const is480=useMediaQuery(theme.breakpoints.down("480"))
 
     const [selectedImage, setSelectedImage] = useState(null);
@@ -129,7 +134,9 @@ export const PostModal=({ isOpen, onClose})=> {
         borderRadius:".4rem",
         [theme.breakpoints.down('480')]:{
           width:'18rem'
-        }
+        },
+        color:color,
+        bgcolor:bgcolor
       };
 
   return (
@@ -155,9 +162,9 @@ export const PostModal=({ isOpen, onClose})=> {
                 </Stack>
 
                 <Stack>
-                    <TextField value={caption} onChange={(e)=>setCaption(e.target.value)} variant='standard' label='Caption ...'></TextField>
+                    <TextField value={caption} onChange={(e)=>setCaption(e.target.value)} variant='standard' inputProps={{style:{color}}} InputLabelProps={{style:{color}}} label='Caption ...'></TextField>
                 </Stack>
-                <LoadingButton loadingPosition='center' disabled={(caption === '' || (selectedImage === null && selectedVideo === null)) ? true : false} onClick={handlePostUpload} loading={loading} variant="contained" >
+                <LoadingButton loadingPosition='center' sx={{color:color,bgcolor:bgcolor}} disabled={(caption === '' || (selectedImage === null && selectedVideo === null)) ? true : false} onClick={handlePostUpload} loading={loading} variant="contained" >
                   Post
                 </LoadingButton>
             </Stack>

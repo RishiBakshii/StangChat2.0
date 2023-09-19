@@ -5,17 +5,14 @@ import { signup } from '../api/auth';
 import { LoadingButtons } from '../components/LoadingButtons';
 import { Editprofile } from '../components/Editprofile';
 import { GlobalAlertContext } from '../context/globalAlert/GlobalAlertContext';
+import theme from '../theme';
+import { ThemeContext } from '../context/Theme/ThemeContext';
 
 export const handleSpace = (event) => {
     if (event.key === ' ' || event.keyCode === 32) {
       event.preventDefault();
     }
   };
-
-  
-  
-  
-  
 
 export const Signup = () => {
     const {setGlobalAlertOpen}=useContext(GlobalAlertContext)
@@ -34,24 +31,6 @@ export const Signup = () => {
     const [credentialsFilled,setCredentialsFilled]=useState(false)
     const [passwordMatch,setPasswordMatch]=useState(false)
 
-    function generateRandomName() {
-        const vowels = 'aeiou';
-        const consonants = 'bcdfghjklmnpqrstvwxyz';
-        const minLength = 5;
-        const maxLength = 20;
-        const nameLength = Math.floor(Math.random() * (maxLength - minLength + 1)) + minLength;
-        let name = '';
-      
-        for (let i = 0; i < nameLength; i++) {
-          const syllable =
-            consonants[Math.floor(Math.random() * consonants.length)] +
-            vowels[Math.floor(Math.random() * vowels.length)];
-      
-          name += syllable;
-        }
-      
-        setCredentials({...credentials,['username']:name})
-      }
 
     useEffect(()=>{
         setPasswordMatch(credentials.password===credentials.confirmPassword)
@@ -62,7 +41,13 @@ export const Signup = () => {
       },[credentials])
           
     const handleOnChange=(e)=>{
-        setCredentials({...credentials,[e.target.name]:e.target.value})
+        if(e.target.name==='location'){
+            setCredentials({...credentials,[e.target.name]:e.target.value})
+        }
+        else{
+            const sanitizedValue = e.target.value.replace(/\s/g, '')
+            setCredentials({...credentials,[e.target.name]:sanitizedValue})
+        }
     }
     const handleSignupSubmit=async()=>{
         setLoading(true)
@@ -86,6 +71,8 @@ export const Signup = () => {
         
     }
 
+    const {isDarkTheme}=useContext(ThemeContext)
+    const color=isDarkTheme?theme.palette.background.paper:''
     const emailRegex = /^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+[A-Za-z]{2,}$/;
   return (
     <>
@@ -98,16 +85,16 @@ export const Signup = () => {
             <Stack  width={"30rem"} justifyContent={'center'} alignItems={"center"}>
             
                     <Stack direction={'column'} justifyContent={'center'} alignItems={'center'}>
-                            <Typography variant='h3' gutterBottom color={"#191919"} fontWeight={700}>Stang<span style={{color:"#6c2ad7"}}>Chat</span></Typography>
-                            <Typography variant='h5' color={"#191919"} style={{color:"#6c2ad7"}} fontWeight={700}>Launching this tuesday🎉</Typography>
+                            <Typography variant='h3' gutterBottom color={color} fontWeight={700}>Stang<span style={{color:"#6c2ad7"}}>Chat</span></Typography>
+                            {/* <Typography variant='h5' color={"#191919"} style={{color:"#6c2ad7"}} fontWeight={700}>Launching this tuesday🎉</Typography> */}
                     </Stack>
 
                     <Stack mt={5} width={'100%'} spacing={2}>
-                        <TextField inputProps={{maxLength:20}} onKeyDown={handleSpace} InputProps={{endAdornment:(<InputAdornment position='end'>{credentials.username!==''?("✨"):""}</InputAdornment>)}} fullWidth name='username' value={credentials.username} onChange={handleOnChange} label="Username" variant="outlined" />
-                        <TextField inputProps={{maxLength:64}} name="email" helperText={!emailRegex.test(credentials.email) && credentials.email!=='' ? 'Invalid email address' : ''} error={!emailRegex.test(credentials.email) && credentials.email!==''} type='email'onKeyDown={handleSpace} value={credentials.email} onChange={handleOnChange} label="Email" variant="outlined" />
-                        <TextField name="password" onKeyDown={handleSpace} type='password' value={credentials.password} onChange={handleOnChange} label="Password" variant="outlined" />
-                        <TextField error={passwordMatch?(false):(true)} onKeyDown={handleSpace} name="confirmPassword" type='password' value={credentials.confirmPassword} onChange={handleOnChange} label="Confirm Password" variant="outlined" />
-                        <TextField inputProps={{maxLength:20}} name="location" value={credentials.location} onChange={handleOnChange} label="Location" variant="outlined" />
+                        <TextField inputProps={{style:{color,borderColor:"white"},maxLength:20}} InputLabelProps={{style:{color}}} InputProps={{endAdornment:(<InputAdornment position='end'>{credentials.username!==''?("✨"):""}</InputAdornment>)}} fullWidth name='username' value={credentials.username} onChange={handleOnChange} label="Username" variant="outlined" />
+                        <TextField inputProps={{style:{color},maxLength:64}} InputLabelProps={{style:{color}}} name="email" helperText={!emailRegex.test(credentials.email) && credentials.email!=='' ? 'Invalid email address' : ''} error={!emailRegex.test(credentials.email) && credentials.email!==''} value={credentials.email} onChange={handleOnChange} label="Email" variant="outlined" />
+                        <TextField inputProps={{style:{color},maxLength:50}} name="password" InputLabelProps={{style:{color}}} type='password' helperText={credentials.password!=='' && credentials.password.length<8?"Min 8 characters":""} value={credentials.password} onChange={handleOnChange} label="Password" variant="outlined" />
+                        <TextField inputProps={{style:{color},maxLength:50}} error={passwordMatch?(false):(true)} InputLabelProps={{style:{color}}} name="confirmPassword" type='password' value={credentials.confirmPassword} onChange={handleOnChange} label={credentials.password!=='' && credentials.password!==credentials.confirmPassword?"Passwords does not match":"Confirm Password"} variant="outlined" />
+                        <TextField inputProps={{style:{color},maxLength:20}} name="location" InputLabelProps={{style:{color}}} value={credentials.location} onChange={handleOnChange} label="Location" variant="outlined" />
                         {
                             loading?(<LoadingButtons/>)
                             :(<Button disabled={!credentialsFilled || !passwordMatch || !emailRegex.test(credentials.email)} onClick={handleSignupSubmit} sx={{height:"3rem"}} variant='contained'>Signup</Button>)
@@ -122,7 +109,7 @@ export const Signup = () => {
                         
                     </Stack>
 
-                    <Typography sx={{"textDecoration":"none",color:"black"}} mt={2} component={Link} variant='body2' to={'/login'}>Already Have an account? Login</Typography>
+                    <Typography sx={{"textDecoration":"none",color:isDarkTheme?theme.palette.common.white:"black"}} mt={2} component={Link} variant='body2' to={'/login'}>Already Have an account? Login</Typography>
 
             </Stack>
 

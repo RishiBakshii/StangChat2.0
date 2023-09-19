@@ -23,6 +23,8 @@ import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 import { rightBarContext } from '../context/rigthbar/RightbarContext';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import { LeftBarItems } from './LeftBarItems';
+import theme from '../theme';
+import { ThemeContext } from '../context/Theme/ThemeContext';
 
 const drawerWidth = 240;
 
@@ -59,6 +61,8 @@ export default function PersistentDrawerLeft() {
   const is480=useMediaQuery(theme.breakpoints.down("480"))
   const [isLogoutModal,setIsLogoutModal]=useState(false)
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const {isDarkTheme}=useContext(ThemeContext)
+
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -80,6 +84,8 @@ export default function PersistentDrawerLeft() {
     setIsLogoutModal(false)
   }
 
+  const color=isDarkTheme?theme.palette.common.white:''
+  const bgcolor=isDarkTheme?theme.palette.common.black:theme.palette.background.paper
 
   const loggedInUser=useContext(loggedInUserContext)
 
@@ -88,7 +94,7 @@ export default function PersistentDrawerLeft() {
       <CssBaseline />
       <AppBar position='sticky' open={open}>
 
-        <Toolbar sx={{ display:"flex", justifyContent:"space-around",height:"4.5rem"}}>
+        <Toolbar sx={{ display:"flex", justifyContent:"space-around",height:"4.5rem",bgcolor:isDarkTheme?theme.palette.primary.customBlack:theme.palette.primary.main}}>
 
           <Box position={'absolute'} left={'2rem'}>
             <IconButton color="inherit" aria-label="open drawer" onClick={handleDrawerOpen} edge="start" sx={{ mr: 2, ...(open && { display: 'none' }) }}>
@@ -102,7 +108,6 @@ export default function PersistentDrawerLeft() {
 
           <Stack direction={'row'} spacing={2} alignItems={'center'} justifySelf={'flex-end'}>
               <Avatar alt={loggedInUser.loggedInUser.username} src={`${BUCKET_URL}/${loggedInUser.loggedInUser.profilePicture}`} />
-              <Typography variant='h5'>{`${loggedInUser.loggedInUser.username}`}</Typography>
           </Stack>
 
           {
@@ -119,9 +124,8 @@ export default function PersistentDrawerLeft() {
       </AppBar>
 
 
-      <Divider />
-      <Divider />
-      <Drawer sx={{ width: drawerWidth, flexShrink: 0, '& .MuiDrawer-paper': { width: drawerWidth, boxSizing: 'border-box', },}} variant="persistent"anchor="left" open={open}>
+      <Divider/>
+      <Drawer sx={{ width: drawerWidth, flexShrink: 0, '& .MuiDrawer-paper': { width: drawerWidth, boxSizing: 'border-box',bgcolor:isDarkTheme?theme.palette.primary.customBlack:'',color:color},}} variant="persistent"anchor="left" open={open}>
 
 
   
@@ -131,16 +135,14 @@ export default function PersistentDrawerLeft() {
           }
 
           <IconButton onClick={handleDrawerClose}>
-            {theme.direction === 'ltr' ? <ChevronLeftIcon /> : <ChevronRightIcon />}
+            {theme.direction === 'ltr' ? <ChevronLeftIcon sx={{color:color}}/> : <ChevronRightIcon />}
           </IconButton>
         </DrawerHeader>
-        <Divider />
-        <Divider />
+        <Divider sx={{bgcolor:bgcolor}}/>
 
           <LeftBarItems/>
 
-        <Divider />
-        <Divider />
+        <Divider sx={{bgcolor:bgcolor}}/>
 
         
       </Drawer>

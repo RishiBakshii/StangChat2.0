@@ -49,23 +49,52 @@ export const Explore=()=> {
     fetchExploreFeed()
   },[])
 
+  const calculateColumns = () => {
+    const screenWidth = window.innerWidth;
+    if (screenWidth >= 1920) {
+      return 5;
+    } else if (screenWidth >= 1280) {
+      return 4;
+    } else if (screenWidth >= 960) {
+      return 3;
+    } else if (screenWidth >= 600) {
+      return 2;
+    } else {
+      return 1;
+    }
+  };
+  
+  // Inside your component
+  const [columns, setColumns] = useState(calculateColumns());
+  
+  useEffect(() => {
+    const handleResize = () => {
+      setColumns(calculateColumns());
+    };
+  
+    window.addEventListener("resize", handleResize);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
+
 
   return (
 
     <>
     <Navbar/>
 
-    <Stack direction={"row"} justifyContent={"space-between"} alignItems="flex-start" bgcolor={'red'}>
+    <Stack direction={"row"} justifyContent={"center"} alignItems="cener">
         <Leftbar />
         
-        <Stack mt={1} flex={'4'} padding={'1 4vw'} justifyContent={'center'} alignItems={'center'} bgcolor={'orange'} >
-                <ImageList variant="quilted" cols={5} rowHeight={200}>
+        <Stack mt={4} flex={7} justifyContent={'center'} alignItems={'center'} p={"1rem 4vw"}> 
+                <ImageList variant="standard" cols={columns} rowHeight={400}>
                 {
                   exploreFeed.map((data) => (
                         <ImageListItem component={Link} to={`/profile/${data.username}`} key={data._id} cols={data.cols || 1} rows={data.rows || 1}>
                           {
                             data.postPath.toLowerCase().endsWith('.mp4')?(
-                              <video control width={"300px"} {...srcset(`${BUCKET_URL}/${data.postPath}`, 121, data.rows, data.cols)}></video>
+                              <video control width={'100%'} {...srcset(`${BUCKET_URL}/${data.postPath}`, 121, data.rows, data.cols)}></video>
                             ):(
                             <img {...srcset(`${BUCKET_URL}/${data.postPath}`, 121, data.rows, data.cols)}alt={data.username} loading="lazy"/>
                             )

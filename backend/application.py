@@ -8,10 +8,19 @@ import jwt
 from utils.common import decode_jwt_token
 from utils.validation import is_existing_userid
 
+
+
 from routes.auth import auth
 from routes.posts import posts
 from routes.users import users
 from routes.comments import comments
+
+import firebase_admin
+from firebase_admin import credentials,messaging
+from utils.firebaseconfig import fire_base_config_dict
+
+cred = credentials.Certificate(fire_base_config_dict)
+firebase_admin.initialize_app(cred)
 
 import boto3
 
@@ -22,8 +31,8 @@ application=Flask(__name__)
 application.config['SECRET_KEY']='secret!'
 
 # CORS AND SOCKET
-CORS(application, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
-socketio=SocketIO(application,cors_allowed_origins="*")
+CORS(application, resources={r"/*": {"origins": "http://localhost:3000"}}, supports_credentials=True)
+socketio=SocketIO(application,cors_allowed_origins="http://localhost:3000")
 
 # S3 BUCKET CONFIG
 S3_BUCKET_NAME=os.environ.get("S3_BUCKET_NAME")
@@ -33,7 +42,6 @@ application.config['MONGO_URI']=os.environ.get('DATABASE_URI')
 application.config['DEFAULT_PROFILE_PICTURE']='default-profile-picture/defaultProfile.png'
 
 mongo=PyMongo(application)
-
 
 # MIDDLEWARE
 @application.before_request
@@ -64,6 +72,24 @@ def check_token_and_user():
             response.delete_cookie("authToken",samesite="None", secure=True,httponly=True)
             return response
 
+@application.route("/send-notification",methods=['POST'])
+def send_push_notification():
+    if request.method=='POST':
+        try:
+            data=request.json
+
+            token=data.get("fcmToken")
+            title=data.get("title")
+            body=data.get("body")
+
+            message = messaging.Message(notification=messaging.Notification(title=title,body=body,image='https://stangchat-user-data.s3.ap-south-1.amazonaws.com/1.png'),token=token,)
+
+            response = messaging.send(message)
+
+            return jsonify({"message":"notification Sent"}),200
+        
+        except Exception as e:
+            return jsonify({"message":str(e)}),500
 
 connected_users={}
 
@@ -123,4 +149,4 @@ def default():
     return jsonify({"running":True}),200
 
 if __name__=='__main__':
-    socketio.run(application,port=5000,debug=True,host='192.168.1.3')
+    socketio.run(application,port=5000,debug=True)

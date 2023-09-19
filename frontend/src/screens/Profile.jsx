@@ -16,9 +16,11 @@ import { Likesmodal } from '../components/Likesmodal'
 import { LoadingButtons } from '../components/LoadingButtons'
 import { Editprofile } from '../components/Editprofile'
 import userdoesnotexist from '../animations/userdoesnotexist.json'
-import { handleApiResponse } from '../utils/common'
+import { handleApiResponse, send_push_notification } from '../utils/common'
 import { GlobalAlertContext } from '../context/globalAlert/GlobalAlertContext'
 import { BUCKET_URL, SERVER_DOWN_MESSAGE } from '../envVariables'
+import theme from '../theme';
+import { ThemeContext } from '../context/Theme/ThemeContext';
 
 
 export const Profile = () => {
@@ -27,6 +29,7 @@ export const Profile = () => {
   const theme=useTheme()
   const LG=useMediaQuery(theme.breakpoints.down("lg"))
   const is480=useMediaQuery(theme.breakpoints.down("480"))
+
 
   const {loggedInUser,setLoggedInUser} = useContext(loggedInUserContext);
   const { username = 'defaultUsername' } = useParams();
@@ -61,20 +64,6 @@ export const Profile = () => {
 
   const [editState,setEditState]=useState(false)
 
-  const style = {
-    position: 'absolute',
-    top: '50%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)',
-    width: 400,
-    bgcolor: 'background.paper',
-    boxShadow: 24,
-    p: 4,
-    [theme.breakpoints.down("480")]:{
-      width:"18rem",
-    }
-
-  };
 
   useEffect(()=>{
     try {
@@ -130,6 +119,12 @@ export const Profile = () => {
         setFollowerCount(result.data.updatedFollowerCount)
         setFollowingCount(result.data.updatedFollowingCount)
         setIsFollowing(result.data.isFollowing)
+
+        if(result.data.follow===true && result.data.fcmToken!==''){
+            send_push_notification(result.data.fcmToken,'New Follower',`${loggedInUser.username} started following you`)
+        }
+
+
       }
       else if(result.logout){
         navigate("/login")
@@ -224,6 +219,26 @@ export const Profile = () => {
   const handleEditProfileClick=()=>{
     setEditState(true)
   }
+  const {isDarkTheme}=useContext(ThemeContext)
+  const color=isDarkTheme?theme.palette.common.white:theme.palette.common.black
+  const bgcolor=isDarkTheme?theme.palette.common.black:theme.palette.background.paper
+
+  const style = {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    width: 400,
+    bgcolor: 'background.paper',
+    boxShadow: 24,
+    p: 4,
+    [theme.breakpoints.down("480")]:{
+      width:"18rem",
+    },
+    color:color,
+    bgcolor:bgcolor
+
+  };
 
   return (
   <>
@@ -237,7 +252,8 @@ export const Profile = () => {
               <Typography variant='h5' fontWeight={300}>{`${username}`} does not exist on planet Stang✨</Typography>
             </Stack>
           ):(
-                            <Stack flex={"1"} spacing={5} justifyContent={'center'} alignItems={"center"} mt={5}>
+          
+          <Stack flex={"1"} color={isDarkTheme?theme.palette.background.paper:theme.palette.common.black} spacing={5} justifyContent={'center'} alignItems={"center"} mt={5}>
                   {
 
 
@@ -277,10 +293,10 @@ export const Profile = () => {
                   {/* bio  adn location*/}
                   <Stack mt={2} spacing={1}>
 
-                      <Typography variant='body1'>{profile.bio}</Typography>
+                      <Typography p={is480?1:0} variant='body1'>{profile.bio}</Typography>
                       
                       <Stack direction={'row'} justifyContent={'flex-start'}  alignItems={"flex-start"} p={0}>
-                        <Typography variant='body1'>{profile.location}</Typography>
+                        <Typography pl={is480?1:0} variant='body1'>{profile.location}</Typography>
                         <LocationOnIcon sx={{color:'lightblue'}}/>
                       </Stack>
 
@@ -353,7 +369,7 @@ export const Profile = () => {
                                       <Avatar sx={{"width":"3rem",height:"3rem"}} alt={data.username} src={`${BUCKET_URL}/${data.profile_picture}`} component={Link} to={`/profile/${data.username}`}/>
 
                                       <Stack>
-                                          <Typography component={Link} sx={{ textDecoration: "none", color: "black" }} to={`/profile/${data.username}`} variant='h6' fontWeight={300}>{data.username}</Typography>
+                                          <Typography component={Link} sx={{ textDecoration: "none",color:color}} to={`/profile/${data.username}`} variant='h6' fontWeight={300}>{data.username}</Typography>
                                           <Typography fontWeight={300} fontSize={'.9rem'} variant='body2'>{data.location}</Typography>
                                       </Stack>
 
@@ -396,7 +412,7 @@ export const Profile = () => {
                                       <Avatar sx={{"width":"3rem",height:"3rem"}} alt={data.username} src={`${BUCKET_URL}/${data.profile_picture}`} component={Link} to={`/profile/${data.username}`}/>
 
                                       <Stack>
-                                          <Typography component={Link} sx={{ textDecoration: "none", color: "black" }} to={`/profile/${data.username}`} variant='h6' fontWeight={300}>{data.username}</Typography>
+                                          <Typography component={Link} sx={{ textDecoration: "none",color:color}} to={`/profile/${data.username}`} variant='h6' fontWeight={300}>{data.username}</Typography>
                                           <Typography fontWeight={300} fontSize={'.9rem'} variant='body2'>{data.location}</Typography>
                                       </Stack>
 

@@ -11,6 +11,8 @@ import { LogoutUser } from '../api/auth'
 import { GlobalAlertContext } from '../context/globalAlert/GlobalAlertContext'
 import PlaceIcon from '@mui/icons-material/Place';
 import { handleSpace } from './Signup'
+import theme from '../theme';
+import { ThemeContext } from '../context/Theme/ThemeContext';
 
 
 export const Search = () => {
@@ -22,6 +24,7 @@ export const Search = () => {
   const theme=useTheme()
   const is480=useMediaQuery(theme.breakpoints.down("480"))
   const navigate=useNavigate()
+  const {isDarkTheme}=useContext(ThemeContext)
 
   // 401 handled✅
   const handleSearchUser=async()=>{
@@ -65,6 +68,8 @@ export const Search = () => {
     }
   },[query]) 
 
+  const color=isDarkTheme?theme.palette.background.paper:theme.palette.common.black
+
   return (
     <>
     <Navbar/>
@@ -75,7 +80,14 @@ export const Search = () => {
 
               
                 <Stack>
-                      <TextField placeholder='Search Users' onKeyDown={handleSpace} value={query} onChange={(e)=>setQuery(e.target.value)} variant='outlined'></TextField>
+                      <TextField placeholder='Search Users'  InputProps={{
+        style: { color: color },
+      }} sx={{
+        '& .MuiOutlinedInput-notchedOutline': {
+          borderColor: color, // Change this to the desired outline color
+        },
+        
+      }}value={query} onChange={(e)=>setQuery(e.target.value.replace(/\s/g,''))} variant='outlined'></TextField>
                 </Stack>
 
                 <Stack spacing={5} height={"42rem"} sx={{overflowY:"scroll"}} justifyContent={'flex-start'} alignItems={"flex-start"} mt={5}>
@@ -98,7 +110,7 @@ export const Search = () => {
                     <Stack direction={'row'} alignItems={'center'} spacing={2}>
                         <Avatar component={Link} src={`${BUCKET_URL}/${data.profilePicture}`} to={`/profile/${data.username}`} sx={{"width":`${is480?"5rem":"10rem"}`,'height':`${is480?"5rem":"10rem"}`}}></Avatar>
                     <Stack>
-                    <Typography component={Link} to={`/profile/${data.username}`} sx={{"textDecoration":"none",color:"black"}} variant='h6' fontWeight={300}>{data.username}</Typography>
+                    <Typography component={Link} to={`/profile/${data.username}`} sx={{"textDecoration":"none",color:color}} variant='h6' fontWeight={300}>{data.username}</Typography>
                     <Stack direction={'row'} spacing={.1}>
                         <PlaceIcon sx={{color:"lightblue"}}/>
                         <Typography variant='body1' fontWeight={300}>{data.location}</Typography>

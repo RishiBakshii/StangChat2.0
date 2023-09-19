@@ -9,6 +9,8 @@ import Lottie from 'lottie-react';
 import emptyfriendlistanimation from '../animations/emptyfriendlistanimation.json'
 import { handleApiResponse } from '../utils/common'
 import { GlobalAlertContext } from '../context/globalAlert/GlobalAlertContext'
+import theme from '../theme';
+import { ThemeContext } from '../context/Theme/ThemeContext';
 
 
 export const Friends = () => {
@@ -19,6 +21,8 @@ export const Friends = () => {
   const theme=useTheme()
   const is480=useMediaQuery(theme.breakpoints.down("480"))
   const [loading,setLoading]=useState(false)
+
+  const {isDarkTheme}=useContext(ThemeContext)
 
   // 401 handled ✅
   const getFriends=async()=>{
@@ -68,7 +72,7 @@ export const Friends = () => {
     <Navbar/>
     <Leftbar/>
 
-    <Stack flex={"1"} spacing={5} justifyContent={'center'} alignItems={"center"} mt={2}>
+    <Stack flex={"1"} spacing={5} color={isDarkTheme?theme.palette.background.paper:theme.palette.common.black} justifyContent={'center'} alignItems={"center"} mt={2}>
         <Stack width={is480?"100%":'70%'} p={2}>
 
               <Stack spacing={5} height={"42rem"} sx={{overflowY:"scroll"}} justifyContent={'flex-start'} alignItems={"flex-start"} mt={5}>
@@ -81,17 +85,17 @@ export const Friends = () => {
                           <Stack direction={'row'} alignItems={'center'} spacing={2}>
                                 <Avatar component={Link} src={`${BUCKET_URL}/${data.profilePicture}`} to={`/profile/${data.username}`} sx={{"width":`${is480?"5rem":"10rem"}`,'height':`${is480?"5rem":"10rem"}`}}></Avatar>
                           <Stack>
-                                <Typography component={Link} to={`/profile/${data.username}`} sx={{"textDecoration":"none",color:"black"}} variant='h6' fontWeight={300}>{data.username}</Typography>
+                                <Typography component={Link} sx={{textDecoration:'none'}} color={isDarkTheme?theme.palette.background.paper:theme.palette.common.black} to={`/profile/${data.username}`} variant='h6' fontWeight={300}>{data.username}</Typography>
                                 <Typography variant='body1' fontWeight={300}>{data.location}</Typography>
                           </Stack>
                           </Stack>
                         </Stack>
               }))
               :(
-                <Stack width={'20rem'} justifySelf={'center'} alignSelf={'center'} justifyContent={'center'} alignItems={'center'}>
-                  <Lottie animationData={emptyfriendlistanimation}></Lottie>
-                  <Typography>You have no friends currently!</Typography>
-                  <Typography>I'm StangCat✨ wanna be my friend?</Typography>
+                <Stack width={is480?'15rem':'20rem'} justifySelf={'center'} alignSelf={'center'} justifyContent={'center'} alignItems={'center'}>
+                  <Lottie style={{alignSelf:'center'}} animationData={emptyfriendlistanimation}></Lottie>
+                  <Typography textAlign={'center'}>You have no friends currently!</Typography>
+                  <Typography textAlign={'center'}>I'm StangCat✨ wanna be my friend?</Typography>
                 </Stack>
               )
               )

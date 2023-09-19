@@ -1,0 +1,13 @@
+fire_base_config_dict={
+  "type": "service_account",
+  "project_id": "stangchat-push-notifications",
+  "private_key_id": "971b7cc63566b309dc89f2413815f5db35c60e3b",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQCd90nV4mOPhsTE\n24765F+6fmxjGi08alssy8HRVRMs0MPrpJ3fYXUYYHWCFq8sKWKGm86hzaXnNfgF\nOnfS9+YDULj39UlJsmVdTVmddV6WPLvts0nKmSObNGay4h9ihJXJO2YCj0HCAD5i\nyW1/K7ByZUY2q+mOF2Xds36UrYvTQnjpBo5WUhvyZoTv7bv9/TuILHYLP1cIhsIV\nCEzHPUHAnfYDcoswqnfsAWqNfugGMF+X1HrYUIJB98zdMxUZBUTwbmybn+AJUrWu\nITfLgGFp4n4IwqLgL0Ilndjuz2NMwOJWOJcqhD1ubUgMV4Ace/acq89gVxZ6f6j6\nx//K+eDZAgMBAAECggEAGMX9eGOmxY2XMmBUjhhewvqsuOYUDhOH9QCHhvLWrQKY\nl04bzDqWiJooE5zHIB/lacLppwp/aEFYgklnHVjvY7m3KHv5YGtv5jAJS95qVRl1\nR5QEkJdvtBmFuawoy+SLMSH1n5Uj9O7g2dFJMNaDN42Wc2CGolgdC6Xoxhxpf1oA\nVMdQgO8BIF+p3T9sjboPjytKG8gG5r2JExzKmIlHaXuaqHXoB+eLF0MXJVzmn6rB\nKt2PX4dGDML7rxa49I2Kcqs/0YLXsF1GcW042ZFF4Z7cA4wvkMM0QWW3R7Lv2/9t\nwYWRBbMIwhhaqpt3ZobQtAC8QS7iuOrv3ZUfzwb4uQKBgQDKPWQ4X9sWer8xBMPd\nAwqbrTvNKMNmrxzyVWty1dsGDdpCaeBADN2/3tYLtWRjwgk5upNxGxP+g8sqgeCp\n+wkH/L9AbJgsM108bT94ozt1lmqQFUhEyurHBM6Wx+5Dcl91XnKpKdB7h6VRv1Ur\n4+K1GnRqTUnQmW9SDkuAkn4hpwKBgQDH9QVJWnTHNsZOkNEOOeYWu7wSqlbPQL5z\nuUodm83vUA4r85+IN8lBxS6ZKpimIFnwRcxD8ix8EgmNocAcOl4Zk/J18OTm0QDP\ntw06etwS9V/HPA2+JyHIxmVVpOgCidjjdFPwaYMG3gkmsnquor/U/awa85cQYfGv\nCKgzMu85fwKBgQCP3GndPDqh3AEDAou9PLugD/O5NeUBt1FVBPRhBMU/ojz+/0eY\n6E4ZfY8vVwIpgE6FtTXKwGNRqjisbST+ZWeAOgdl8Zmx33vUTzZWP289bxkwkyMM\nZHfryHyYf3H6onJLEDtqICeAp/Yul3cjuIB9KWtkbsQyUeMBMM/+jraQgwKBgQCQ\nNtyYOiBNaej+0x2kOAgFz2Lmx2oS0mxKBJI65ptRhZijBHPECBAkWnWwTHOKJX0Y\neQ7I1opU9aFkQAvRkBs8MWNGwvYkrwr5xNlKmz/MgKKSjHKQ+aI5LzX43hXjds4x\nxj2gAElbE5rgCQvIlmLq2AZf7d2/GBT6m7DMNGkrOwKBgA7ACxR9ieNCb8jNEoRE\nNU8lkRbEK60C+n/qbnE8F/hHlACVnSYsvofN5//grQVV7zFfnvR3nYcZxAYICwmx\nPd5FaMW7nrxNoaV4mTVXYWrzygaE/xDFDNzutFDqxeEHW7BFyqBZLrrHFB4vOEVt\nXx1QH0vrIUcuJs7QTHMgVu3/\n-----END PRIVATE KEY-----\n",
+  "client_email": "firebase-adminsdk-ytb3v@stangchat-push-notifications.iam.gserviceaccount.com",
+  "client_id": "118157311999346171857",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-ytb3v%40stangchat-push-notifications.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}

@@ -17,12 +17,15 @@ import {SnackAlert} from '../components/SnackAlert'
 import { GlobalAlertContext } from '../context/globalAlert/GlobalAlertContext'
 import { BUCKET_URL} from '../envVariables'
 import { useNavigate } from 'react-router-dom'
-import { GifModal } from '../components/GifModal'
+import { handleApiResponse } from '../utils/common'
+import theme from '../theme';
+import { ThemeContext } from '../context/Theme/ThemeContext';
 
 
 export const BASE_URL=process.env.REACT_APP_API_BASE_URL;
 
 export const Home =() => {
+    const {isDarkTheme}=useContext(ThemeContext)
     const loggedInUser=useContext(loggedInUserContext)
     const {setGlobalAlertOpen}=useContext(GlobalAlertContext)
     const {feed,setFeed}=useContext(postContext)
@@ -30,7 +33,6 @@ export const Home =() => {
     const [loading,setLoading]=useState(false)
     const [hasMore,sethasMore]=useState(true)
     const [newUser,setNewUser]=useState(null)
-    const theme = useTheme();
     const matchesMD = useMediaQuery(theme.breakpoints.down('md'));
     const [likeModalOpen,setLikeModalOpen]=useState({state:false,postid:false,commentid:false})
     const [usermessage,setUserMessage]=useState({
@@ -52,7 +54,7 @@ export const Home =() => {
         window.addEventListener("scroll", handelInfiniteScroll);
         return () => window.removeEventListener("scroll", handelInfiniteScroll);
     },[])
-
+    
     const navigate=useNavigate()
 
     const handelInfiniteScroll = async() => {
@@ -124,8 +126,8 @@ export const Home =() => {
                     }
                     {
                     newUser?(
-                        // <Newuserdisplay/>
-                        ''
+                        <Newuserdisplay/>
+                        
                     ):(
                         hasMore?
                         (loading?(<CircularProgress />):("")):(
