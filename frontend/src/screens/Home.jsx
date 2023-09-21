@@ -26,6 +26,12 @@ export const BASE_URL=process.env.REACT_APP_API_BASE_URL;
 
 export const Home =() => {
     const {isDarkTheme}=useContext(ThemeContext)
+
+    document.body.style.backgroundColor = isDarkTheme ? theme.palette.primary.customBlack : theme.palette.background.paper;
+    document.body.style.color = isDarkTheme ? theme.palette.background.paper : theme.palette.common.black;
+
+
+
     const loggedInUser=useContext(loggedInUserContext)
     const {setGlobalAlertOpen}=useContext(GlobalAlertContext)
     const {feed,setFeed}=useContext(postContext)
@@ -79,7 +85,7 @@ export const Home =() => {
                     });
                     setFeed((prev) => [...prev, ...newPosts]);
                 }
-                if(result.logout){
+                else if(result.logout){
                     navigate("/login")
                     setGlobalAlertOpen({state:true,message:result.message})
                 }
@@ -92,7 +98,6 @@ export const Home =() => {
             }
 
         } catch (error) {
-            // setGlobalAlertOpen({ state: true, message:SERVER_DOWN_MESSAGE});
             console.log('error')
             
         }

@@ -3,6 +3,7 @@ import { DEFAULT_PROFILE_PATH, INTERNAL_SERVER_ERROR_MESSAGE, S3_BUCKET_NAME, SE
 import { LogoutUser } from "./auth"
 import { handleApiResponse } from "../utils/common"
 import AWS from 'aws-sdk'
+import { v4 as uuidv4 } from 'uuid';
 
 // ✅ 401 handled
 export const fetchLoggedInUser=async()=>{
@@ -141,13 +142,18 @@ export const fetchUserProfile=async(username,loggedInUserId)=>{
 export const updateProfile=async(credentials,selectedImage,originalFilename)=>{
     try {        
         const s3=new AWS.S3();
-        console.log(credentials)
-        console.log('selected image',selectedImage)
 
         let PROFILE_PATH=null
 
         if(selectedImage!=='not'){
-          PROFILE_PATH=`${credentials.user_id}/profile/${originalFilename}`
+
+          const postid=uuidv4()
+
+          const fileExtension = originalFilename.split('.').pop()
+          const fileNameWithoutExtension = originalFilename.split('.').slice(0, -1).join('.');
+          const newFileName=`${fileNameWithoutExtension}_${postid}.${fileExtension}`
+
+          PROFILE_PATH=`${credentials.user_id}/profile/${newFileName}`
           const params={
               Bucket:S3_BUCKET_NAME,
               Key:PROFILE_PATH,

@@ -16,16 +16,14 @@ import { NotFound } from "./screens/NotFound";
 import { GlobalAlertState } from "./context/globalAlert/GlobalAlertState";
 import { GlobalChat } from "./screens/GlobalChat";
 import AWS from 'aws-sdk';
-import { useContext, useEffect } from "react";
-import { AWS_ACCESS_KEY, AWS_REGION, AWS_SECRET_KEY, BASE_URL } from "./envVariables";
-import { loggedInUserContext } from "./context/user/Usercontext";
+import { useEffect } from "react";
+import { AWS_ACCESS_KEY, AWS_REGION, AWS_SECRET_KEY} from "./envVariables";
 import { ThemeState } from "./context/Theme/ThemeState";
+import { Chat } from "./screens/Chat";
+
 
 
 function App() {
-
-  // const {setGlobalAlertOpen}=useContext(GlobalAlertContext)
-  const loggedInUser=useContext(loggedInUserContext)
 
   useEffect(()=>{
     try {
@@ -59,6 +57,7 @@ function App() {
         <Route exact path="/leaderboard" element={<LeaderBoard/>}/>
         <Route exact path="/globalchat" element={<GlobalChat/>}/>
         <Route exact path="*" element={<NotFound/>}/>
+        {/* <Route exact path="/chats" element={<Chat/>}/> */}
       </Routes>
     </Userstate>
     </Poststate>

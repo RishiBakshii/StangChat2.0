@@ -253,7 +253,7 @@ export const Profile = () => {
             </Stack>
           ):(
           
-          <Stack flex={"1"} color={isDarkTheme?theme.palette.background.paper:theme.palette.common.black} spacing={5} justifyContent={'center'} alignItems={"center"} mt={5}>
+          <Stack flex={"1"} color={isDarkTheme?theme.palette.background.paper:theme.palette.common.black} spacing={5} justifyContent={'center'} alignItems={"center"} mt={editState?4:5}>
                   {
 
 

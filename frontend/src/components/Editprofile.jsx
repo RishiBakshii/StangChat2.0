@@ -1,4 +1,4 @@
-import {Stack,Box,Avatar,TextField,Typography,Snackbar,Button,styled, Slide, useMediaQuery, useTheme, InputAdornment} from '@mui/material'
+import {Stack,Box,Avatar,TextField,Typography,Button,Slide, useMediaQuery, useTheme, InputAdornment} from '@mui/material'
 import { useContext, useEffect, useState } from 'react';
 import {BASE_URL} from '../screens/Home'
 import { useNavigate } from 'react-router-dom';
@@ -7,11 +7,10 @@ import { ImageSelector, generateSecureFilename, handleApiResponse } from '../uti
 import { updateProfile } from '../api/user';
 import { loggedInUserContext } from '../context/user/Usercontext';
 import { GlobalAlertContext } from '../context/globalAlert/GlobalAlertContext';
-import { BUCKET_URL, DEFAULT_PROFILE_PATH, S3_BUCKET_NAME, SERVER_DOWN_MESSAGE } from '../envVariables';
+import { BUCKET_URL,S3_BUCKET_NAME, SERVER_DOWN_MESSAGE } from '../envVariables';
 import AWS from 'aws-sdk'
-import { handleSpace } from '../screens/Signup';
-import theme from '../theme';
 import { ThemeContext } from '../context/Theme/ThemeContext';
+import { v4 as uuidv4 } from 'uuid';
 
 
 export const Editprofile = ({userid,username,email,bio,location,heading,editProfile,profilePath}) => {
@@ -144,7 +143,13 @@ export const Editprofile = ({userid,username,email,bio,location,heading,editProf
 
         if(editProfileDisplayImage!==`${BUCKET_URL}/${profilePath}`){
           const s3=new AWS.S3();
-          const PROFILE_PATH=`${loggedInUser.loggedInUser.userid}/profile/${generateSecureFilename(originalFilename)}`
+
+          const postId = uuidv4()
+          const fileExtension = originalFilename.split('.').pop()
+          const fileNameWithoutExtension = originalFilename.split('.').slice(0, -1).join('.');
+          const newFileName=`${fileNameWithoutExtension}_${postId}.${fileExtension}`
+
+          const PROFILE_PATH=`${loggedInUser.loggedInUser.userid}/profile/${generateSecureFilename(newFileName)}`
           const params={
             Bucket:S3_BUCKET_NAME,
             Key:PROFILE_PATH,
@@ -225,13 +230,13 @@ export const Editprofile = ({userid,username,email,bio,location,heading,editProf
     }
 
   return (
-      <Stack padding={'0 4vw'}  width={'100vw'} justifyContent={"center"} alignItems={"center"} height={"100vh"}>
+      <Stack padding={'0 4vw'}  width={'100vw'} justifyContent={"center"} alignItems={"center"}>
 
             
             <Stack width={MD?("90%"):"30rem"} justifyContent={'center'} alignItems={"center"}>
 
 
-                <Typography variant='h5' fontWeight={400} color={'#191919'}>{heading}</Typography>
+                <Typography variant='h5' fontWeight={400} color={color}>{heading}</Typography>
 
 
                 <Stack spacing={2} justifyContent={'center'} alignItems={'center'}>
@@ -250,7 +255,12 @@ export const Editprofile = ({userid,username,email,bio,location,heading,editProf
                       )
                     }
 
-                    <Typography p={2} variant='h6' fontWeight={300}>{displayImage?("Is that you? we are feeling a connection already😳"):(`${username} we would love to have you on board with a picture of yours😀\n`)}</Typography>
+                    {
+                      editProfile?(""):(
+
+                        <Typography p={2} variant='h6' fontWeight={300}>{displayImage?("Is that you? we are feeling a connection already😳"):(`${username} we would love to have you on board with a picture of yours😀\n`)}</Typography>
+                      )
+                    }
 
                 </Stack>
 
@@ -269,7 +279,7 @@ export const Editprofile = ({userid,username,email,bio,location,heading,editProf
                         <>
                     <TextField label="Username" InputLabelProps={{style:{color}}} variant="outlined" defaultValue={credentials.username} InputProps={{style:{color},readOnly: true,}}/>
                     <TextField InputLabelProps={{style:{color}}}   label="Email" defaultValue={credentials.email} InputProps={{style:{color},readOnly: true,}}/>
-                    <TextField InputLabelProps={{style:{color}}} InputProps={{endAdornment:(<InputAdornment position='end'><Typography color='text.secondary' variant='body2'>{`${credentials.bio.length}/60`}</Typography></InputAdornment>)}} inputProps={{maxLength:60}} name='bio' label="Bio" multiline rows={4} value={credentials.bio} onChange={handleOnChange}/>
+                    <TextField InputLabelProps={{style:{color}}} InputProps={{style:{color},endAdornment:(<InputAdornment position='end'><Typography color={color} variant='body2'>{`${credentials.bio.length}/60`}</Typography></InputAdornment>)}} inputProps={{maxLength:60}} name='bio' label="Bio" multiline rows={4} value={credentials.bio} onChange={handleOnChange}/>
                     <TextField InputLabelProps={{style:{color}}} label="Location" variant="outlined" defaultValue={credentials.location} InputProps={{style:{color},readOnly: true,}}/>
                     </>
                       )
@@ -281,25 +291,18 @@ export const Editprofile = ({userid,username,email,bio,location,heading,editProf
                   editProfile?(
                     <Box mt={5}>
                     {loading?(<LoadingButtons/>)
-                    :(<Button sx={{m:1}} onClick={handleProfileUpdateClick} fullWidth disabled={!isAnythingChanged || !emailRegex.test(editProfileCredentials.email)} variant='contained'>Update Profile</Button>)
+                    :(<Button sx={{m:1,'&:disabled':{bgcolor:isDarkTheme?'rgba(255, 255, 255, 0.20)':''}}} onClick={handleProfileUpdateClick} fullWidth disabled={!isAnythingChanged || !emailRegex.test(editProfileCredentials.email)} variant='contained'>Update Profile</Button>)
                     }
                 </Box>
                   ):(
                      <Box mt={5}>
                     {loading?(<LoadingButtons/>)
-                    :(<Button sx={{m:1}} onClick={handleSaveAndContinueClick} fullWidth disabled={!credentials.bio.length} variant='contained'>Save and continue</Button>)
+                    :(<Button sx={{m:1,'&:disabled':{bgcolor:isDarkTheme?'rgba(255, 255, 255, 0.20)':''},zIndex:4000}} onClick={handleSaveAndContinueClick} fullWidth disabled={!credentials.bio.length} variant='contained'>Save and continue</Button>)
                     }
                 </Box>
                   )
                 }
-               
-                    
-                
-
-
           </Stack>
-
-          <Snackbar open={state.open} onClose={handleClose} TransitionComponent={state.Transition} message={state.message} key={state.Transition.name}/>
       </Stack>
   )
 }

@@ -65,7 +65,7 @@ export const Friends = () => {
 
       getFriends()
     }
-  },[loggedInUser])
+  },[loggedInUser.loggedInUser])
 
   return (
     <>

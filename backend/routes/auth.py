@@ -7,6 +7,7 @@ from bson.json_util import dumps
 from utils.common import generate_jwt_token,format_user_data,hash_password,decode_jwt_token
 from schema.user import user_schema
 from utils.validation import is_existing_email,is_existing_username,is_valid_password,is_existing_userid
+from datetime import datetime
 auth = Blueprint('auth', __name__)
 
 # ✅
@@ -57,7 +58,9 @@ def signup():
                 'username': username,
                 'email': email,
                 'password': hashed_password,
-                'location': location
+                'location': location, 
+                'createdAt':datetime.now().strftime("%B %d, %Y"),
+                'exactTime':datetime.now(),
             })
             created_user=mongo.db.users.insert_one(new_user)
 

@@ -11,6 +11,9 @@ import selectimageanimtion from '../animations/selectimageanimation.json'
 import Lottie from 'lottie-react';
 import theme from '../theme';
 import { ThemeContext } from '../context/Theme/ThemeContext';
+import selectimagedarkanimation from '../animations/selectimagedarkanimation.json'
+import { v4 as uuidv4 } from 'uuid';
+
 
 
 
@@ -79,7 +82,22 @@ export const PostModal=({ isOpen, onClose})=> {
       setLoading(true)
         try {
           const s3=new AWS.S3();
-          const POST_PATH=`${loggedInUser.loggedInUser.userid}/posts/${generateSecureFilename(originalFilename)}`
+
+          let originalFilename=''
+
+          if(selectedImage && selectedImage.name){
+            originalFilename=selectedImage.name
+          }
+          else if(selectedVideo && selectedVideo.name){
+            originalFilename=selectedVideo.name
+          }
+            
+          const postId = uuidv4()
+          const fileExtension = originalFilename.split('.').pop()
+          const fileNameWithoutExtension = originalFilename.split('.').slice(0, -1).join('.');
+          const newFileName=`${fileNameWithoutExtension}_${postId}.${fileExtension}`
+
+          const POST_PATH=`${loggedInUser.loggedInUser.userid}/posts/${generateSecureFilename(newFileName)}`
           const params={
             Bucket:S3_BUCKET_NAME,
             Key:POST_PATH,
@@ -144,7 +162,7 @@ export const PostModal=({ isOpen, onClose})=> {
           <Modal open={isOpen} onClose={handleOnClose} aria-labelledby="Create Post" aria-describedby="here a user can make a post, upload images and videos">
             <Stack sx={style} spacing={4}>
                 <Typography fontWeight={300} variant='h4'>Create Post</Typography>
-                <Stack position={'relative'} height={'25rem'}>
+                <Stack position={'relative'} height={'20rem'}>
                     <CustomPhotoinput  accept="image/png, image/jpeg, image/jpg, video/mp4" type="file" onChange={handleImageChange} id="profile-image-input"/>
                     {
                       selectedVideo?(
@@ -155,8 +173,13 @@ export const PostModal=({ isOpen, onClose})=> {
 
                           <img style={{zIndex:0,aspectRatio:"auto",objectFit:"contain"}} height={'100%'} alt="profile-picture" src={displayImage?(displayImage):(defaultImage)}/>
                         ):(
-                          <Lottie animationData={selectimageanimtion}></Lottie>
-                        )
+                          isDarkTheme?(
+
+                            <Lottie animationData={selectimagedarkanimation}/>
+                            ):(
+                            <Lottie animationData={selectimageanimtion}></Lottie>
+                            )
+                            )
                       )
                     }
                 </Stack>
@@ -164,7 +187,7 @@ export const PostModal=({ isOpen, onClose})=> {
                 <Stack>
                     <TextField value={caption} onChange={(e)=>setCaption(e.target.value)} variant='standard' inputProps={{style:{color}}} InputLabelProps={{style:{color}}} label='Caption ...'></TextField>
                 </Stack>
-                <LoadingButton loadingPosition='center' sx={{color:color,bgcolor:bgcolor}} disabled={(caption === '' || (selectedImage === null && selectedVideo === null)) ? true : false} onClick={handlePostUpload} loading={loading} variant="contained" >
+                <LoadingButton sx={{'&:disabled':{bgcolor:isDarkTheme?'rgba(255, 255, 255, 0.20)':''}}} loadingPosition='center' disabled={(caption.trim() === '' || (selectedImage === null && selectedVideo === null)) ? true : false} onClick={handlePostUpload} loading={loading} variant="contained" >
                   Post
                 </LoadingButton>
             </Stack>

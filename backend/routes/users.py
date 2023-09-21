@@ -200,7 +200,7 @@ def get_random_users():
         userid=data.get("userid")
         random_users =  mongo.db.users.aggregate([
             {"$match": {"_id": {"$ne": ObjectId(userid)}}},
-            {"$sample": {"size": 5}}
+            {"$sample": {"size": 10}}
         ])
         formatted_users = [{"id": str(user["_id"]),"username": user["username"],"profilePicture": user["profilePicture"],'location':user['location'],"bio":user['bio']}
             for user in random_users

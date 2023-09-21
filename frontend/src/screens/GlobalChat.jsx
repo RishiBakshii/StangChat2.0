@@ -142,9 +142,9 @@ export const GlobalChat = () => {
                             if (e.key === 'Enter' && !e.shiftKey && messageTextFeild.trim() !== '') {
                                 handleSendMessage();
                             }}}
-                        value={messageTextFeild} onChange={(e)=>setMessageTextFeild(e.target.value)} fullWidth placeholder='Type your Message...' 
+                        value={messageTextFeild}  onChange={(e)=>setMessageTextFeild(e.target.value)} fullWidth placeholder='we are working on it🤭' 
                         
-                        InputProps={{style:{color},
+                        InputProps={{style:{color},readOnly:true,
                             endAdornment: <InputAdornment sx={{"fontSize":"small"}} position="start">{messageTextFeild.length}/1000</InputAdornment>,
                           }}
                         

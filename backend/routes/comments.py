@@ -30,6 +30,12 @@ def postcomment():
             if not post:
                 return jsonify({'message': 'Post not found'}), 404
             
+            post_owner_document=is_existing_userid(mongo,post['user_id'])
+            if not post_owner_document:
+                return jsonify({'message':"post owner not found"}),404
+            
+            fcmToken=post_owner_document['fcmToken']
+            
             new_comment=comment_schema.copy()
 
             new_comment.update({
@@ -54,7 +60,9 @@ def postcomment():
 
             response={
                 "comment":new_comment_doc,
-                'updated_comment_count':updated_comment_count
+                'updated_comment_count':updated_comment_count,
+                'fcmToken':fcmToken,
+                'username':username,
             }
 
             return dumps(response), 201

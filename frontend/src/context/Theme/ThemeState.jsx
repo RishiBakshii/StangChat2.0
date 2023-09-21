@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { ThemeContext } from './ThemeContext';
+import theme from '../../theme';
 
 export const ThemeState= ({children}) => {
 
@@ -9,6 +10,9 @@ export const ThemeState= ({children}) => {
     const changeTheme = () => {
       setIsDarkTheme((prevIsDarkTheme) => {
         const newIsDarkTheme = !prevIsDarkTheme;
+
+        setTimeout(() => {  
+        }, 1000);
         localStorage.setItem("theme", newIsDarkTheme.toString());
         return newIsDarkTheme;
       });

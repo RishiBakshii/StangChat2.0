@@ -13,6 +13,6 @@ user_schema = {
     'followerCount': 0,
     'followingCount': 0,
     'fcmToken':'',
-    'createdAt':datetime.now().strftime("%B %d, %Y"),
-    'exactTime':datetime.now(),
+    'createdAt':'',
+    'exactTime':'',
 }

@@ -42,7 +42,9 @@ def createPost():
                     "username":user['username'],
                     "caption":caption,
                     "postPath":postpath,
-                    "profilePath":user['profilePicture']
+                    "profilePath":user['profilePicture'],
+                    'postedAt':datetime.now().strftime("%B %d, %Y"),
+                    'exactTime':datetime.now(),
                     })
 
                 uploaded_post_id=mongo.db.post.insert_one(new_post).inserted_id
@@ -55,7 +57,6 @@ def createPost():
 
                 return dumps(newly_uploaded_post),201
             
-
             except Exception as e:
                 print(e)
                 return jsonify({"message": str(e)}), 500
@@ -101,9 +102,17 @@ def likepost():
             if not post:
                 return jsonify({"message": "Post not found"}), 400
             
+            post_owner_document=is_existing_userid(mongo,post['user_id'])
+            if not post_owner_document:
+                return jsonify({"message":"Some error occured"}),400
+            
+            fcmToken=post_owner_document['fcmToken']
+            username=user['username']
+
+            
             if userid not in post["likes"]:
                 updated_like_count=handle_like_post(mongo,userid,postid)
-                return jsonify({"message": True,'updated_like_count':updated_like_count}), 200
+                return jsonify({"message": True,'updated_like_count':updated_like_count,'likeRequest':True,'fcmToken':fcmToken,'username':username}), 200
             else:
                 updated_like_count=handle_unlike_post(mongo,userid,postid)
                 return jsonify({"message": False,'updated_like_count':updated_like_count}), 200
@@ -129,30 +138,20 @@ def getfeed():
             if not user:
                 return jsonify({"message":'user does not exists'}),404
             
-            # feed = mongo.db.post.find({'user_id': {'$in': [ObjectId(id) for id in user['following']]}}).sort([("exactTime", -1)]).skip(skip).limit(per_page)
-            
-            feed = mongo.db.post.aggregate([
-                {
-                    '$match': {
-                        '$or': [
-                            {'user_id': ObjectId(userid)},
-                            {'user_id': {'$in': [ObjectId(id) for id in user['following']]}}
-                        ]
-                    }
-                },
-                {
-                    '$sample': {'size': per_page}
-                },
-                {
-                    '$sort': {'exactTime': -1}
-                },
-                {
-                    '$skip': skip
-                }
-            ])
+            # fetching the user post
+            user_posts = mongo.db.post.find({'user_id': ObjectId(user['_id'])})
 
-            feed_list = list(feed)
-            feed_json = dumps(feed_list)
+            # user following posts
+            following_posts = mongo.db.post.find({'user_id': {'$in': [ObjectId(id) for id in user['following']]}})
+
+            # combining all the posts
+            all_posts = list(following_posts)+list(user_posts)
+            sorted_posts = sorted(all_posts, key=lambda x: x['exactTime'], reverse=True)
+
+
+            paginated_posts = sorted_posts[skip:skip + per_page]
+
+            feed_json = dumps(paginated_posts)
             return feed_json,200
 
         

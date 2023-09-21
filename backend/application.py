@@ -30,9 +30,12 @@ load_dotenv()
 application=Flask(__name__)
 application.config['SECRET_KEY']='secret!'
 
+
+allowed_ip=['https://www.stangchat.com','https://stangchat.com','http://localhost:3000']
+
 # CORS AND SOCKET
-CORS(application, resources={r"/*": {"origins": "http://localhost:3000"}}, supports_credentials=True)
-socketio=SocketIO(application,cors_allowed_origins="http://localhost:3000")
+CORS(application, resources={r"/*": {"origins": allowed_ip}}, supports_credentials=True)
+socketio=SocketIO(application,cors_allowed_origins=allowed_ip)
 
 # S3 BUCKET CONFIG
 S3_BUCKET_NAME=os.environ.get("S3_BUCKET_NAME")

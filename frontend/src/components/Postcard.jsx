@@ -10,14 +10,13 @@ import { postContext } from "../context/posts/PostContext";
 import { GlobalAlertContext } from "../context/globalAlert/GlobalAlertContext";
 import { BUCKET_URL, GIPHY_API_KEY, INTERNAL_SERVER_ERROR_MESSAGE, SERVER_DOWN_MESSAGE } from "../envVariables";
 import { LogoutUser } from "../api/auth";
-import { handleApiResponse } from "../utils/common";
+import { handleApiResponse, send_push_notification } from "../utils/common";
 import nocommentsanimation from '../animations/nocommentsanimation.json'
 import Lottie from "lottie-react";
 import GifBoxIcon from '@mui/icons-material/GifBox';
 import ReactGiphySearchbox from 'react-giphy-searchbox'
 import theme from '../theme';
 import { ThemeContext } from '../context/Theme/ThemeContext';
-
 
 
 
@@ -138,6 +137,10 @@ export const Postcard = ({username,caption,likesCount,imageUrl,unique_id,postedA
         setFetchedComment((prevComments) => [...prevComments, result.data.comment]);
         setComment("");
         setCommentCountState(result.data.updated_comment_count)
+
+        if(result.data.fcmToken!==''){
+          send_push_notification(result.data.fcmToken,'New Comment ✨',`${result.data.username} commented on your post`)
+        }
       }
       else if(result.logout){
         setGlobalAlertOpen({state:true,message:result.message})
@@ -176,6 +179,9 @@ export const Postcard = ({username,caption,likesCount,imageUrl,unique_id,postedA
       if (response.ok) {
         setIsLikedState(json.message);
         setLikeCountState(json.updated_like_count)
+        if(json.likeRequest && json.fcmToken!==''){
+          send_push_notification(json.fcmToken,'Your post is being liked😎',`${json.username} liked your post`)
+        }
       }
       if(response.status===401){
         LogoutUser()

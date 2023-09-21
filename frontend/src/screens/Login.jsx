@@ -63,13 +63,13 @@ export const Login = () => {
             <Typography gutterBottom variant='h3' color={color} fontWeight={700}>Stang<span style={{color:"#6c2ad7"}}>Chat</span></Typography>
             {/* <Typography variant='h5' color={"#191919"} style={{color:"#6c2ad7"}} fontWeight={700}>Launching this tuesday🎉</Typography> */}
             <Stack mt={5} spacing={2} width={'100%'}>
-                <TextField inputProps={{style:{color:color,borderColor:"white"},maxLength:64}} InputLabelProps={{style:{color}}}   name='email' label="Email" variant="outlined"  value={credentials.email}  onChange={handleOnChange}/>
-                <TextField inputProps={{style:{color},maxLength:50}} InputLabelProps={{style:{color}}} type='password' name='password' label="Password" variant="outlined" value={credentials.password} onChange={handleOnChange}/>
+                <TextField inputProps={{style:{color:color,},maxLength:64}} sx={{'& .MuiOutlinedInput-notchedOutline':{borderColor:isDarkTheme?"rgba(255, 255, 255, 0.20)":""}}} InputLabelProps={{style:{color}}}   name='email' label="Email" variant="outlined"  value={credentials.email}  onChange={handleOnChange}/>
+                <TextField inputProps={{style:{color},maxLength:50}} sx={{'& .MuiOutlinedInput-notchedOutline':{borderColor:isDarkTheme?"rgba(255, 255, 255, 0.20)":""}}} InputLabelProps={{style:{color}}} type='password' name='password' label="Password" variant="outlined" value={credentials.password} onChange={handleOnChange}/>
                 {
                     loading?(<LoadingButtons/>)
                     :
                     (
-                    <Button disabled={!isCredentialsFilled}  onClick={handleLoginSubmit} sx={{height:"3rem",color:color ,'&:disabled':{}}} variant='contained'>Login</Button>
+                    <Button disabled={!isCredentialsFilled}  onClick={handleLoginSubmit} sx={{height:"3rem",color:color ,'&:disabled':{bgcolor:isDarkTheme?'rgba(255, 255, 255, 0.20)':''}}} variant='contained'>Login</Button>
                     )
                 }
                 {

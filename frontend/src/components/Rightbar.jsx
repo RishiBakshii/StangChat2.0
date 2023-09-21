@@ -109,7 +109,9 @@ export const Rightbar = () => {
     <Box p={2} sx={{"transition":".2s cubic-bezier(0.25, 0.46, 0.45, 0.94)"}} flex={2} color={color}  position={`${SM?("fixed"):("")}`} right={`${SM?(rightBarOpen?('97vw'):('-20rem')):("")}`}>
         <Box p={2} position={'fixed'}  bgcolor={isDarkTheme?theme.palette.primary.customBlack:theme.palette.background.paper} display={"flex"} flexDirection={"column"} zIndex={1000} alignItems={"flex-start"}>
 
-          <Box>
+          {/* {
+            is480?(""):(
+                     <Box>
             <Typography mt={LG?0:3} gutterBottom variant="h6" fontWeight={300}>
                 LATEST POST
             </Typography>
@@ -122,7 +124,7 @@ export const Rightbar = () => {
                       return <ImageListItem component={Link} to={`/profile/${data.username}`}>
                         {
                         data.postPath.toLowerCase().endsWith('.mp4')?(
-                          <video src={`${BUCKET_URL}/${data.postPath}`} controls width={200}></video>
+                          <video src={`${BUCKET_URL}/${data.postPath}`} controls></video>
                         ):(
                           <img src={`${BUCKET_URL}/${data.postPath}`} alt={data.username} />
                         )
@@ -136,6 +138,9 @@ export const Rightbar = () => {
             </ImageList>
 
           </Box>
+            )
+          } */}
+   
 
 
           <Typography mt={3} gutterBottom variant="h6" fontWeight={300}>
@@ -143,7 +148,7 @@ export const Rightbar = () => {
           <IconButton onClick={handleRefreshSuggestions}><RefreshIcon sx={{color:isDarkTheme?theme.palette.common.white:""}}/></IconButton>
           </Typography>
 
-                  <List  sx={{width: "100%",height:`${MD?("20rem"):'20rem'}`,overflowY:"scroll"}}>
+                  <List  sx={{width: "100vw",height:`${is480?'75vh':MD?("20rem"):'40rem'}`,overflowY:"scroll",paddingTop:"1rem",paddingBottom:"1rem"}}>
               {
                 loading?(<CircularProgress/>):(
                   suggestions.length!==0?(
@@ -168,7 +173,7 @@ export const Rightbar = () => {
                 )
               }
 
-          <Divider variant="inset" component="li" />
+          {/* <Divider variant="inset" component="li" /> */}
         </List>
       </Box>
     </Box>

@@ -2,10 +2,11 @@ import ImageList from '@mui/material/ImageList';
 import ImageListItem from '@mui/material/ImageListItem';
 import { Navbar } from '../components/Navbar';
 import { Leftbar } from '../components/Leftbar';
-import { Stack } from '@mui/material';
+import { Stack, useMediaQuery } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { BASE_URL, BUCKET_URL } from '../envVariables';
 import { Link } from 'react-router-dom';
+import theme from '../theme';
 
 function srcset(image, size, rows = 1, cols = 1) {
   return {
@@ -18,7 +19,7 @@ function srcset(image, size, rows = 1, cols = 1) {
 
 export const Explore=()=> {
 
-
+  const is480=useMediaQuery(theme.breakpoints.down("480"))
   const [exploreFeed,setExploreFeed]=useState([])
   const [loading,setLoading]=useState(false)
 

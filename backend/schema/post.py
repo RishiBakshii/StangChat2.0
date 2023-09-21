@@ -9,6 +9,6 @@ post_schema={
     'likesCount':0,
     'commentsCount':0,
     'likes':[],
-    'postedAt':datetime.now().strftime("%B %d, %Y"),
-    'exactTime':datetime.now(),
+    'postedAt':'',
+    'exactTime':'',
     }
