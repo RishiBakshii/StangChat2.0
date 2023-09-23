@@ -9,9 +9,10 @@ const firebaseConfig = {
   storageBucket: "stangchat-push-notifications.appspot.com",
   messagingSenderId: "358495284573",
   appId: "1:358495284573:web:cb3195ab13e1c1b8f90cb4",
-  measurementId: "G-DJ9E5XPPNL"
+  measurementId: "G-DJ9E5XPPNL",
+  databaseURL:"https://stangchat-push-notifications-default-rtdb.asia-southeast1.firebasedatabase.app"
 };
 
 
-const app = initializeApp(firebaseConfig);
+export const app = initializeApp(firebaseConfig);
 export const messaging=getMessaging(app)

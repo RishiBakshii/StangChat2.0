@@ -45,7 +45,7 @@ export const NotificationHelperModal=({open,handleClose})=>{
         </Typography>
 
 
-        <Stack bgcolor={'red'}>
+        <Stack>
             <video controls src="https://stangchat-user-data.s3.ap-south-1.amazonaws.com/notificationsHelper/notificationsHelper.mp4"></video>
         </Stack>
       </Stack>

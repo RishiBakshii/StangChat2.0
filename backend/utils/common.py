@@ -7,9 +7,7 @@ import datetime
 from utils.validation import is_existing_userid,is_existing_commentid
 import uuid
 
-def generate_jwt_token(payload,expire_days=30):
-    expiration = datetime.datetime.utcnow() + datetime.timedelta(days=30)
-    payload['exp'] = expiration
+def generate_jwt_token(payload):
     return jwt.encode(payload,os.environ.get('SECRET_KEY'),algorithm='HS256')
 
 def decode_jwt_token(authToken):

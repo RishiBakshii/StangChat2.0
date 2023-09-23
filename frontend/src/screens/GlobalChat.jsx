@@ -69,6 +69,7 @@ export const GlobalChat = () => {
         
         socketRef.current.on("disconnect",(reason)=>{
             console.log("socket disconnected",reason)
+            setGlobalAlertOpen({state:true,message:"Disconnected"})
 
             const data={
                 'type':"chat-message",
@@ -144,7 +145,7 @@ export const GlobalChat = () => {
                             }}}
                         value={messageTextFeild}  onChange={(e)=>setMessageTextFeild(e.target.value)} fullWidth placeholder='we are working on it🤭' 
                         
-                        InputProps={{style:{color},readOnly:true,
+                        InputProps={{style:{color},readOnly:false,
                             endAdornment: <InputAdornment sx={{"fontSize":"small"}} position="start">{messageTextFeild.length}/1000</InputAdornment>,
                           }}
                         

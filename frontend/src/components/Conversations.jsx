@@ -7,29 +7,24 @@ import ListItemAvatar from '@mui/material/ListItemAvatar';
 import Avatar from '@mui/material/Avatar';
 import Typography from '@mui/material/Typography';
 
-export default function Conversations() {
+export default function Conversations({username,profilePicture,location,userid,setSelectedChatRoom,bgColor,color}) {
   return (
     <>
     
-    <List sx={{ width: '100%',bgcolor: 'background.paper' }}>
+    <List sx={{ width: '100%',bgcolor: bgColor,color:color,cursor:"pointer"}} onClick={()=>setSelectedChatRoom({'userid':userid,'username':username,'profilePicture':profilePicture})}>
       <ListItem alignItems="flex-start">
         <ListItemAvatar>
-          <Avatar alt="Remy Sharp" src="/static/images/avatar/1.jpg" />
+          <Avatar alt="Remy Sharp" src={profilePicture} />
         </ListItemAvatar>
         <ListItemText
           primary="Brunch this weekend?"
           secondary={
-            <React.Fragment>
-              <Typography
-                sx={{ display: 'inline' }}
-                component="span"
-                variant="body2"
-                color="text.primary"
-              >
-                Ali Connors
+            <>
+              <Typography sx={{ display: 'inline' ,bgcolor:bgColor,color:color}}component="span" variant="body2" color="text.primary">
+                {`${username} `}
               </Typography>
-              {" — I'll be in your neighborhood doing errands this…"}
-            </React.Fragment>
+              {location}
+            </>
           }
         />
       </ListItem>

@@ -17,7 +17,6 @@ import {SnackAlert} from '../components/SnackAlert'
 import { GlobalAlertContext } from '../context/globalAlert/GlobalAlertContext'
 import { BUCKET_URL} from '../envVariables'
 import { useNavigate } from 'react-router-dom'
-import { handleApiResponse } from '../utils/common'
 import theme from '../theme';
 import { ThemeContext } from '../context/Theme/ThemeContext';
 
@@ -54,7 +53,7 @@ export const Home =() => {
         if(hasMore){
             getFeed()
         }
-    },[page,loggedInUser])
+    },[page,loggedInUser.loggedInUser])
 
     useEffect(()=>{
         window.addEventListener("scroll", handelInfiniteScroll);
@@ -66,8 +65,8 @@ export const Home =() => {
     const handelInfiniteScroll = async() => {
         try{
             if (window.innerHeight + document.documentElement.scrollTop +1 >=document.documentElement.scrollHeight){
-                setLoading(true);
-                setPage((prev) => prev + 1);
+                    setLoading(true);
+                    setPage((prev) => prev + 1);
             }
         }
         catch(error){

@@ -1,9 +1,10 @@
-import {AppBar,Typography,styled,Stack, Avatar, useMediaQuery} from '@mui/material'
+import {AppBar,Typography,styled,Stack, Avatar, useMediaQuery, MenuItem, Menu, Button} from '@mui/material'
 import {alpha } from '@mui/material/styles';
 import Toolbar from '@mui/material/Toolbar';
+import * as React from 'react';
 import InputBase from '@mui/material/InputBase';
 import SearchIcon from '@mui/icons-material/Search';
-import { useContext } from 'react';
+import { useContext, useState } from 'react';
 import { loggedInUserContext } from '../context/user/Usercontext';
 import { Link } from 'react-router-dom';
 import PersistentDrawerLeft from './LeftbarMobile';
@@ -11,7 +12,8 @@ import { BUCKET_URL } from '../envVariables';
 import theme from '../theme';
 import { ThemeContext } from '../context/Theme/ThemeContext';
 
-
+const pages = ['Products', 'Pricing', 'Blog'];
+const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
 
 const Search = styled('div')(({ theme }) => ({
   position: 'relative',
@@ -67,6 +69,24 @@ export const Navbar = () => {
     color:color
   })
 
+  const [anchorElNav, setAnchorElNav] = React.useState(null);
+  const [anchorElUser, setAnchorElUser] = React.useState(null);
+
+  const handleOpenNavMenu = (event) => {
+    setAnchorElNav(event.currentTarget);
+  };
+  const handleOpenUserMenu = (event) => {
+    setAnchorElUser(event.currentTarget);
+  };
+
+  const handleCloseNavMenu = () => {
+    setAnchorElNav(null);
+  };
+
+  const handleCloseUserMenu = () => {
+    setAnchorElUser(null);
+  };
+
 
   const MD=useMediaQuery(theme.breakpoints.up("lg"))
   const loggedInUser=useContext(loggedInUserContext)
@@ -88,8 +108,32 @@ export const Navbar = () => {
             />
           </Search>
           <Stack direction={'row'} spacing={2} alignItems={'center'}>
-              <Avatar alt={loggedInUser.loggedInUser.username} src={`${BUCKET_URL}/${loggedInUser.loggedInUser.profilePicture}`} />
-              {/* <Typography variant='h5'>{`${loggedInUser.loggedInUser.username}`}</Typography> */}
+              <Avatar onClick={handleOpenUserMenu} alt={loggedInUser.loggedInUser.username} src={`${BUCKET_URL}/${loggedInUser.loggedInUser.profilePicture}`} />
+              
+              <Menu
+              id="menu-appbar"
+              anchorEl={anchorElNav}
+              anchorOrigin={{
+                vertical: 'bottom',
+                horizontal: 'left',
+              }}
+              keepMounted
+              transformOrigin={{
+                vertical: 'top',
+                horizontal: 'left',
+              }}
+              open={Boolean(anchorElNav)}
+              onClose={handleCloseNavMenu}
+              sx={{
+                display: { xs: 'block', md: 'none' },
+              }}
+            >
+              {pages.map((page) => (
+                <MenuItem key={page} onClick={handleCloseNavMenu}>
+                  <Typography textAlign="center">{page}</Typography>
+                </MenuItem>
+              ))}
+            </Menu>
           </Stack>
 
         </Customtoolbar>

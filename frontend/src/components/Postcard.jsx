@@ -15,7 +15,6 @@ import nocommentsanimation from '../animations/nocommentsanimation.json'
 import Lottie from "lottie-react";
 import GifBoxIcon from '@mui/icons-material/GifBox';
 import ReactGiphySearchbox from 'react-giphy-searchbox'
-import theme from '../theme';
 import { ThemeContext } from '../context/Theme/ThemeContext';
 
 
@@ -46,7 +45,8 @@ export const Postcard = ({username,caption,likesCount,imageUrl,unique_id,postedA
   const urlRegex = /(https?:\/\/[^\s]+)/;
 
 
-  const toggleComments = () => {
+  const toggleComments = (event) => {
+    event.stopPropagation()
     setShowComment({
       show: !showComment.show,
       cardHeight: is480? (showComment.show ? 550 : 1105):(showComment.show ? 700 : 1255)
@@ -111,7 +111,10 @@ export const Postcard = ({username,caption,likesCount,imageUrl,unique_id,postedA
   };
 
   // 401 handled✅
-  const handleSendComment = async (gifurl) => {
+  const handleSendComment = async (event,gifurl) => {
+    if(event!=='None'){
+      event.stopPropagation()
+    }
     setPostingComment(true)
     try {
       const response = await fetch(`${BASE_URL}/postcomment`, {
@@ -256,7 +259,8 @@ export const Postcard = ({username,caption,likesCount,imageUrl,unique_id,postedA
   };
 
   // 401 handled✅
-  const handleDelete=async()=>{
+  const handleDelete=async(e)=>{
+    e.stopPropagation()
     try {
       const response=await fetch(`${BASE_URL}/deletepost`,{
         method:"POST",
@@ -307,7 +311,8 @@ export const Postcard = ({username,caption,likesCount,imageUrl,unique_id,postedA
     setAnchorEl(null);
   };
 
-  const handleDeleteComment=async(commentId)=>{
+  const handleDeleteComment=async(e,commentId)=>{
+    e.stopPropagation()
     try {
       const response=await fetch(`${BASE_URL}/deletecomment`,{
         method:"POST",
@@ -368,7 +373,7 @@ export const Postcard = ({username,caption,likesCount,imageUrl,unique_id,postedA
         <MenuItem onClick={handleClose}>
           <Stack direction={'row'} justifyContent={'center'} alignItems={'center'} spacing={1}>
             <Typography color={'red'} variant="body1">Delete</Typography>
-            <IconButton onClick={handleDelete}>
+            <IconButton onClick={(e)=>handleDelete(e)}>
                 <Delete sx={{color:'red'}} />
             </IconButton>
           </Stack>
@@ -408,7 +413,7 @@ export const Postcard = ({username,caption,likesCount,imageUrl,unique_id,postedA
                 <Typography sx={{"cursor":"pointer",color:color}} onClick={()=>setLikeModalOpen({state:true,postid:unique_id,commentid:false})}>{likeCountState}</Typography>
             </IconButton>
 
-            <IconButton onClick={toggleComments} aria-label="share">
+            <IconButton onClick={(e)=>toggleComments(e)} aria-label="share">
               <Comment sx={{color:color}} />
               </IconButton>
               <Typography color={color}>{commentCountState}</Typography>
@@ -418,7 +423,7 @@ export const Postcard = ({username,caption,likesCount,imageUrl,unique_id,postedA
               <Box sx={{position:"absolute",bottom:50,right:0,zIndex:400}}>
                   <ReactGiphySearchbox sx={{}} apiKey={GIPHY_API_KEY} 
                                 onSelect={(item)=>{
-                                  handleSendComment(item.images.original_mp4.mp4)
+                                  handleSendComment('None',item.images.original_mp4.mp4)
                                   }} 
                                   masonryConfig={[
                                     { columns: LG?2:3, imageWidth: is380?160:is480?180:200, gutter: 1 },
@@ -463,7 +468,7 @@ export const Postcard = ({username,caption,likesCount,imageUrl,unique_id,postedA
                               <Typography sx={{"textDecoration":"none",color:isDarkTheme?theme.palette.common.white:'black'}} component={Link} to={`/profile/${comment.username}`}>{comment.user_id===loggedInUser.loggedInUser.userid?'You':comment.username}</Typography>
                               {
                                 comment.user_id===loggedInUser.loggedInUser.userid?(
-                                      <IconButton onClick={()=>handleDeleteComment(comment._id.$oid)}><Delete sx={{color:color}} fontSize="small"/></IconButton>
+                                      <IconButton onClick={(e)=>handleDeleteComment(e,comment._id.$oid)}><Delete sx={{color:color}} fontSize="small"/></IconButton>
                                 ):("")
                               } 
                         </Stack>
@@ -494,14 +499,16 @@ export const Postcard = ({username,caption,likesCount,imageUrl,unique_id,postedA
           <Stack mt={4}>
             <TextField  value={comment} onKeyDown={(e) => {
               if (e.key === 'Enter' && comment.trim() !== ''){
-              handleSendComment()
+              handleSendComment(e)
             }}} 
                       onChange={(e) => setComment(e.target.value)} sx={{
                         '& label.Mui-focused': { color }, // Change the label color when focused
                         '& .MuiOutlinedInput-root': {
                           '&.Mui-focused fieldset': { borderColor: color }, // Change the outline color when focused
                         },
-                      }} InputLabelProps={{style:{color}}} label="Add a comment..." variant="standard" InputProps={{style:{color},endAdornment: (<InputAdornment position="end"><IconButton onClick={()=>setGiphyModalOpen(!giphyModalOpen)}><GifBoxIcon sx={{color:'lightblue'}} fontSize="large"/></IconButton>
+                      }} InputLabelProps={{style:{color}}} label="Add a comment..." variant="standard" InputProps={{style:{color},endAdornment: (<InputAdornment position="end"><IconButton onClick={(e)=>{
+                        e.stopPropagation()
+                        setGiphyModalOpen(!giphyModalOpen)}}><GifBoxIcon sx={{color:'lightblue'}} fontSize="large"/></IconButton>
                     {comment.trim()!==''? (
                       postingComment?(
                         <LoadingButton
@@ -511,9 +518,9 @@ export const Postcard = ({username,caption,likesCount,imageUrl,unique_id,postedA
                           variant="text"
                         ></LoadingButton>
                       ):(
-                        <Button variant="text" onClick={handleSendComment}>
-                          <Send sx={{color:color}}/>
-                        </Button>
+                        <IconButton variant="text">
+                          <Send sx={{color:color}} onClick={(e)=>handleSendComment(e)}/>
+                        </IconButton>
                       )
                     ) : (
                       ""

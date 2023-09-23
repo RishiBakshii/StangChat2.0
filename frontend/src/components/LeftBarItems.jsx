@@ -97,12 +97,12 @@ export const LeftBarItems = () => {
         <ListItemText primary="Global Chat✨"/>
       </ListItemButton>
     </ListItem>
-    {/* <ListItem disablePadding>
+    <ListItem disablePadding>
       <ListItemButton component={Link} to={"/chats"}>
         <ListItemIcon><ForumIcon sx={{color:color}}/></ListItemIcon>
         <ListItemText primary="Chats"/>
       </ListItemButton>
-    </ListItem> */}
+    </ListItem>
 <Divider  sx={{bgcolor:color,opacity:`${isDarkTheme?'.1':''}`}}/>
 <ListItem disablePadding>
       <ListItemButton onClick={()=>{setLogoutModalOpen(true)}}>

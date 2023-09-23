@@ -20,6 +20,7 @@ import { useEffect } from "react";
 import { AWS_ACCESS_KEY, AWS_REGION, AWS_SECRET_KEY} from "./envVariables";
 import { ThemeState } from "./context/Theme/ThemeState";
 import { Chat } from "./screens/Chat";
+import { Firebasetest } from "./screens/Firebasetest";
 
 
 
@@ -57,7 +58,8 @@ function App() {
         <Route exact path="/leaderboard" element={<LeaderBoard/>}/>
         <Route exact path="/globalchat" element={<GlobalChat/>}/>
         <Route exact path="*" element={<NotFound/>}/>
-        {/* <Route exact path="/chats" element={<Chat/>}/> */}
+        {/* <Route exact path="/firetest" element={<Firebasetest/>}/> */}
+        <Route exact path="/chats" element={<Chat/>}/>
       </Routes>
     </Userstate>
     </Poststate>

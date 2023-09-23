@@ -153,7 +153,7 @@ export const Rightbar = () => {
                 loading?(<CircularProgress/>):(
                   suggestions.length!==0?(
                     suggestions.map((data)=>{
-                      return  <ListItem alignItems="flex-start">
+                      return  <ListItem key={data.id} alignItems="flex-start">
             <ListItemAvatar>
               <Avatar alt={data.username} component={Link} to={`/profile/${data.username}`} src={`${BUCKET_URL}/${data.profilePicture}`}/>
             </ListItemAvatar>
