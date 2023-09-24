@@ -6,25 +6,28 @@ import ListItemText from '@mui/material/ListItemText';
 import ListItemAvatar from '@mui/material/ListItemAvatar';
 import Avatar from '@mui/material/Avatar';
 import Typography from '@mui/material/Typography';
+import { Badge, Stack } from '@mui/material';
 
-export default function Conversations({username,profilePicture,location,userid,setSelectedChatRoom,bgColor,color}) {
+export default function Conversations({username,profilePicture,location,userid,setSelectedChatRoom,bgColor,color,unreadCount}) {
   return (
     <>
     
     <List sx={{ width: '100%',bgcolor: bgColor,color:color,cursor:"pointer"}} onClick={()=>setSelectedChatRoom({'userid':userid,'username':username,'profilePicture':profilePicture})}>
       <ListItem alignItems="flex-start">
         <ListItemAvatar>
-          <Avatar alt="Remy Sharp" src={profilePicture} />
+        <Badge badgeContent={unreadCount} color="info" anchorOrigin={{ vertical: 'top', horizontal: 'right' }}>
+          <Avatar alt={`${username} profile Avatar`} src={profilePicture} />
+        </Badge>
         </ListItemAvatar>
         <ListItemText
-          primary="Brunch this weekend?"
+          // primary="Brunch this weekend?"
           secondary={
-            <>
+            <Stack>
               <Typography sx={{ display: 'inline' ,bgcolor:bgColor,color:color}}component="span" variant="body2" color="text.primary">
                 {`${username} `}
               </Typography>
               {location}
-            </>
+            </Stack>
           }
         />
       </ListItem>
