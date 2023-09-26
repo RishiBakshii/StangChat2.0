@@ -8,11 +8,11 @@ import Avatar from '@mui/material/Avatar';
 import Typography from '@mui/material/Typography';
 import { Badge, Stack } from '@mui/material';
 
-export default function Conversations({username,profilePicture,location,userid,setSelectedChatRoom,bgColor,color,unreadCount}) {
+export default function Conversations({username,profilePicture,location,userid,setSelectedChatRoom,bgColor,color,unreadCount,fcmToken}) {
   return (
     <>
     
-    <List sx={{ width: '100%',bgcolor: bgColor,color:color,cursor:"pointer"}} onClick={()=>setSelectedChatRoom({'userid':userid,'username':username,'profilePicture':profilePicture})}>
+    <List sx={{ width: '100%',bgcolor: unreadCount>0?'':bgColor,color:color,cursor:"pointer"}} onClick={()=>setSelectedChatRoom({'userid':userid,'username':username,'profilePicture':profilePicture,'fcmToken':fcmToken})}>
       <ListItem alignItems="flex-start">
         <ListItemAvatar>
         <Badge badgeContent={unreadCount} color="info" anchorOrigin={{ vertical: 'top', horizontal: 'right' }}>

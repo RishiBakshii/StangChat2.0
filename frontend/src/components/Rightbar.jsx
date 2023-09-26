@@ -13,7 +13,7 @@ import { GlobalAlertContext } from "../context/globalAlert/GlobalAlertContext";
 
 
 
-export const Rightbar = () => {
+export const Rightbar = ({dms}) => {
   const {loggedInUser}=useContext(loggedInUserContext)
   const {setGlobalAlertOpen}=useContext(GlobalAlertContext)
   const {rightBarOpen}=useContext(rightBarContext)

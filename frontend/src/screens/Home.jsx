@@ -113,7 +113,7 @@ export const Home =() => {
                     {
                     feed.map((post) => 
                         (
-                        <Postcard key={post._id}
+                        <Postcard key={post._id.$oid}
                         username={post.username} 
                         caption={post.caption} 
                         likesCount={post.likesCount}

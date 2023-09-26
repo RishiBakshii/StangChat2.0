@@ -1,6 +1,7 @@
-
-importScripts("https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js");
-importScripts("https://www.gstatic.com/firebasejs/8.10.0/firebase-messaging.js");
+importScripts("https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js");
+importScripts(
+  "https://www.gstatic.com/firebasejs/10.0.0/firebase-messaging.js"
+);
 
 const firebaseConfig = {
   apiKey: "AIzaSyDf-ScgpQzZ0pVTO14q6hBvuvk8fQs3VWQ",
@@ -14,6 +15,7 @@ const firebaseConfig = {
 
 firebase.initializeApp(firebaseConfig);
 const messaging = firebase.messaging()
+messaging.subscribeToForeground()
 
 
 messaging.onBackgroundMessage((payload) => {
@@ -28,4 +30,29 @@ messaging.onBackgroundMessage((payload) => {
   };
 
   self.registration.showNotification(notificationTitle, notificationOptions);
+});
+
+
+messaging.onMessage((payload) => {
+  console.log("Foreground message received: ", payload);
+  const notification = new Notification(payload.notification.title, payload.notification.body);
+  notification.show();
+});
+
+// const messaging = firebase.messaging();
+
+messaging.onMessageReceived(function(payload) {
+  console.log('receiced')
+  // Display a foreground notification if the app is in the foreground.
+  if (document.visibilityState === 'visible') {
+    const notification = new Notification(payload.notification.title, {
+      body: payload.notification.body,
+      foreground: true
+    });
+
+    notification.addEventListener('click', function() {
+      // Handle notification click here.
+      console.log('baby!')
+    });
+  }
 });

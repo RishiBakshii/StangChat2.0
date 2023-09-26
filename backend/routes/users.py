@@ -292,7 +292,8 @@ def get_friends():
                         'userid':str(friend["_id"]),
                         "username": friend["username"],
                         "profilePicture": friend["profilePicture"],
-                        'location':friend['location']
+                        'location':friend['location'],
+                        'fcmToken':friend['fcmToken']
                     })
 
             return jsonify(common_friends_data),200

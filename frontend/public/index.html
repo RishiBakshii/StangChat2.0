@@ -27,7 +27,12 @@
 
    <!-- Canonical URL -->
   <link rel="canonical" href="https://www.stangchat.com" />
-
+  
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('firebase-messaging-sw.js');
+    }
+  </script>
 
   <script type="application/ld+json">
     {

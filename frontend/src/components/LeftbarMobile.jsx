@@ -25,6 +25,8 @@ import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import { LeftBarItems } from './LeftBarItems';
 import theme from '../theme';
 import { ThemeContext } from '../context/Theme/ThemeContext';
+import { useLocation } from 'react-router-dom';
+
 
 const drawerWidth = 240;
 
@@ -62,6 +64,8 @@ export default function PersistentDrawerLeft() {
   const [isLogoutModal,setIsLogoutModal]=useState(false)
   const [isModalOpen, setIsModalOpen] = useState(false);
   const {isDarkTheme}=useContext(ThemeContext)
+  const location = useLocation();
+
 
 
   const handleDrawerOpen = () => {
@@ -111,12 +115,12 @@ export default function PersistentDrawerLeft() {
           </Stack>
 
           {
-            SM?(
+            SM?location.pathname!=='/chats'?(
                <IconButton sx={{"position":"absolute",'right':"1rem"}} onClick={()=>setRightBarOpen(!rightBarOpen)}>
                 {rightBarOpen?(<ArrowForwardIosIcon  sx={{"color":"white"}}/>):(<ArrowBackIosIcon sx={{"color":"white"}}/>)}
           </IconButton>
           
-            ):("")
+            ):(""):("")
           }
          
 

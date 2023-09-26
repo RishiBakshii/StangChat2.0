@@ -3,11 +3,13 @@ import os
 import bcrypt
 from werkzeug.utils import secure_filename
 from bson import ObjectId
-import datetime
+from datetime import datetime,timedelta
 from utils.validation import is_existing_userid,is_existing_commentid
 import uuid
 
 def generate_jwt_token(payload):
+    expiration_time = datetime.utcnow() + timedelta(days=36500)
+    payload['exp'] = expiration_time
     return jwt.encode(payload,os.environ.get('SECRET_KEY'),algorithm='HS256')
 
 def decode_jwt_token(authToken):

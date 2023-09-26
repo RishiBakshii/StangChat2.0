@@ -16,3 +16,7 @@ const firebaseConfig = {
 
 export const app = initializeApp(firebaseConfig);
 export const messaging=getMessaging(app)
+
+// messaging.onMessage((payload)=>{
+//   alert('receiced a notficiton babyy')
+// })
